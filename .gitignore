@@ -1,0 +1,14 @@
+# сборки и временное
+build/
+shots/
+dl/
+*.tmp
+*.zip
+# кэш и временные файлы Godot
+godot/.godot/
+**/.tmp_*/
+godot/screenshots/
+# IDE и локальные настройки ассистентов
+.idea/
+.claude/
+.work/

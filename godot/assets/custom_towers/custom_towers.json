@@ -1,0 +1,1058 @@
+{
+  "towers": {
+    "arrow": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/arrow_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/arrow_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 48,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/arrow_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/arrow_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/arrow_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/arrow_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 48,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/arrow_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/arrow_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/arrow_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/arrow_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/arrow_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/arrow_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 55,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/arrow_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/arrow_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "beacon": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/beacon_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/beacon_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/beacon_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/beacon_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/beacon_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/beacon_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/beacon_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "mount": 55,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/beacon_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "cannon": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/cannon_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/cannon_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/cannon_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/cannon_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/cannon_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/cannon_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/cannon_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "mount": 55,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/cannon_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "ember": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/ember_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/ember_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/ember_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/ember_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/ember_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/ember_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/ember_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "mount": 55,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/ember_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "flak": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/flak_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/flak_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 48,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/flak_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/flak_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/flak_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/flak_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 48,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/flak_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/flak_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/flak_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/flak_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/flak_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/flak_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 55,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/flak_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/flak_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "frost": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/frost_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/frost_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/frost_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/frost_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/frost_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/frost_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/frost_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "mount": 55,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/frost_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "net": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/net_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/net_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 48,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/net_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/net_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/net_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/net_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 48,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/net_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/net_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/net_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/net_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/net_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/net_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 55,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/net_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/net_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "poison": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/poison_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/poison_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/poison_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/poison_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/poison_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/poison_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/poison_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "mount": 55,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/poison_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "sniper": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/sniper_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/sniper_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 48,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/sniper_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/sniper_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/sniper_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/sniper_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 48,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/sniper_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/sniper_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/sniper_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/sniper_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/sniper_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "impact": {
+            "cols": 3.0,
+            "display_size": 0.38,
+            "file": "res://assets/custom_towers/sniper_impact.png",
+            "fps": 24.0,
+            "frame": 48.0,
+            "frames": 3.0
+          },
+          "mount": 55,
+          "pixel_scale": 64,
+          "projectile": {
+            "cols": 1.0,
+            "custom": true,
+            "display_size": 0.55,
+            "file": "res://assets/custom_towers/sniper_projectile.png",
+            "forward_degrees": 0.0,
+            "frame": 48.0,
+            "frames": 1.0
+          },
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/sniper_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    },
+    "tesla": {
+      "levels": [
+        {
+          "base": "res://assets/custom_towers/tesla_base_1.png",
+          "base_size": [
+            64,
+            80
+          ],
+          "ground": 80,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/tesla_weapon_1.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/tesla_base_2.png",
+          "base_size": [
+            64,
+            96
+          ],
+          "ground": 96,
+          "mount": 48,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/tesla_weapon_2.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        },
+        {
+          "base": "res://assets/custom_towers/tesla_base_3.png",
+          "base_size": [
+            64,
+            112
+          ],
+          "branches": {
+            "a": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/tesla_weapon_3a.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            },
+            "b": {
+              "weapon": {
+                "cols": 1,
+                "file": "res://assets/custom_towers/tesla_weapon_3b.png",
+                "forward_degrees": -90,
+                "frame": 96,
+                "frame_h": 96,
+                "frames": 1,
+                "idle": 1
+              }
+            }
+          },
+          "ground": 112,
+          "mount": 55,
+          "pixel_scale": 64,
+          "weapon": {
+            "cols": 1,
+            "file": "res://assets/custom_towers/tesla_weapon_3a.png",
+            "forward_degrees": -90,
+            "frame": 96,
+            "frame_h": 96,
+            "frames": 1,
+            "idle": 1
+          }
+        }
+      ]
+    }
+  }
+}

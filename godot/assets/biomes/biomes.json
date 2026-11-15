@@ -1,0 +1,166 @@
+{
+	"biomes": {
+		"autumn": {
+			"castle": "res://assets/biomes/castle_autumn.png",
+			"ground": "res://assets/biomes/ground_autumn.png",
+			"ground_variants": [
+				"res://assets/biomes/ground_autumn.png",
+				"res://assets/biomes/ground_autumn_2.png",
+				"res://assets/biomes/ground_autumn_3.png"
+			],
+			"pixel_scale": 64,
+			"props": {
+				"bush": "res://assets/biomes/props/autumn_bush_v4.png",
+				"crystal": "res://assets/biomes/props/autumn_crystal_v4.png",
+				"oak": "res://assets/biomes/props/autumn_oak_v4.png",
+				"pine": "res://assets/biomes/props/autumn_pine_v4.png",
+				"rock1": "res://assets/biomes/props/autumn_rock1_v4.png",
+				"rock2": "res://assets/biomes/props/autumn_rock2_v4.png"
+			},
+			"road_surface": "res://assets/biomes/road_surface_autumn.png",
+			"roads": {
+				"corner_ld": "res://assets/biomes/roads/autumn_corner_ld.png",
+				"corner_lu": "res://assets/biomes/roads/autumn_corner_lu.png",
+				"corner_rd": "res://assets/biomes/roads/autumn_corner_rd.png",
+				"corner_ru": "res://assets/biomes/roads/autumn_corner_ru.png",
+				"road_h": "res://assets/biomes/roads/autumn_road_h.png",
+				"road_v": "res://assets/biomes/roads/autumn_road_v.png"
+			}
+		},
+		"dungeon": {
+			"castle": "res://assets/biomes/castle_dungeon.png",
+			"ground": "res://assets/biomes/ground_dungeon.png",
+			"ground_variants": [
+				"res://assets/biomes/ground_dungeon.png",
+				"res://assets/biomes/ground_dungeon_2.png",
+				"res://assets/biomes/ground_dungeon_3.png"
+			],
+			"pixel_scale": 64,
+			"props": {
+				"bush": "res://assets/biomes/props/dungeon_bush_v4.png",
+				"crystal": "res://assets/biomes/props/dungeon_crystal_v4.png",
+				"oak": "res://assets/biomes/props/dungeon_oak_v4.png",
+				"pine": "res://assets/biomes/props/dungeon_pine_v4.png",
+				"rock1": "res://assets/biomes/props/dungeon_rock1_v4.png",
+				"rock2": "res://assets/biomes/props/dungeon_rock2_v4.png"
+			},
+			"road_surface": "res://assets/biomes/road_surface_dungeon.png",
+			"roads": {
+				"corner_ld": "res://assets/biomes/roads/dungeon_corner_ld.png",
+				"corner_lu": "res://assets/biomes/roads/dungeon_corner_lu.png",
+				"corner_rd": "res://assets/biomes/roads/dungeon_corner_rd.png",
+				"corner_ru": "res://assets/biomes/roads/dungeon_corner_ru.png",
+				"road_h": "res://assets/biomes/roads/dungeon_road_h.png",
+				"road_v": "res://assets/biomes/roads/dungeon_road_v.png"
+			}
+		},
+		"forest": {
+			"castle": "res://assets/biomes/castle_forest.png",
+			"ground": "res://assets/biomes/ground_forest.png",
+			"ground_variants": [
+				"res://assets/biomes/ground_forest.png",
+				"res://assets/biomes/ground_forest_2.png",
+				"res://assets/biomes/ground_forest_3.png"
+			],
+			"pixel_scale": 64,
+			"props": {
+				"bush": "res://assets/biomes/props/forest_bush_v4.png",
+				"crystal": "res://assets/biomes/props/forest_crystal_v4.png",
+				"oak": "res://assets/biomes/props/forest_oak_v4.png",
+				"pine": "res://assets/biomes/props/forest_pine_v4.png",
+				"rock1": "res://assets/biomes/props/forest_rock1_v4.png",
+				"rock2": "res://assets/biomes/props/forest_rock2_v4.png"
+			},
+			"road_surface": "res://assets/biomes/road_surface_forest.png",
+			"roads": {
+				"corner_ld": "res://assets/biomes/roads/forest_corner_ld.png",
+				"corner_lu": "res://assets/biomes/roads/forest_corner_lu.png",
+				"corner_rd": "res://assets/biomes/roads/forest_corner_rd.png",
+				"corner_ru": "res://assets/biomes/roads/forest_corner_ru.png",
+				"road_h": "res://assets/biomes/roads/forest_road_h.png",
+				"road_v": "res://assets/biomes/roads/forest_road_v.png"
+			}
+		},
+		"swamp": {
+			"castle": "res://assets/biomes/castle_swamp.png",
+			"ground": "res://assets/biomes/ground_swamp.png",
+			"ground_variants": [
+				"res://assets/biomes/ground_swamp.png",
+				"res://assets/biomes/ground_swamp_2.png",
+				"res://assets/biomes/ground_swamp_3.png"
+			],
+			"pixel_scale": 64,
+			"props": {
+				"bush": "res://assets/biomes/props/swamp_bush_v4.png",
+				"crystal": "res://assets/biomes/props/swamp_crystal_v4.png",
+				"oak": "res://assets/biomes/props/swamp_oak_v4.png",
+				"pine": "res://assets/biomes/props/swamp_pine_v4.png",
+				"rock1": "res://assets/biomes/props/swamp_rock1_v4.png",
+				"rock2": "res://assets/biomes/props/swamp_rock2_v4.png"
+			},
+			"road_surface": "res://assets/biomes/road_surface_swamp.png",
+			"roads": {
+				"corner_ld": "res://assets/biomes/roads/swamp_corner_ld.png",
+				"corner_lu": "res://assets/biomes/roads/swamp_corner_lu.png",
+				"corner_rd": "res://assets/biomes/roads/swamp_corner_rd.png",
+				"corner_ru": "res://assets/biomes/roads/swamp_corner_ru.png",
+				"road_h": "res://assets/biomes/roads/swamp_road_h.png",
+				"road_v": "res://assets/biomes/roads/swamp_road_v.png"
+			}
+		},
+		"volcanic": {
+			"castle": "res://assets/biomes/castle_volcanic.png",
+			"ground": "res://assets/biomes/ground_volcanic.png",
+			"ground_variants": [
+				"res://assets/biomes/ground_volcanic.png",
+				"res://assets/biomes/ground_volcanic_2.png",
+				"res://assets/biomes/ground_volcanic_3.png"
+			],
+			"pixel_scale": 64,
+			"props": {
+				"bush": "res://assets/biomes/props/volcanic_bush_v4.png",
+				"crystal": "res://assets/biomes/props/volcanic_crystal_v4.png",
+				"oak": "res://assets/biomes/props/volcanic_oak_v4.png",
+				"pine": "res://assets/biomes/props/volcanic_pine_v4.png",
+				"rock1": "res://assets/biomes/props/volcanic_rock1_v4.png",
+				"rock2": "res://assets/biomes/props/volcanic_rock2_v4.png"
+			},
+			"road_surface": "res://assets/biomes/road_surface_volcanic.png",
+			"roads": {
+				"corner_ld": "res://assets/biomes/roads/volcanic_corner_ld.png",
+				"corner_lu": "res://assets/biomes/roads/volcanic_corner_lu.png",
+				"corner_rd": "res://assets/biomes/roads/volcanic_corner_rd.png",
+				"corner_ru": "res://assets/biomes/roads/volcanic_corner_ru.png",
+				"road_h": "res://assets/biomes/roads/volcanic_road_h.png",
+				"road_v": "res://assets/biomes/roads/volcanic_road_v.png"
+			}
+		},
+		"winter": {
+			"castle": "res://assets/biomes/castle_winter.png",
+			"ground": "res://assets/biomes/ground_winter.png",
+			"ground_variants": [
+				"res://assets/biomes/ground_winter.png",
+				"res://assets/biomes/ground_winter_2.png",
+				"res://assets/biomes/ground_winter_3.png"
+			],
+			"pixel_scale": 64,
+			"props": {
+				"bush": "res://assets/biomes/props/winter_bush_v4.png",
+				"crystal": "res://assets/biomes/props/winter_crystal_v4.png",
+				"oak": "res://assets/biomes/props/winter_oak_v4.png",
+				"pine": "res://assets/biomes/props/winter_pine_v4.png",
+				"rock1": "res://assets/biomes/props/winter_rock1_v4.png",
+				"rock2": "res://assets/biomes/props/winter_rock2_v4.png"
+			},
+			"road_surface": "res://assets/biomes/road_surface_winter.png",
+			"roads": {
+				"corner_ld": "res://assets/biomes/roads/winter_corner_ld.png",
+				"corner_lu": "res://assets/biomes/roads/winter_corner_lu.png",
+				"corner_rd": "res://assets/biomes/roads/winter_corner_rd.png",
+				"corner_ru": "res://assets/biomes/roads/winter_corner_ru.png",
+				"road_h": "res://assets/biomes/roads/winter_road_h.png",
+				"road_v": "res://assets/biomes/roads/winter_road_v.png"
+			}
+		}
+	}
+}

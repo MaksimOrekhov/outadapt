@@ -1,0 +1,174 @@
+{
+	"enemies": {
+		"basalt_tortoise": {
+			"file": "res://assets/custom_enemies/ground/basalt_tortoise.png",
+			"flying": false,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				42
+			]
+		},
+		"clampbeetle": {
+			"file": "res://assets/custom_enemies/flying/clampbeetle.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				38
+			]
+		},
+		"firebug": {
+			"file": "res://assets/custom_enemies/ground/firebug.png",
+			"flying": false,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				41
+			]
+		},
+		"firewasp": {
+			"file": "res://assets/custom_enemies/flying/firewasp.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				36
+			]
+		},
+		"flying_locust": {
+			"file": "res://assets/custom_enemies/flying/flying_locust.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				36
+			]
+		},
+		"frost_moth": {
+			"file": "res://assets/custom_enemies/flying/frost_moth.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				39
+			]
+		},
+		"leafbug": {
+			"file": "res://assets/custom_enemies/ground/leafbug.png",
+			"flying": false,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				40
+			]
+		},
+		"magma_crab": {
+			"file": "res://assets/custom_enemies/ground/magma_crab.png",
+			"flying": false,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				41
+			]
+		},
+		"rotcap": {
+			"file": "res://assets/custom_enemies/ground/rotcap.png",
+			"flying": false,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				42
+			]
+		},
+		"rune_drake": {
+			"file": "res://assets/custom_enemies/flying/rune_drake.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				41
+			]
+		},
+		"rune_guardian": {
+			"file": "res://assets/custom_enemies/ground/rune_guardian.png",
+			"flying": false,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				40
+			]
+		},
+		"scorpion": {
+			"file": "res://assets/custom_enemies/ground/scorpion.png",
+			"flying": false,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				39
+			]
+		},
+		"split_slime": {
+			"file": "res://assets/custom_enemies/ground/split_slime.png",
+			"flying": false,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				36
+			]
+		},
+		"splitwing": {
+			"file": "res://assets/custom_enemies/flying/splitwing.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				35
+			]
+		},
+		"sporebat": {
+			"file": "res://assets/custom_enemies/flying/sporebat.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				37
+			]
+		},
+		"stormray": {
+			"file": "res://assets/custom_enemies/flying/stormray.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				40
+			]
+		},
+		"voidbutterfly": {
+			"file": "res://assets/custom_enemies/flying/voidbutterfly.png",
+			"flying": true,
+			"forward_degrees": 90.0,
+			"frame": 64,
+			"pivot": [
+				32,
+				34
+			]
+		}
+	}
+}
