@@ -12,3 +12,7 @@ godot/screenshots/
 .idea/
 .claude/
 .work/
+
+# логи CI-прогона
+godot/check_*.log
+godot/import.log
