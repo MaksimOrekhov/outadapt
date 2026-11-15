@@ -64,22 +64,14 @@ static func swarm(g: TDGame, on_vaccine: Callable = Callable()) -> VBoxContainer
 				var d: Dictionary = TDConfig.TOWERS[k]
 				pv[1].add_child(TDUI.data_row(d["icon"], Color(d["color"]), d["name"], dmg / total, Color(d["color"]), "%d%%" % round(dmg / total * 100)))
 		v.add_child(pv[0])
-		# смещение
-		var shifts: Array = []
-		for k in TDGenome.GENES:
-			var dd: float = r["nextAvg"][k] - r["avg"][k]
-			if absf(dd) >= 0.04:
-				shifts.append([k, dd])
-		shifts.sort_custom(func(a, b): return absf(a[1]) > absf(b[1]))
-		if shifts.size() > 0:
+		# что изменилось, почему и чем ответить (по данным эволюции, без общих обещаний)
+		var entries := TDAdvisor.adaptation(g)
+		if entries.size() > 0:
 			var sv := _section("Рой изменился")
-			var sf := TDUI.flow(6)
-			for s in shifts.slice(0, 5):
-				var up: bool = s[1] > 0
-				sf.add_child(TDUI.chip("gene-" + String(s[0]), ("▲ " if up else "▼ ") + TDGenome.GENE_LABELS[s[0]], TDUI.BAD if up else TDUI.OK, TDGenome.GENE_HELP[s[0]]))
-			sv[1].add_child(sf)
-			for line in pressure_lines(r):
-				sv[1].add_child(TDUI.para(line, 12, Color("#c7b99e")))
+			for e in entries.slice(0, 5):
+				sv[1].add_child(_adaptation_row(e))
+			var note := TDUI.para("Сдвиг считается по среднему роя до и после отбора. Давление — доля твоего урона данного типа; оно лишь подталкивает ген, итог зависит ещё от отбора и лимита роя.", 11, TDUI.MUTED)
+			sv[1].add_child(note)
 			v.add_child(sv[0])
 	# гены
 	var gv := _section("Гены следующей волны")
@@ -121,6 +113,32 @@ static func swarm(g: TDGame, on_vaccine: Callable = Callable()) -> VBoxContainer
 	return v
 
 
+## Строка объяснения: цветной заголовок, причина и, если есть, башни-ответы.
+static func _adaptation_row(e: Dictionary) -> VBoxContainer:
+	var box := TDUI.vbox(3)
+	var grew: bool = e["verdict"] in ["pressure", "new", "drift"]
+	var color: Color = TDUI.BAD if grew else (TDUI.OK if e["verdict"] == "fading" else TDUI.MUTED)
+	var head := TDUI.hbox(6)
+	head.add_child(TDUI.icon("gene-" + String(e["gene"]), 18, color))
+	var line := TDUI.para(TDAdvisor.adaptation_line(e), 12, TDUI.TEXT)
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(line)
+	head.tooltip_text = TDGenome.GENE_HELP[e["gene"]]
+	box.add_child(head)
+	var counters: Array = e["counters"]
+	if counters.size() > 0:
+		var row := TDUI.hbox(6)
+		row.add_child(TDUI.label("Ответят:", 12, TDUI.GOLD))
+		for kind in counters:
+			var d: Dictionary = TDConfig.TOWERS[kind]
+			row.add_child(TDUI.icon(d["icon"], 16, Color(d["color"])))
+			row.add_child(TDUI.label(d["name"], 12, TDUI.TEXT))
+		box.add_child(row)
+	elif e["gene"] == "tough" and e["verdict"] != "fading":
+		box.add_child(TDUI.para("Здоровье не снижает ничей тип урона: нужен общий урон, улучшай башни.", 11, TDUI.MUTED))
+	return box
+
+
 static func vaccine_tip(g: TDGame) -> String:
 	return "Вакцина: выбранный ген не вырастет выше текущего среднего на %d волны (ближайшую и следующую). Цена растёт с номером волны. Одна за раз, затем пауза %d волны." % [TDConfig.VACCINE_WAVES, TDConfig.VACCINE_COOLDOWN]
 
@@ -140,26 +158,6 @@ static func vaccine_status(g: TDGame) -> Control:
 	var l := TDUI.para(text, 12, color)
 	l.tooltip_text = vaccine_tip(g)
 	return l
-
-
-const _PRESSURE_WHY := {
-	"plated": "был физическим — рой наращивает броню. Огонь плавит её, Снайпер пробивает.",
-	"ember": "был огнём — рой становится огнестойким. Добавь физический урон или лёд.",
-	"frost": "был льдом — рой привыкает к холоду. Добавь огонь или яд.",
-	"tough": "шёл сквозь броню (яд, молния) — рой копит здоровье.",
-}
-
-
-## Почему рой изменился: «64% урона было физическим — рой наращивает броню».
-static func pressure_lines(r: Dictionary) -> Array[String]:
-	var out: Array[String] = []
-	var press: Dictionary = r.get("pressure", {})
-	var keys := press.keys()
-	keys.sort_custom(func(a, b): return press[a] > press[b])
-	for k in keys:
-		if press[k] >= 0.3 and _PRESSURE_WHY.has(k) and out.size() < 2:
-			out.append("%d%% урона %s" % [round(press[k] * 100), _PRESSURE_WHY[k]])
-	return out
 
 
 static func _section(title: String) -> Array:

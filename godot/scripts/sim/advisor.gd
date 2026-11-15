@@ -266,3 +266,102 @@ static func rate_towers(g: TDGame, info: Dictionary) -> Dictionary:
 			note = "остановит лечение"
 		out[kind] = {"stars": stars, "note": note}
 	return out
+
+
+# ── Адаптация роя: что изменилось, почему и чем ответить ──────────
+
+## Какой урон толкает рой к какому гену (`TDGenome.TYPE_GENE`), словами для игрока.
+const ADAPT_WHY := {"plated": "физический урон", "ember": "огонь", "frost": "лёд", "tough": "яд и молния"}
+## Сдвиг среднего значения гена, начиная с которого говорим «вырос/упал».
+const SHIFT_MIN := 0.03
+## Доля урона данного типа, начиная с которой говорим «ты бил этим».
+const PRESSURE_MIN := 0.25
+
+
+## Башни, на которые ген не действует (урон проходит ≥ 80%), лучшие по урону в секунду на монету.
+## Считается по формулам урона, а не списком вручную, поэтому подсказка не расходится с боевой моделью.
+## Для здоровья ответа по типу урона нет (пусто).
+static func counters(gene: String, limit: int = 3) -> Array:
+	if not gene in ["plated", "ember", "frost"]:
+		return []
+	var g_hi := {}
+	var g_lo := {}
+	for k in TDGenome.GENES:
+		g_hi[k] = 1.0 if k == gene else 0.0
+		g_lo[k] = 0.0
+	var hi := TDGenome.phenotype(g_hi, 1)
+	var lo := TDGenome.phenotype(g_lo, 1)
+	var scored: Array = []
+	for kind in TDConfig.TOWER_KINDS:
+		var def: Dictionary = TDConfig.TOWERS[kind]
+		if def.has("aura") or def.get("net", false) or not def["ground"] or float(def["damage"]) <= 0.0:
+			continue
+		var base := TDGame.effective_damage(float(def["damage"]), def["type"], lo, {}, {}, float(def.get("pierce", 0.0)))
+		var against := TDGame.effective_damage(float(def["damage"]), def["type"], hi, {}, {}, float(def.get("pierce", 0.0)))
+		if def["type"] == "poison":
+			against = base
+		var pct: float = against / base if base > 0.0 else 0.0
+		if pct >= 0.8:
+			scored.append([kind, base * pct / float(def["cooldown"]) / float(def["cost"])])
+	scored.sort_custom(func(a, b): return a[1] > b[1])
+	var out: Array = []
+	for x in scored.slice(0, limit):
+		out.append(x[0])
+	return out
+
+
+## Объяснение последнего шага эволюции: по каждому гену, который заметно изменился или на который давили.
+## verdict: new — новый признак по расписанию; pressure — ты бил этим типом и ген вырос; drift — вырос без давления
+## (отбор и мутации); resisted — давил, но ген не вырос (отбор и лимит роя сильнее); fading — ген ослаб, этим типом почти не били;
+## vaccine — рост сдержан вакциной.
+static func adaptation(g: TDGame) -> Array:
+	if g.reports.is_empty():
+		return []
+	var r: Dictionary = g.reports[g.reports.size() - 1]
+	var mult: float = float(TDConfig.difficulty(g.meta)["adapt"])
+	var out: Array = []
+	for k in TDGenome.GENES:
+		var d: float = float(r["nextAvg"][k]) - float(r["avg"][k])
+		var share: float = float(r["pressure"].get(k, 0.0))
+		var verdict := ""
+		if g.vaccine.get("gene", "") == k and d < SHIFT_MIN:
+			verdict = "vaccine"
+		elif int(TDGenome.UNLOCK_WAVE.get(k, -1)) == int(r["wave"]) + 1 and d >= SHIFT_MIN:
+			verdict = "new"
+		elif d >= SHIFT_MIN:
+			verdict = "pressure" if share >= PRESSURE_MIN else "drift"
+		elif share >= PRESSURE_MIN:
+			verdict = "resisted"
+		elif d <= -2.0 * SHIFT_MIN and ADAPT_WHY.has(k) and share < 0.1:
+			verdict = "fading"
+		if verdict == "":
+			continue
+		out.append({"gene": k, "delta": d, "share": share, "push": TDGenome.ADAPT * share * mult, "verdict": verdict,
+			"why": ADAPT_WHY.get(k, ""), "counters": counters(k) if verdict in ["pressure", "resisted", "drift"] else []})
+	var order := {"pressure": 0, "new": 1, "resisted": 2, "drift": 3, "vaccine": 4, "fading": 5}
+	out.sort_custom(func(a, b):
+		if order[a["verdict"]] != order[b["verdict"]]:
+			return order[a["verdict"]] < order[b["verdict"]]
+		return absf(a["delta"]) > absf(b["delta"]))
+	return out
+
+
+## Одна строка про запись из `adaptation()`: без обещаний, которых нет в данных.
+static func adaptation_line(e: Dictionary) -> String:
+	var label: String = TDGenome.GENE_LABELS[e["gene"]]
+	var pct := roundi(absf(e["delta"]) * 100.0)
+	var share := roundi(e["share"] * 100.0)
+	match e["verdict"]:
+		"pressure":
+			return "▲ %s +%d%% — ты бил: %s, %d%% урона" % [label, pct, e["why"], share]
+		"new":
+			return "▲ %s +%d%% — новый признак по расписанию" % [label, pct]
+		"drift":
+			return "▲ %s +%d%% — отбор и мутации, давления нет" % [label, pct]
+		"resisted":
+			return "▬ %s без роста, хотя ты бил: %s, %d%% урона — рост сдержали отбор и лимит роя" % [label, e["why"], share] if e["delta"] > -SHIFT_MIN else "▼ %s −%d%%, хотя ты бил: %s, %d%% урона — отбор и лимит роя сильнее давления" % [label, pct, e["why"], share]
+		"fading":
+			return "▼ %s −%d%% — этим типом ты почти не бил" % [label, pct]
+		"vaccine":
+			return "▬ %s: рост блокирует вакцина" % label
+	return ""

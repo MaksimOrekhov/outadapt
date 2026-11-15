@@ -905,10 +905,6 @@ func _inspect_target() -> Dictionary:
 
 
 ## Баннеры начала и конца волны.
-## Какой урон толкает рой к какому гену (для пояснения «почему рой изменился»).
-const ADAPT_WHY := {"plated": "физический урон", "ember": "огонь", "frost": "лёд", "tough": "яд и молния"}
-
-
 func _watch_phase() -> void:
 	if game.phase == _last_phase:
 		return
@@ -926,24 +922,23 @@ func _watch_phase() -> void:
 		var r := TDPanels.last_report(game)
 		if not r.is_empty():
 			var sub := "убито %d из %d" % [r["killed"], r["size"]]
-			# главные сдвиги роя: игрок сразу видит, что его оборона вызвала ответ и почему
-			var shifts: Array = []
-			for k in TDGenome.GENES:
-				var dd: float = r["nextAvg"][k] - r["avg"][k]
-				if dd > 0.03:
-					shifts.append([k, dd])
-			shifts.sort_custom(func(x, y): return x[1] > y[1])
-			if not shifts.is_empty():
-				sub += "
+			# главные сдвиги роя: что выросло, почему и чем ответить (подробности — в панели «Рой», Tab)
+			var shown := 0
+			var answer: Array = []
+			for e in TDAdvisor.adaptation(game):
+				if e["verdict"] in ["pressure", "new", "drift"] and shown < 3:
+					if shown == 0:
+						sub += "
 Рой адаптируется:"
-				for i in mini(3, shifts.size()):
-					var k: String = shifts[i][0]
-					var line := "▲ %s +%d%%" % [TDGenome.GENE_LABELS[k], roundi(shifts[i][1] * 100.0)]
-					var share: float = float(r["pressure"].get(k, 0.0))
-					if ADAPT_WHY.has(k) and share >= 0.25:
-						line += " — ты бил: %s, %d%% урона" % [ADAPT_WHY[k], roundi(share * 100.0)]
 					sub += "
-" + line
+" + TDAdvisor.adaptation_line(e)
+					shown += 1
+					if answer.is_empty() and not e["counters"].is_empty():
+						for kind in e["counters"]:
+							answer.append(TDConfig.TOWERS[kind]["name"])
+			if not answer.is_empty():
+				sub += "
+Ответят: " + ", ".join(answer)
 			_banner("Волна %d пройдена" % r["wave"], sub, TDUI.OK)
 		_check_achievements()
 	if game.phase == "over":

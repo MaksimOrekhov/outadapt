@@ -31,7 +31,7 @@ Tower defence на Godot 4.7 + GDScript: враги эволюционируют
 
 ## CI
 
-`.github/workflows/godot-tests.yml` на каждый PR и push в `main` запускает на Linux и Windows все headless-проверки (`sanity`, `features_check`, `save_check`, `menu_check`, `audio_check`, `tower_levels_check`, `presentation_check`, `vaccine_check`, `map_check`) на Godot 4.7.2. Логи лежат в артефактах прогона. Локально то же самое: `GODOT=<путь к консольному Godot> bash tests/run_ci.sh [проверка ...]` из папки `godot` (сначала делает `--import`, затем гонит проверки; код выхода 1 при любой ошибке). Для блокировки merge включить required checks `Linux` и `Windows` в правилах ветки `main`.
+`.github/workflows/godot-tests.yml` на каждый PR и push в `main` запускает на Linux и Windows все headless-проверки (`sanity`, `features_check`, `save_check`, `menu_check`, `audio_check`, `tower_levels_check`, `presentation_check`, `vaccine_check`, `map_check`, `adaptation_check`) на Godot 4.7.2. Логи лежат в артефактах прогона. Локально то же самое: `GODOT=<путь к консольному Godot> bash tests/run_ci.sh [проверка ...]` из папки `godot` (сначала делает `--import`, затем гонит проверки; код выхода 1 при любой ошибке). Для блокировки merge включить required checks `Linux` и `Windows` в правилах ветки `main`.
 
 ## Windows release build
 
@@ -49,7 +49,7 @@ Tower defence на Godot 4.7 + GDScript: враги эволюционируют
 - **Режимы прицела**: «Первый», «Сильный», «Без эффекта» (для яда, льда, огня — сперва цели без их статуса).
 - **Связки**: лёд → +50% физического урона и +50% молнии; огонь → срез брони; яд → останавливает лечение; Маяк → видит невидимок и ускоряет соседей.
 - **Рой** (`genome.gd`): 10 генов. Отбор лучших 30% + направленная адаптация: доля урона каждого типа растит защищающий ген (`TYPE_GENE`, `ADAPT`).
-  Причина сдвига показывается в баннере конца волны и в панели «Рой». Новые признаки открываются по расписанию (`UNLOCK_WAVE`): лечение, полёт, невидимость, деление, щит.
+  Причина сдвига (давление игрока, новый признак, отбор или дрейф) и башни-ответы показываются в баннере конца волны и в панели «Рой»; логика в `TDAdvisor.adaptation()`, см. [docs/adaptation-ux.md](../docs/adaptation-ux.md). Новые признаки открываются по расписанию (`UNLOCK_WAVE`): лечение, полёт, невидимость, деление, щит.
 - **Вакцина (эксперимент PRO-117)**: между волнами за золото (`TDConfig.vaccine_cost`) выбранный ген роя не может превысить текущее среднее на 2 волны, затем пауза 2 волны. Подробности, числа и результаты: [docs/vaccine-experiment.md](../docs/vaccine-experiment.md). Проверка: `tests/vaccine_check.gd`.
 - **Карты** (`scripts/sim/map.gd`): сид выбирает семейство — змейка, вертикальная змейка, лесенка или крюки. Описание, совместимость и баланс: [docs/map-families.md](../docs/map-families.md). Проверка: `tests/map_check.gd`.
 - **Экономика**: награда за убийство, бонус за волну, проценты на накопленное (`INTEREST`, не больше `INTEREST_CAP`), перки каждые 3 волны и за босса.
