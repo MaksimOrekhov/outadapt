@@ -7,7 +7,7 @@
 - Renderer capture suite: 0 failures, **56 before + 56 after** PNG. JSON подтверждает одинаковые seed/wave/gold/lives и фактический размер окна для всех 56 пар; различается ожидаемый размер canvas старого UI.
 - Новый layout check проверяет 4 разрешения, все 14 состояний, min-size Label, ширину scroll content за вычетом scrollbar, bounds HUD/dock/popovers/modals и размеры icon-only targets. Существующий presentation-check теперь допускает необходимую вертикальную прокрутку и проверяет отсутствие горизонтального переполнения и сохранение области действий для 40 вариантов башен.
 - git diff --check: чисто.
-- Linux/Windows GitHub Actions: **ожидается запуск PR**; финальный результат и ссылки будут добавлены после завершения.
+- Linux/Windows GitHub Actions: **PASS на коде 91ce46b** со строгим runtime gate. [Linux](https://github.com/MaksimOrekhov/outadapt/actions/runs/43741486774/job/132895414025), [Windows](https://github.com/MaksimOrekhov/outadapt/actions/runs/43741486774/job/132895414410). [Актуальные checks PR #9](https://github.com/MaksimOrekhov/outadapt/pull/9/checks) относятся к последнему HEAD, включая последующие документационные коммиты.
 
 ## Реальный клиент / мышь и клавиатура
 
