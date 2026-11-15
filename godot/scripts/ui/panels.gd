@@ -42,7 +42,7 @@ static func advice(g: TDGame, tips: Array, on_pick: Callable) -> VBoxContainer:
 
 
 ## Сводка: итог прошлой волны, смещение роя, гены, перки.
-static func swarm(g: TDGame) -> VBoxContainer:
+static func swarm(g: TDGame, on_vaccine: Callable = Callable()) -> VBoxContainer:
 	var v := TDUI.vbox(12)
 	var r := last_report(g)
 	if r.is_empty():
@@ -84,9 +84,20 @@ static func swarm(g: TDGame) -> VBoxContainer:
 	# гены
 	var gv := _section("Гены следующей волны")
 	var avg := TDGenome.average_genome(g.upcoming)
+	gv[1].add_child(vaccine_status(g))
 	for k in TDGenome.GENES:
 		var row := TDUI.data_row("gene-" + k, Color.WHITE, TDGenome.GENE_LABELS[k], avg[k], TDUI.ACCENT, "%d%%" % round(minf(1.0, avg[k]) * 100))
 		row.tooltip_text = TDGenome.GENE_HELP[k]
+		if on_vaccine.is_valid():
+			var b := Button.new()
+			var problem := g.vaccine_problem(k)
+			var active: bool = g.vaccine.get("gene", "") == k
+			b.text = "Вакцина %d" % TDConfig.vaccine_cost(g.wave) if not active else "Действует"
+			b.disabled = problem != "" or active
+			b.tooltip_text = vaccine_tip(g) if problem == "" else problem
+			b.custom_minimum_size = Vector2(96, 0)
+			b.pressed.connect(on_vaccine.bind(k))
+			row.add_child(b)
 		gv[1].add_child(row)
 	v.add_child(gv[0])
 	# перки
@@ -108,6 +119,27 @@ static func swarm(g: TDGame) -> VBoxContainer:
 			pv2[1].add_child(row2)
 		v.add_child(pv2[0])
 	return v
+
+
+static func vaccine_tip(g: TDGame) -> String:
+	return "Вакцина: выбранный ген не вырастет выше текущего среднего на %d волны (ближайшую и следующую). Цена растёт с номером волны. Одна за раз, затем пауза %d волны." % [TDConfig.VACCINE_WAVES, TDConfig.VACCINE_COOLDOWN]
+
+
+## Строка состояния вакцины: что действует, сколько осталось, перезарядка.
+static func vaccine_status(g: TDGame) -> Control:
+	var text: String
+	var color: Color = TDUI.MUTED
+	if not g.vaccine.is_empty():
+		var gene: String = g.vaccine["gene"]
+		text = "Вакцина против «%s»: потолок %d%%, осталось волн: %d" % [TDGenome.GENE_LABELS[gene], round(float(g.vaccine["cap"]) * 100), g.vaccine["left"]]
+		color = TDUI.OK
+	elif g.vaccine_cd > 0:
+		text = "Вакцина перезаряжается: ещё %d" % g.vaccine_cd
+	else:
+		text = "Вакцина %d: блокирует рост одного гена на %d волны" % [TDConfig.vaccine_cost(g.wave), TDConfig.VACCINE_WAVES]
+	var l := TDUI.para(text, 12, color)
+	l.tooltip_text = vaccine_tip(g)
+	return l
 
 
 const _PRESSURE_WHY := {

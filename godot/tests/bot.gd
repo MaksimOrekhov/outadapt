@@ -16,6 +16,9 @@ var verbose := false
 var only := ""
 var difficulty := "normal"
 var mode := "standard"
+## Вакцина: off — не покупать; grow — против самого быстро растущего гена; threat — против полёта, невидимости, щита, лечения, деления; surplus — grow, но только на остаток золота после постройки.
+var vaccine_mode := "off"  # off | grow | threat | surplus (только на остаток золота после постройки)
+var vaccine_buys := 0
 
 const ALL: Array[String] = ["arrow", "frost", "ember", "poison", "arrow", "flak", "cannon", "tesla", "sniper", "beacon"]
 const COMBO: Array[String] = ["arrow", "frost", "arrow", "ember"]
@@ -44,6 +47,8 @@ func _init() -> void:
 			only = a.substr(7)
 		elif a == "--no-upgrades":
 			upgrades = false
+		elif a.begins_with("--vaccine="):
+			vaccine_mode = a.substr(10)
 		elif a.begins_with("--branch="):
 			branch_mode = a.substr(9)
 	var strategies := {
@@ -67,7 +72,8 @@ func _init() -> void:
 		var sum := 0.0
 		for r in results:
 			sum += float(r)
-		print("  => дошёл до волны: %s  среднее %.1f  (>%d = не проиграл)" % [", ".join(results), sum / results.size(), max_wave])
+		print("  => дошёл до волны: %s  среднее %.1f  (>%d = не проиграл)%s" % [", ".join(results), sum / results.size(), max_wave, ("  вакцин куплено: %d" % vaccine_buys) if vaccine_mode != "off" else ""])
+		vaccine_buys = 0
 	quit()
 
 
@@ -156,6 +162,28 @@ func _build_phase(g: TDGame, pick: Callable, cells: Array) -> void:
 			return
 
 
+## Бот покупает вакцину против самого быстро растущего гена (по отчёту прошлой волны).
+func _vaccinate(g: TDGame) -> void:
+	if vaccine_mode == "off" or g.reports.is_empty():
+		return
+	if vaccine_mode == "surplus" and g.gold < TDConfig.vaccine_cost(g.wave) + 60:
+		return
+	var r: Dictionary = g.reports[g.reports.size() - 1]
+	var best := ""
+	var best_growth := 0.05
+	for k in TDGenome.GENES:
+		if vaccine_mode == "threat" and not (k in ["wings", "veil", "ward", "regen", "split"]):
+			continue
+		var growth: float = float(TDGenome.average_genome(g.upcoming)[k]) - float(r["avg"][k])
+		if vaccine_mode == "threat":
+			growth = float(TDGenome.average_genome(g.upcoming)[k])
+		if growth > best_growth and g.vaccine_problem(k) == "":
+			best = k
+			best_growth = growth
+	if best != "" and g.buy_vaccine(best):
+		vaccine_buys += 1
+
+
 func _play(pick: Callable, seed_v: int, show: bool) -> int:
 	var g := TDGame.new(seed_v, null, {"difficulty": difficulty, "mode": mode})
 	var cells := _coverage_cells(g)
@@ -165,7 +193,11 @@ func _play(pick: Callable, seed_v: int, show: bool) -> int:
 		if g.phase == "build":
 			if not g.offer.is_empty():
 				g.choose_perk(g.offer[int(floor(perk_rng.next() * g.offer.size()))])
+			if vaccine_mode != "surplus":
+				_vaccinate(g)
 			_build_phase(g, pick, cells)
+			if vaccine_mode == "surplus":
+				_vaccinate(g)
 			g.start_wave()
 		g.step(DT)
 		if show and not g.reports.is_empty():

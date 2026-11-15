@@ -195,6 +195,16 @@ const PERKS: Array[Dictionary] = [
 ]
 
 const PERK_EVERY := 3
+
+# Вакцина: за золото между волнами выбранный ген не может вырасти выше потолка.
+# Потолок = среднее значение гена в последней сыгранной волне (запоминается при покупке).
+# Действует на ближайшую волну и на следующую за ней; одна вакцина за раз, затем пауза.
+const VACCINE_WAVES := 2
+const VACCINE_COOLDOWN := 2
+const VACCINE_BASE_COST := 40
+const VACCINE_WAVE_COST := 6
+## Против редких признаков (полёт, невидимость, лечение, деление, щит) вакцина доступна только через столько волн после их появления: нельзя «вычеркнуть» новую механику до знакомства с ней.
+const VACCINE_TRAIT_DELAY := 3
 const PERK_CHOICES := 3
 
 # Боссы: каждые N волн приходит «зеркало» твоей обороны.
@@ -279,6 +289,10 @@ static func boss_bonus(wave: int) -> int:
 
 static func wave_size(wave: int) -> int:
 	return 10 + int(floor(wave * 1.5))
+
+
+static func vaccine_cost(wave: int) -> int:
+	return VACCINE_BASE_COST + VACCINE_WAVE_COST * wave
 
 
 static func wave_bonus(wave: int) -> int:
