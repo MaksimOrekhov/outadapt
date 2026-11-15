@@ -1230,6 +1230,17 @@ func _run_demo(delta: float) -> void:
 				game.phase = "build"
 				game.buy_lure("plated")
 				_toggle_drawer()
+			"lurewave":
+				# волна с приманкой уже идёт: враги с золотой каймой (для кадров)
+				game.enemies.clear()
+				game.pending.clear()
+				game.pending_boss.clear()
+				game.phase = "build"
+				game.upcoming_boss = {}
+				game.upcoming_special = ""
+				if not game.buy_lure("plated"):
+					game.buy_lure("swift")
+				game.start_wave()
 			"wavereport":
 				# отчёт о последней волне: для кадров и проверки (нужен хотя бы один сыгранный отчёт)
 				game.enemies.clear()

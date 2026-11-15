@@ -272,6 +272,7 @@ func update(g: TDGame, info: Dictionary, threat: Dictionary, coverage: Dictionar
 		next_box.add_child(TDUI.mini_chip("gene-" + vg, TDUI.OK, "вакцина %d" % g.vaccine["left"], "Вакцина: «%s» не растёт выше %d%%. Осталось волн: %d" % [TDGenome.GENE_LABELS[vg], round(float(g.vaccine["cap"]) * 100), g.vaccine["left"]]))
 	if not g.lure.is_empty():
 		var lg: String = g.lure["gene"]
-		next_box.add_child(TDUI.mini_chip("coin", TDUI.GOLD, "приманка", "Приманка: «%s» +%d%% у врагов этой волны. Награда за пройденную волну около %d золота" % [TDGenome.GENE_LABELS[lg], round(float(g.lure["boost"]) * 100), g.lure_estimate()]))
+		var lpv := g.lure_preview(lg)
+		next_box.add_child(TDUI.mini_chip("coin", TDUI.GOLD, "приманка: " + TDGenome.GENE_LABELS[lg].to_lower(), "Приманка: у врагов этой волны %s. Под ударом %d%% твоего урона, награда до %d золота" % [lpv["effect"], roundi(float(lpv["risk"]) * 100.0), lpv["reward"]]))
 	if g.towers.size() >= 3 and coverage["pct"] < 0.65:
 		next_box.add_child(TDUI.mini_chip("target", TDUI.BAD, "%d%%" % round(coverage["pct"] * 100), "Только %d%% дороги под обстрелом. Красные клетки на дороге — дыры" % round(coverage["pct"] * 100)))

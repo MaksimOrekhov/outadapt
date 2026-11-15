@@ -162,22 +162,31 @@ static func _adaptation_row(e: Dictionary) -> VBoxContainer:
 
 
 static func lure_tip(g: TDGame, gene: String) -> String:
-	return "Приманка: «%s» у всех врагов следующей волны +%d%% (враги станут опаснее). Награда за пройденную волну: +%d%% её дохода, сейчас около %d золота. Одна за раз, затем пауза %d волна; не на боссовых и особых волнах." % [TDGenome.GENE_LABELS[gene], round(TDConfig.lure_boost(gene) * 100), round(TDConfig.LURE_SHARE * 100), g.lure_estimate(), TDConfig.LURE_COOLDOWN]
+	var pv := g.lure_preview(gene)
+	return ("Приманка на «%s»: у врагов следующей волны %s.\n"
+		+ "Под ударом %d%% твоего урона: награда пропорциональна этой доле, без неё золота нет.\n"
+		+ "Награда за пройденную волну: до %d золота (%d%% дохода волны × доля обороны × степень усиления).\n"
+		+ "Одна за раз, затем пауза %d волна; не на боссовых и особых волнах. Числа экспериментальные.") % [
+		TDGenome.GENE_LABELS[gene], pv["effect"], roundi(float(pv["risk"]) * 100.0), pv["reward"],
+		roundi(TDConfig.LURE_SHARE * 100.0), TDConfig.LURE_COOLDOWN]
 
 
-## Строка состояния приманки: выбрана, перезарядка или подсказка.
+## Строка состояния приманки: выбрана, перезарядка или подсказка. Показывает, чем волна отличается от обычной.
 static func lure_status(g: TDGame) -> Control:
 	var text: String
 	var color: Color = TDUI.MUTED
+	var tip := "Добровольный риск: враги волны становятся сильнее по выбранному гену, а при победе ты получаешь долю дохода волны. Чем больше твоей обороны затронуто, тем выше риск и награда."
 	if not g.lure.is_empty():
-		text = "Приманка «%s» +%d%%: награда за волну около %d золота" % [TDGenome.GENE_LABELS[g.lure["gene"]], round(float(g.lure["boost"]) * 100), g.lure_estimate()]
+		var pv := g.lure_preview(g.lure["gene"])
+		text = "Приманка «%s»: %s. Под ударом %d%% урона, награда до %d золота" % [TDGenome.GENE_LABELS[g.lure["gene"]], pv["effect"], roundi(float(pv["risk"]) * 100.0), pv["reward"]]
 		color = TDUI.GOLD
+		tip = lure_tip(g, g.lure["gene"])
 	elif g.lure_cd > 0:
 		text = "Приманка перезаряжается: ещё %d" % g.lure_cd
 	else:
-		text = "Приманка: усиль один ген следующей волны ради +%d%% золота волны" % round(TDConfig.LURE_SHARE * 100)
+		text = "Приманка: усиль один ген врагов следующей волны ради золота. Награда зависит от того, насколько он бьёт по твоей обороне"
 	var l := TDUI.para(text, 12, color)
-	l.tooltip_text = "Добровольный риск: ген растёт у всех врагов волны, а при победе ты получаешь долю дохода волны."
+	l.tooltip_text = tip
 	return l
 
 
@@ -228,6 +237,8 @@ static func trait_list(e: TDGame.Enemy) -> Array:
 		list.append(["gene-ward", Color("#8fd0ff"), "под щитом"])
 	if e.child:
 		list.append(["gene-split", Color("#e08af0"), "малыш"])
+	if e.lured_gene != "":
+		list.append(["coin", TDUI.GOLD, "приманка: %s" % TDGenome.GENE_LABELS[e.lured_gene]])
 	for t in TDBoard.TRAITS:
 		if e.genome[t[0]] >= 0.3 and not (e.boss and t[0] == "tough"):
 			list.append(["gene-" + String(t[0]), Color(t[1]), TDGenome.GENE_LABELS[t[0]]])

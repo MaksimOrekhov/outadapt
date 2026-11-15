@@ -71,7 +71,12 @@ func build() -> void:
 	if snap["bonus"] + snap["interest"] > 0:
 		chips.add_child(TDUI.chip("coin", "+%d золота" % (snap["bonus"] + snap["interest"]), TDUI.GOLD, "Бонус за волну %d, проценты %d" % [snap["bonus"], snap["interest"]]))
 	if not snap.get("lure", {}).is_empty():
-		chips.add_child(TDUI.chip("coin", "приманка +%d золота" % snap["lure"]["bonus"], TDUI.GOLD, "Награда за ген «%s», усиленный на эту волну" % TDGenome.GENE_LABELS[snap["lure"]["gene"]]))
+		var lr: Dictionary = snap["lure"]
+		var gname: String = TDGenome.GENE_LABELS[lr["gene"]]
+		if lr["bonus"] > 0:
+			chips.add_child(TDUI.chip("coin", "приманка +%d золота" % lr["bonus"], TDUI.GOLD, "«%s»: %d%% дохода волны (%d) × затронутая оборона %d%% × усиление гена %d%%" % [gname, roundi(TDConfig.LURE_SHARE * 100.0), lr["income"], roundi(lr["exposure"] * 100.0), roundi(lr["saturation"] * 100.0)]))
+		else:
+			chips.add_child(TDUI.chip("coin", "приманка без награды", TDUI.MUTED, "«%s»: твой урон почти не зависел от этого гена (затронуто %d%%) или ген уже был максимален — риска не было, награды тоже" % [gname, roundi(lr["exposure"] * 100.0)]))
 	v.add_child(chips)
 
 	var entries: Array = snap["entries"]
