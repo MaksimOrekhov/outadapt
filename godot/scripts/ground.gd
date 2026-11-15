@@ -13,6 +13,9 @@ var _road_native: Texture2D
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var grade := ShaderMaterial.new()
+	grade.shader = preload("res://assets/ui/terrain-grade.gdshader")
+	material = grade
 	_load_tiles()
 
 

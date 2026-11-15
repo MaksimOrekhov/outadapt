@@ -17,6 +17,11 @@ static func tex(icon_name: String) -> Texture2D:
 		portal.region = Rect2(0, 0, 128, 128)
 		_cache[icon_name] = portal
 		return portal
+	var glyph_path := "res://assets/ui/glyphs/" + icon_name + ".svg"
+	if ResourceLoader.exists(glyph_path):
+		t = load(glyph_path)
+		_cache[icon_name] = t
+		return t
 	var custom_path := "res://assets/ui/icon_" + icon_name + ".png"
 	if ResourceLoader.exists(custom_path):
 		t = load(custom_path)

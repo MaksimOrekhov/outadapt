@@ -10,8 +10,8 @@ signal tile_hovered(kind: String)
 signal upgrade_requested(branch: String)
 signal mode_requested(mode: String)
 
-const TILE := Vector2(62, 112)
-const COLS := 4
+const TILE := Vector2(88, 100)
+const COLS := 3
 
 var tiles: Dictionary = {}
 var _cat: String = "all"
@@ -27,42 +27,54 @@ var _sig: Dictionary = {}
 var _stat_max: Dictionary = {}
 var _tile_state: Dictionary = {}
 var _sell_on: bool = false
+var _catalog: VBoxContainer
+var _catalog_toggle: Button
+var _inspector_scroll: ScrollContainer
+var _has_tower := false
 
 
 func setup() -> void:
 	_stat_max = TDConfig.tower_stat_max()
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_theme_stylebox_override("panel", TDUI.skin("frame", 12))
-	custom_minimum_size = Vector2(288, 0)
+	custom_minimum_size = Vector2(320, 0)
 	var v := TDUI.vbox(5)
 	add_child(v)
 
 	# заголовок и вкладки
 	var head := TDUI.hbox(6)
-	head.add_child(TDUI.section_title("Башни"))
+	_catalog_toggle = TDUI.action("Башни  ▾", func():
+		_catalog.visible = not _catalog.visible)
+	_catalog_toggle.tooltip_text = "Открыть или свернуть каталог башен"
+	head.add_child(_catalog_toggle)
 	head.add_child(TDUI.spacer())
-	var hk := TDUI.label("Q / E — листать", 10, Color("#a49476"))
+	var hk := TDUI.label("Q / E — листать", 10, Color("#b5c4be"))
 	head.add_child(hk)
 	v.add_child(head)
-	var tabs := TDUI.hbox(4)
+	_catalog = TDUI.vbox(8)
+	_catalog.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	v.add_child(_catalog)
+	var tabs := TDUI.flow(4)
 	for c in TDConfig.CATEGORIES:
 		var b := Button.new()
 		b.text = c["name"]
-		b.focus_mode = Control.FOCUS_NONE
+		b.focus_mode = Control.FOCUS_ALL
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		b.add_theme_font_size_override("font_size", 12)
+		b.add_theme_font_size_override("font_size", 14)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var id: String = c["id"]
 		b.pressed.connect(func(): set_category(id))
 		_tab_btns[id] = b
 		tabs.add_child(b)
-	v.add_child(tabs)
+	_catalog.add_child(tabs)
 
 	# сетка плиток
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_scroll.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	v.add_child(_scroll)
+	_scroll.follow_focus = true
+	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_scroll.custom_minimum_size.y = TILE.y
+	_catalog.add_child(_scroll)
 	_grid = GridContainer.new()
 	_grid.columns = COLS
 	_grid.add_theme_constant_override("h_separation", 5)
@@ -75,23 +87,25 @@ func setup() -> void:
 
 	# режим продажи
 	_sell_btn = Button.new()
-	_sell_btn.focus_mode = Control.FOCUS_NONE
+	_sell_btn.focus_mode = Control.FOCUS_ALL
 	_sell_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_sell_btn.text = "X"
 	_sell_btn.icon = TDIcons.tex("sell")
 	_sell_btn.expand_icon = true
-	_sell_btn.add_theme_font_size_override("font_size", 12)
+	_sell_btn.add_theme_font_size_override("font_size", 14)
 	_sell_btn.pressed.connect(func(): sell_tool_selected.emit())
 	_sell_btn.tooltip_text = "Режим продажи: клик по башне продаёт её за %d%% цены. Правый клик продаёт всегда." % round(TDConfig.SELL_RATIO * 100)
 	head.add_child(_sell_btn)
 
 	# инспектор
-	var ip := TDUI.panel(Color("#1d1914"), Color("#5f4d36"), 10, 10)
+	var ip := TDUI.panel(Color("#101a1b"), Color("#5f4d36"), 10, 10)
 	ip.add_theme_stylebox_override("panel", TDUI.skin("inset", 10))
-	ip.custom_minimum_size = Vector2(0, 160)
+	ip.custom_minimum_size = Vector2(0, 96)
 	ip.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	# прокрутка: длинная карточка (ветки улучшений) не растягивает док выше окна
 	var isc := ScrollContainer.new()
+	_inspector_scroll = isc
+	isc.follow_focus = true
 	# SHOW_NEVER, а не DISABLED: иначе ширина содержимого растягивает весь док
 	isc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	isc.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -119,7 +133,7 @@ func setup() -> void:
 func _make_tile(kind: String, idx: int) -> Button:
 	var def: Dictionary = TDConfig.TOWERS[kind]
 	var b := Button.new()
-	b.focus_mode = Control.FOCUS_NONE
+	b.focus_mode = Control.FOCUS_ALL
 	b.custom_minimum_size = TILE
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.pressed.connect(func(): tool_selected.emit(kind))
@@ -135,7 +149,7 @@ func _make_tile(kind: String, idx: int) -> Button:
 	var col := TDUI.vbox(1)
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	m.add_child(col)
-	var ic := TDUI.tower_icon(kind, 56)
+	var ic := TDUI.tower_icon(kind, 44)
 	ic.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	col.add_child(ic)
 	var title := TDUI.label("Лучник" if kind == "arrow" else def["name"], 12, TDUI.TEXT, true)
@@ -189,9 +203,9 @@ func _update_tabs() -> void:
 	for id in _tab_btns:
 		var b: Button = _tab_btns[id]
 		var on: bool = id == _cat
-		b.add_theme_stylebox_override("normal", TDUI.sb(Color("#61502e") if on else Color("#2e271e"), Color("#c9a460") if on else Color("#66513a"), 1, 8, 6))
-		b.add_theme_stylebox_override("hover", TDUI.sb(Color("#78613a") if on else Color("#403322"), Color("#c9a460") if on else Color("#806440"), 1, 8, 6))
-		b.add_theme_stylebox_override("pressed", TDUI.sb(Color("#61502e"), Color("#c9a460"), 1, 8, 6))
+		b.add_theme_stylebox_override("normal", TDUI.sb(Color("#314b43") if on else Color("#26383a"), Color("#76c5a1") if on else Color("#465b59"), 1, 8, 6))
+		b.add_theme_stylebox_override("hover", TDUI.sb(Color("#3e5b50") if on else Color("#304447"), Color("#76c5a1") if on else Color("#465b59"), 1, 8, 6))
+		b.add_theme_stylebox_override("pressed", TDUI.sb(Color("#314b43"), Color("#76c5a1"), 1, 8, 6))
 		b.add_theme_color_override("font_color", Color.WHITE if on else TDUI.MUTED)
 	var shown := 0
 	for kind in tiles:
@@ -200,8 +214,7 @@ func _update_tabs() -> void:
 		t["btn"].visible = vis
 		if vis:
 			shown += 1
-	var rows := int(ceil(shown / float(_grid.columns)))
-	_scroll.custom_minimum_size = Vector2(0, minf(rows, 4) * (TILE.y + 6.0) - 6.0 if rows > 0 else 0.0)
+	_scroll.custom_minimum_size.y = TILE.y if shown > 0 else 0
 
 
 ## Обновляет плитки: цены, нехватку золота, рекомендации, выбор.
@@ -231,8 +244,8 @@ func refresh(g: TDGame, ratings: Dictionary, recommended: Dictionary, tool: Stri
 	var sell_on: bool = tool == "sell"
 	if sell_on != _sell_on:
 		_sell_on = sell_on
-		_sell_btn.add_theme_stylebox_override("normal", TDUI.sb(Color("#3a2630") if sell_on else Color("#2e271e"), Color("#ff9a8a") if sell_on else Color("#66513a"), 1, 8, 8))
-		_sell_btn.add_theme_stylebox_override("hover", TDUI.sb(Color("#4a2e3a") if sell_on else Color("#403322"), Color("#ff9a8a") if sell_on else Color("#806440"), 1, 8, 8))
+		_sell_btn.add_theme_stylebox_override("normal", TDUI.sb(Color("#3a2630") if sell_on else Color("#26383a"), Color("#ff9a8a") if sell_on else Color("#465b59"), 1, 8, 8))
+		_sell_btn.add_theme_stylebox_override("hover", TDUI.sb(Color("#4a2e3a") if sell_on else Color("#304447"), Color("#ff9a8a") if sell_on else Color("#465b59"), 1, 8, 8))
 		_sell_btn.add_theme_stylebox_override("pressed", TDUI.sb(Color("#3a2630"), Color("#ff9a8a"), 1, 8, 8))
 	_refresh_perks(g)
 
@@ -262,10 +275,9 @@ func _refresh_perks(g: TDGame) -> void:
 
 # ── инспектор ─────────────────────────────────────────────────
 
-## Однострочная подпись не растягивает док: лишнее обрезается многоточием, полный текст — в подсказке.
+## Wrap inspector text within the dock; full descriptions stay readable in its scroll body.
 func _fit(l: Label) -> Label:
-	l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	l.clip_text = true
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.custom_minimum_size.x = 20
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	l.tooltip_text = l.text
@@ -275,14 +287,14 @@ func _fit(l: Label) -> Label:
 func _small_btn(text: String, on: bool, tip: String) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.focus_mode = Control.FOCUS_NONE
+	b.focus_mode = Control.FOCUS_ALL
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	b.tooltip_text = tip
-	b.add_theme_font_size_override("font_size", 11)
+	b.add_theme_font_size_override("font_size", 14)
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.add_theme_stylebox_override("normal", TDUI.sb(Color("#61502e") if on else Color("#2e271e"), Color("#c9a460") if on else Color("#66513a"), 1, 6, 4))
-	b.add_theme_stylebox_override("hover", TDUI.sb(Color("#78613a") if on else Color("#403322"), Color("#c9a460"), 1, 6, 4))
-	b.add_theme_stylebox_override("pressed", TDUI.sb(Color("#61502e"), Color("#c9a460"), 1, 6, 4))
+	b.add_theme_stylebox_override("normal", TDUI.sb(Color("#314b43") if on else Color("#26383a"), Color("#76c5a1") if on else Color("#465b59"), 1, 6, 4))
+	b.add_theme_stylebox_override("hover", TDUI.sb(Color("#3e5b50") if on else Color("#304447"), Color("#76c5a1"), 1, 6, 4))
+	b.add_theme_stylebox_override("pressed", TDUI.sb(Color("#314b43"), Color("#76c5a1"), 1, 6, 4))
 	b.add_theme_color_override("font_color", Color.WHITE if on else TDUI.MUTED)
 	return b
 
@@ -293,7 +305,7 @@ func _mode_row(t: TDGame.Tower) -> VBoxContainer:
 	var head := TDUI.hbox(6)
 	head.add_child(TDUI.label("ЦЕЛЬ", 10, TDUI.MUTED, true))
 	head.add_child(TDUI.spacer())
-	head.add_child(TDUI.label("T — листать", 10, Color("#a49476")))
+	head.add_child(TDUI.label("T — листать", 10, Color("#b5c4be")))
 	v.add_child(head)
 	var row := TDUI.hbox(4)
 	for m in TDConfig.TARGET_MODES:
@@ -319,7 +331,7 @@ func _upgrade_box(g: TDGame, t: TDGame.Tower) -> Control:
 	var poor := g.gold < cost
 	if t.level == 1:
 		var btn := Button.new()
-		btn.focus_mode = Control.FOCUS_NONE
+		btn.focus_mode = Control.FOCUS_ALL
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn.text = "Улучшить  ·  %d   (U)" % cost
 		btn.icon = TDIcons.tex("coin")
@@ -337,7 +349,7 @@ func _upgrade_box(g: TDGame, t: TDGame.Tower) -> Control:
 	for b in TDConfig.BRANCHES.get(t.kind, []):
 		var id: String = b["id"]
 		var card := Button.new()
-		card.focus_mode = Control.FOCUS_NONE
+		card.focus_mode = Control.FOCUS_ALL
 		card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		card.custom_minimum_size = Vector2(0, 40)
@@ -345,13 +357,13 @@ func _upgrade_box(g: TDGame, t: TDGame.Tower) -> Control:
 		card.add_theme_stylebox_override("normal", TDUI.sb(Color("#30281c"), Color("#ffd35a") if not poor else Color("#665234"), 1, 8, 6))
 		card.add_theme_stylebox_override("hover", TDUI.sb(Color("#493b27"), Color("#ffe58a"), 1, 8, 6))
 		card.pressed.connect(func(): upgrade_requested.emit(id))
-		var cv := TDUI.vbox(2)
-		cv.set_anchors_preset(Control.PRESET_FULL_RECT)
-		cv.offset_left = 6
-		cv.offset_right = -6
-		cv.offset_top = 4
-		cv.offset_bottom = -4
+		var margin := MarginContainer.new()
+		for side in ["left", "right", "top", "bottom"]:
+			margin.add_theme_constant_override("margin_" + side, 8)
+		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var cv := TDUI.vbox(4)
 		cv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		margin.add_child(cv)
 		var top := TDUI.hbox(4)
 		top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		top.add_child(TDUI.icon(b["icon"], 16, TDUI.GOLD))
@@ -359,10 +371,14 @@ func _upgrade_box(g: TDGame, t: TDGame.Tower) -> Control:
 		cv.add_child(top)
 		top.add_child(TDUI.spacer())
 		top.add_child(TDUI.keycap(keys[id]))
-		var d := _fit(TDUI.label(b["desc"], 10, Color("#d6c9ad")))
+		var d := _fit(TDUI.label(b["desc"], 10, Color("#d5ded5")))
 		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		cv.add_child(d)
-		card.add_child(cv)
+		card.add_child(margin)
+		margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var fit_card := func(): card.custom_minimum_size.y = margin.get_combined_minimum_size().y
+		margin.minimum_size_changed.connect(fit_card)
+		fit_card.call()
 		row.add_child(card)
 	v.add_child(row)
 	return v
@@ -384,6 +400,10 @@ func _stat_row(label_text: String, v01: float, color: Color, value_text: String)
 ## target: {"tower": Tower} — стоящая башня, либо {"kind": String} — тип для покупки.
 func inspect(g: TDGame, target: Dictionary, ratings: Dictionary) -> void:
 	var tower: TDGame.Tower = target.get("tower")
+	if (tower != null) != _has_tower:
+		_has_tower = tower != null
+		_catalog.visible = not _has_tower
+		_catalog_toggle.text = "Башни  ▸" if _has_tower else "Башни  ▾"
 	var kind: String = tower.kind if tower != null else target.get("kind", "arrow")
 	var cost := g.tower_cost(kind)
 	var sig := "%s|%d|%d|%d|%d|%d|%s" % [kind, tower.id if tower != null else -1, int(tower.dealt) if tower != null else 0, tower.hits if tower != null else 0, cost, g.perks.size(), str(ratings.get(kind, {}))]
@@ -444,7 +464,7 @@ func inspect(g: TDGame, target: Dictionary, ratings: Dictionary) -> void:
 	tags_label.tooltip_text = tags
 	_inspector.add_child(tags_label)
 	if tower == null:
-		_inspector.add_child(TDUI.para(def["hint"], 13, Color("#d6c9ad")))
+		_inspector.add_child(TDUI.para(def["hint"], 13, Color("#d5ded5")))
 		if g.is_locked(kind):
 			_inspector.add_child(TDUI.para(unlock_text(kind), 12, TDUI.BAD))
 
@@ -458,7 +478,7 @@ func inspect(g: TDGame, target: Dictionary, ratings: Dictionary) -> void:
 			_inspector.add_child(_mode_row(tower))
 		_actions.add_child(_upgrade_box(g, tower))
 		var sb := Button.new()
-		sb.focus_mode = Control.FOCUS_NONE
+		sb.focus_mode = Control.FOCUS_ALL
 		sb.text = "Продать за %d" % gain
 		sb.icon = TDIcons.tex("sell")
 		sb.expand_icon = true
@@ -487,4 +507,4 @@ func inspect(g: TDGame, target: Dictionary, ratings: Dictionary) -> void:
 			_inspector.add_child(row)
 		_inspector.add_child(TDUI.spacer_v())
 		if g.towers.is_empty():
-			_actions.add_child(TDUI.para("Выбери башню (1–9, 0), затем клетку", 10, Color("#a49476")))
+			_actions.add_child(TDUI.para("Выбери башню (1–9, 0), затем клетку", 10, Color("#b5c4be")))

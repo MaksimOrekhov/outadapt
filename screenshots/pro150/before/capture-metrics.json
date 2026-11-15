@@ -1,0 +1,842 @@
+[
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "menu",
+		"wave": 1,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "settings",
+		"wave": 1,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 3066,
+		"lives": 953,
+		"seed": 777,
+		"state": "combat",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "upgrade",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "swarm",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "advice",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "wave-report",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "long-report",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "perks",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "help",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "workshop",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4912,
+		"lives": 953,
+		"seed": 777,
+		"state": "vaccine-lure",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4912,
+		"lives": 953,
+		"seed": 777,
+		"state": "vaccine-lure-actions",
+		"wave": 8,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "empty-swarm",
+		"wave": 1,
+		"window": [
+			960,
+			540
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "menu",
+		"wave": 1,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "settings",
+		"wave": 1,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 3066,
+		"lives": 953,
+		"seed": 777,
+		"state": "combat",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "upgrade",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "swarm",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "advice",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "wave-report",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "long-report",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "perks",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "help",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "workshop",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4912,
+		"lives": 953,
+		"seed": 777,
+		"state": "vaccine-lure",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4912,
+		"lives": 953,
+		"seed": 777,
+		"state": "vaccine-lure-actions",
+		"wave": 8,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "empty-swarm",
+		"wave": 1,
+		"window": [
+			1280,
+			720
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "menu",
+		"wave": 1,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "settings",
+		"wave": 1,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 3066,
+		"lives": 953,
+		"seed": 777,
+		"state": "combat",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "upgrade",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "swarm",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "advice",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "wave-report",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "long-report",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "perks",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "help",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "workshop",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4912,
+		"lives": 953,
+		"seed": 777,
+		"state": "vaccine-lure",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4912,
+		"lives": 953,
+		"seed": 777,
+		"state": "vaccine-lure-actions",
+		"wave": 8,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "empty-swarm",
+		"wave": 1,
+		"window": [
+			1600,
+			900
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "menu",
+		"wave": 1,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "settings",
+		"wave": 1,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 3066,
+		"lives": 953,
+		"seed": 777,
+		"state": "combat",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "upgrade",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "swarm",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "advice",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "wave-report",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "long-report",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "perks",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "help",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4616,
+		"lives": 953,
+		"seed": 777,
+		"state": "workshop",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4912,
+		"lives": 953,
+		"seed": 777,
+		"state": "vaccine-lure",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 4912,
+		"lives": 953,
+		"seed": 777,
+		"state": "vaccine-lure-actions",
+		"wave": 8,
+		"window": [
+			1920,
+			1080
+		]
+	},
+	{
+		"canvas": [
+			1600.0,
+			900.0
+		],
+		"gold": 110,
+		"lives": 20,
+		"seed": 777,
+		"state": "empty-swarm",
+		"wave": 1,
+		"window": [
+			1920,
+			1080
+		]
+	}
+]

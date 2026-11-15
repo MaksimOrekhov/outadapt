@@ -2,17 +2,17 @@ class_name TDUI
 extends RefCounted
 ## Палитра, тема и маленькие фабрики виджетов. Интерфейс строится кодом.
 
-const BG := Color("#171410")
-const PANEL := Color("#26221c")
-const PANEL2 := Color("#30291f")
-const PANEL3 := Color("#3b3023")
-const LINE := Color("#65513a")
-const TEXT := Color("#f1e5cb")
-const MUTED := Color("#baab8c")
-const GOLD := Color("#ffd35a")
-const BAD := Color("#ff6b7a")
-const OK := Color("#7ddc5a")
-const ACCENT := Color("#cda55f")
+const BG := Color("#101a1b")
+const PANEL := Color("#1b292b")
+const PANEL2 := Color("#26383a")
+const PANEL3 := Color("#304447")
+const LINE := Color("#465b59")
+const TEXT := Color("#f1ebdd")
+const MUTED := Color("#b5c4be")
+const GOLD := Color("#e2ba72")
+const BAD := Color("#f28b82")
+const OK := Color("#76c5a1")
+const ACCENT := Color("#e2ba72")
 
 static var font: Font
 static var font_bold: Font
@@ -21,13 +21,11 @@ static var font_bold: Font
 static func init_fonts() -> void:
 	if font != null:
 		return
-	var f := SystemFont.new()
-	f.font_names = PackedStringArray(["Segoe UI", "Inter", "Roboto", "Arial", "sans-serif"])
-	font = f
-	var b := SystemFont.new()
-	b.font_names = PackedStringArray(["Segoe UI Semibold", "Segoe UI", "Inter", "Roboto", "Arial", "sans-serif"])
-	b.font_weight = 650
-	font_bold = b
+	font = ThemeDB.fallback_font
+	var bold := FontVariation.new()
+	bold.base_font = font
+	bold.variation_embolden = 0.5
+	font_bold = bold
 
 
 static func sb(bg: Color, border: Color = Color(0, 0, 0, 0), bw: int = 0, radius: int = 10, pad: int = 10) -> StyleBoxFlat:
@@ -35,7 +33,7 @@ static func sb(bg: Color, border: Color = Color(0, 0, 0, 0), bw: int = 0, radius
 	s.bg_color = bg
 	s.border_color = border
 	s.set_border_width_all(bw)
-	s.set_corner_radius_all(mini(radius, 3))
+	s.set_corner_radius_all(mini(radius, 8))
 	s.content_margin_left = pad
 	s.content_margin_right = pad
 	s.content_margin_top = pad * 0.6
@@ -44,52 +42,78 @@ static func sb(bg: Color, border: Color = Color(0, 0, 0, 0), bw: int = 0, radius
 	return s
 
 
-static func skin(kind: String = "button", pad: int = 10) -> StyleBoxTexture:
-	var s := StyleBoxTexture.new()
-	s.texture = load("res://assets/ui/" + kind + ".png")
-	s.set_texture_margin_all(12 if kind in ["frame", "inset"] else 9)
-	s.content_margin_left = pad
-	s.content_margin_right = pad
-	s.content_margin_top = pad * 0.6
-	s.content_margin_bottom = pad * 0.6
-	return s
+static func skin(kind: String = "button", pad: int = 12) -> StyleBoxFlat:
+	var colors := {
+		"frame": [PANEL, LINE], "inset": [BG, LINE],
+		"button": [PANEL2, LINE], "hover": [PANEL3, ACCENT],
+		"selected": [Color("#314b43"), OK], "primary": [Color("#665336"), GOLD],
+	}
+	var pair: Array = colors.get(kind, colors["button"])
+	var style := sb(pair[0], pair[1], 1, 8, pad)
+	if kind == "frame":
+		style.shadow_color = Color(0, 0, 0, 0.25)
+		style.shadow_size = 12
+	return style
+
+
+static func primary(button: Button) -> void:
+	button.add_theme_stylebox_override("normal", skin("primary", 16))
+	button.add_theme_stylebox_override("hover", sb(Color("#806a43"), GOLD, 1, 8, 16))
+	button.add_theme_stylebox_override("pressed", sb(Color("#493e2b"), GOLD, 1, 8, 16))
+
+
+static func action(text: String, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.custom_minimum_size.y = 40
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.pressed.connect(callback)
+	return button
 
 
 static func make_theme() -> Theme:
 	init_fonts()
 	var t := Theme.new()
 	t.default_font = font
-	t.default_font_size = 14
+	t.default_font_size = 16
 	t.set_color("font_color", "Label", TEXT)
 	# Кнопки
 	t.set_stylebox("normal", "Button", skin("button", 12))
 	t.set_stylebox("hover", "Button", skin("hover", 12))
 	t.set_stylebox("pressed", "Button", skin("selected", 12))
+	t.set_stylebox("hover_pressed", "Button", skin("selected", 12))
+	t.set_font_size("font_size", "Button", 14)
+	t.set_constant("scrollbar_width", "VScrollBar", 10)
 	var disabled := skin("inset", 12)
-	disabled.modulate_color = Color(0.65, 0.65, 0.65)
+	disabled.bg_color = BG
 	t.set_stylebox("disabled", "Button", disabled)
 	var focus := skin("selected", 12)
-	focus.draw_center = false
+	focus.bg_color = Color.TRANSPARENT
+	focus.border_color = TEXT
+	focus.set_border_width_all(2)
 	t.set_stylebox("focus", "Button", focus)
 	t.set_color("font_color", "Button", TEXT)
 	t.set_color("font_hover_color", "Button", Color.WHITE)
 	t.set_color("font_pressed_color", "Button", Color.WHITE)
-	t.set_color("font_disabled_color", "Button", Color("#80745e"))
+	t.set_color("font_disabled_color", "Button", Color("#91a59b"))
 	t.set_color("icon_normal_color", "Button", Color.WHITE)
-	t.set_color("icon_disabled_color", "Button", Color("#80745e"))
+	t.set_color("icon_disabled_color", "Button", Color("#91a59b"))
 	t.set_constant("h_separation", "Button", 8)
 	t.set_constant("icon_max_width", "Button", 24)
 	# Подсказки
-	var tp := sb(Color("#181510"), Color("#9b7b49"), 1, 8, 10)
+	var tp := sb(Color("#101a1b"), Color("#76c5a1"), 1, 8, 10)
 	tp.shadow_size = 8
 	tp.shadow_color = Color(0, 0, 0, 0.5)
 	t.set_stylebox("panel", "TooltipPanel", tp)
 	t.set_color("font_color", "TooltipLabel", TEXT)
-	t.set_font_size("font_size", "TooltipLabel", 13)
+	t.set_font_size("font_size", "TooltipLabel", 14)
 	# Скроллбар
-	var grab := sb(Color("#706044"), Color(0, 0, 0, 0), 0, 4, 0)
-	var grab_h := sb(Color("#9b8051"), Color(0, 0, 0, 0), 0, 4, 0)
-	t.set_stylebox("scroll", "VScrollBar", sb(Color(0, 0, 0, 0.15), Color(0, 0, 0, 0), 0, 4, 0))
+	var grab := sb(Color("#465b59"), Color(0, 0, 0, 0), 0, 4, 0)
+	var grab_h := sb(Color("#76c5a1"), Color(0, 0, 0, 0), 0, 4, 0)
+	var scroll_track := sb(BG, LINE, 0, 4, 0)
+	scroll_track.content_margin_left = 5
+	scroll_track.content_margin_right = 5
+	t.set_stylebox("scroll", "VScrollBar", scroll_track)
 	t.set_stylebox("grabber", "VScrollBar", grab)
 	t.set_stylebox("grabber_highlight", "VScrollBar", grab_h)
 	t.set_stylebox("grabber_pressed", "VScrollBar", grab_h)
@@ -97,7 +121,7 @@ static func make_theme() -> Theme:
 	t.set_stylebox("panel", "PopupMenu", skin("frame", 12))
 	t.set_stylebox("hover", "PopupMenu", sb(Color("#65502c"), GOLD, 1, 2, 6))
 	t.set_color("font_color", "PopupMenu", TEXT)
-	var track := sb(Color("#181510"), LINE, 1, 2, 0)
+	var track := sb(Color("#101a1b"), LINE, 1, 2, 0)
 	track.content_margin_top = 3
 	track.content_margin_bottom = 3
 	var fill := track.duplicate() as StyleBoxFlat
@@ -127,7 +151,7 @@ static func clear(node: Node) -> void:
 static func label(text: String, size: int = 14, color: Color = TEXT, bold: bool = false) -> Label:
 	var l := Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_font_size_override("font_size", maxi(14, size))
 	l.add_theme_color_override("font_color", color)
 	if bold:
 		l.add_theme_font_override("font", font_bold)
@@ -150,8 +174,8 @@ static func icon(icon_name: String, size: float = 20.0, color: Color = Color.WHI
 	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	r.custom_minimum_size = Vector2(size, size)
-	r.modulate = Color.WHITE if icon_name == "portal" or ResourceLoader.exists("res://assets/ui/icon_" + icon_name + ".png") else color
-	r.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	r.modulate = Color.WHITE if icon_name == "portal" or (ResourceLoader.exists("res://assets/ui/icon_" + icon_name + ".png") and not ResourceLoader.exists("res://assets/ui/glyphs/" + icon_name + ".svg")) else color
+	r.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	return r
@@ -190,7 +214,7 @@ static func spacer() -> Control:
 
 
 ## Плашка с иконкой и текстом.
-static func chip(icon_name: String, text: String, color: Color = TEXT, tip: String = "", bg: Color = Color("#342b20")) -> PanelContainer:
+static func chip(icon_name: String, text: String, color: Color = TEXT, tip: String = "", bg: Color = PANEL2) -> PanelContainer:
 	var p := panel(bg, Color(color.r, color.g, color.b, 0.35), 20, 8, 1)
 	p.get_theme_stylebox("panel").content_margin_top = 3
 	p.get_theme_stylebox("panel").content_margin_bottom = 3
@@ -222,7 +246,7 @@ static func bar(value: float, color: Color, h: int = 8) -> ProgressBar:
 
 
 static func section_title(text: String) -> Label:
-	var l := label(text.to_upper(), 11, MUTED, true)
+	var l := label(text.to_upper(), 14, MUTED, true)
 	return l
 
 
@@ -230,13 +254,13 @@ static func section_title(text: String) -> Label:
 static func data_row(icon_name: String, icon_color: Color, text: String, value: float, bar_color: Color, value_text: String, dim: bool = false) -> HBoxContainer:
 	var r := hbox(8)
 	var left := hbox(6)
-	left.custom_minimum_size = Vector2(118, 0)
+	left.custom_minimum_size = Vector2(142, 0)
 	left.add_child(icon(icon_name, 16, icon_color))
 	left.add_child(label(text, 12, TEXT))
 	r.add_child(left)
 	r.add_child(bar(value, bar_color, 6))
 	var v := label(value_text, 12, TEXT, true)
-	v.custom_minimum_size = Vector2(38, 0)
+	v.custom_minimum_size = Vector2(44, 0)
 	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	r.add_child(v)
 	if dim:
@@ -246,7 +270,7 @@ static func data_row(icon_name: String, icon_color: Color, text: String, value: 
 
 ## Компактная плашка: иконка и (необязательно) короткое значение; детали в подсказке.
 static func mini_chip(icon_name: String, color: Color, short: String = "", tip: String = "") -> PanelContainer:
-	var p := panel(Color("#32291e"), Color(color.r, color.g, color.b, 0.5), 14, 7, 1)
+	var p := panel(PANEL2, Color(color.r, color.g, color.b, 0.5), 14, 7, 1)
 	var st: StyleBoxFlat = p.get_theme_stylebox("panel")
 	st.content_margin_top = 3
 	st.content_margin_bottom = 3
@@ -291,3 +315,22 @@ static func spacer_v() -> Control:
 	c.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return c
+
+
+## Bound native tooltip text before Godot creates its popup window.
+static func fit_tooltip(reference: WeakRef) -> void:
+	var control := reference.get_ref() as Control
+	if control == null or not control.is_inside_tree() or control.tooltip_text.is_empty(): return
+	if control is Label: control.mouse_filter = Control.MOUSE_FILTER_PASS
+	var width := minf(460, control.get_viewport_rect().size.x - 48)
+	var lines := PackedStringArray()
+	for paragraph in control.tooltip_text.split("\n"):
+		var line := ""
+		for word in paragraph.split(" "):
+			var candidate: String = word if line.is_empty() else line + " " + word
+			if font.get_string_size(candidate, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x > width and not line.is_empty():
+				lines.append(line)
+				line = word
+			else: line = candidate
+		lines.append(line)
+	control.tooltip_text = "\n".join(lines)

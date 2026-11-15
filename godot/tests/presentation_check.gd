@@ -103,10 +103,10 @@ func run_checks() -> void:
 			for frame in 3: await process_frame
 			var inspector: Control = scene.dock._inspector
 			var actions: Control = scene.dock._actions
-			dock_ok = dock_ok and inspector.get_combined_minimum_size().y <= inspector.get_parent().size.y + 1.0
+			dock_ok = dock_ok and inspector.get_combined_minimum_size().x <= inspector.get_parent().size.x + 1.0 and inspector.get_parent() is ScrollContainer
 			dock_ok = dock_ok and scene.dock.get_global_rect().encloses(actions.get_global_rect())
 			widths.append(scene.dock.size.x)
-	check("40 inspector variants: no scrolling, actions inside dock", dock_ok)
+	check("40 inspector variants: bounded scroll width, actions inside dock", dock_ok)
 	check("dock width remains constant", widths.max() - widths.min() < 0.5)
 	scene.game.offer.clear()
 	var key := InputEventKey.new()

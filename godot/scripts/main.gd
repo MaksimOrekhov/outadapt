@@ -7,7 +7,7 @@ extends Control
 
 const FIXED := 1.0 / 60.0
 const SETTINGS := "user://settings.cfg"
-const DRAWER_W := 380.0
+const DRAWER_W := 444.0
 ## Рамка вокруг поля в клетках: сверху нужен запас под высокие модели башен.
 const FIELD_PAD_X := 0.4
 const FIELD_PAD_TOP := 0.85
@@ -78,6 +78,10 @@ var advice_pop: PanelContainer
 var menu_pop: PanelContainer
 var drawer: PanelContainer
 var drawer_box: VBoxContainer
+var _drawer_context: WeakRef
+var _drawer_scroll_revision := 0
+var _drawer_scroll_pending := false
+var _drawer_scroll_target := 0
 var _active_pop: PanelContainer = null
 
 var info: Dictionary = {}
@@ -103,7 +107,7 @@ var _skip_to: int = 0
 
 func _ready() -> void:
 	theme = TDUI.make_theme()
-	get_window().min_size = Vector2i(1200, 700)
+	get_window().min_size = Vector2i(960, 540)
 	randomize()
 	seed_v = _pick_seed()
 	_parse_args()
@@ -124,7 +128,9 @@ func _ready() -> void:
 		audio.play_music(seed_v % TDAudio.MUSIC.size())
 	# щелчок на любой кнопке интерфейса, в том числе созданной позже
 	get_tree().node_added.connect(func(n: Node):
-		if n is BaseButton:
+		if n is Control:
+			TDUI.fit_tooltip.call_deferred(weakref(n))
+		if n is BaseButton and not (n as BaseButton).pressed.is_connected(audio.ui_click):
 			(n as BaseButton).pressed.connect(audio.ui_click))
 	_build_ui()
 	board.audio = audio
@@ -312,7 +318,8 @@ func _notification(what: int) -> void:
 func _btn(text: String = "", icon_name: String = "") -> Button:
 	var b := Button.new()
 	b.text = text
-	b.focus_mode = Control.FOCUS_NONE
+	b.focus_mode = Control.FOCUS_ALL
+	b.custom_minimum_size = Vector2(40, 40)
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	if icon_name != "":
 		b.icon = TDIcons.tex(icon_name)
@@ -382,7 +389,7 @@ func _build_ui() -> void:
 	arc.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	row.add_child(arc)
 	stage = Control.new()
-	stage.custom_minimum_size = Vector2(640, 400)
+	stage.custom_minimum_size = Vector2(240, 160)
 	stage.clip_contents = true
 	arc.add_child(stage)
 	# рамка вокруг поля: портал, замок и крайние башни не обрезаются краем
@@ -436,6 +443,17 @@ func _build_ui() -> void:
 	help_modal = _make_modal_root()
 	meta_modal = _make_modal_root()
 	wave_report_modal = _make_modal_root()
+	resized.connect(_resize_surfaces)
+	topbar.resized.connect(_resize_surfaces)
+
+
+func _resize_surfaces() -> void:
+	if drawer == null: return
+	_place_drawer()
+	if not wave_report.is_empty(): _wave_report.build()
+	if _active_pop != null:
+		var anchor: Control = topbar.advice_btn if _active_pop == advice_pop else topbar.menu_btn
+		_layout_popover(_active_pop, anchor)
 
 
 func _build_stage_widgets() -> void:
@@ -443,7 +461,8 @@ func _build_stage_widgets() -> void:
 	stage_hint = TDUI.panel(Color(0.05, 0.07, 0.11, 0.82), Color("#806440"), 12, 12)
 	var hh := TDUI.hbox(10)
 	hh.add_child(TDUI.icon("info", 18, TDUI.ACCENT))
-	hh.add_child(TDUI.label("Выбери башню слева и кликни по свободной клетке рядом с дорогой", 14, TDUI.TEXT))
+	hh.add_child(TDUI.para("Выбери башню слева, затем свободную клетку рядом с дорогой", 14, TDUI.TEXT))
+	stage_hint.custom_minimum_size.x = 280
 	stage_hint.add_child(hh)
 	stage_hint.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_MINSIZE, 16)
 	stage_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -471,7 +490,7 @@ func _make_overlay() -> Control:
 	o.set_anchors_preset(Control.PRESET_FULL_RECT)
 	o.visible = false
 	o.mouse_filter = Control.MOUSE_FILTER_STOP
-	stage.add_child(o)
+	add_child(o)
 	return o
 
 
@@ -486,20 +505,16 @@ func _make_modal_root() -> Control:
 
 
 func _make_popover(width: float) -> PanelContainer:
-	var p := TDUI.panel(Color("#282118"), Color("#806440"), 14, 14, 1)
-	var st: StyleBoxFlat = p.get_theme_stylebox("panel")
-	st.shadow_size = 20
-	st.shadow_color = Color(0, 0, 0, 0.55)
-	p.add_theme_stylebox_override("panel", TDUI.skin("frame", 14))
-	p.custom_minimum_size = Vector2(width, 0)
-	p.visible = false
-	pop_layer.add_child(p)
-	return p
+	var surface := TDModalSurface.new(width, 14)
+	surface.viewport_margin = Vector2(32, 160)
+	surface.visible = false
+	pop_layer.add_child(surface)
+	return surface
 
 
 func _build_menu() -> void:
 	var v := TDUI.vbox(6)
-	menu_pop.add_child(v)
+	_popover_content(menu_pop, v)
 	var items := [
 		["Главное меню", "Esc", "menu", func(): _show_front()],
 		["Сохранить игру", "", "info", func(): _show_front(); front.slots(true)],
@@ -549,8 +564,9 @@ func _build_drawer() -> void:
 	head.add_child(TDUI.spacer())
 	head.add_child(TDUI.label("Tab", 11, TDUI.MUTED, true))
 	var x := _btn("", "close")
+	x.name = "DrawerClose"
 	x.flat = true
-	x.custom_minimum_size = Vector2(32, 28)
+	x.custom_minimum_size = Vector2(40, 40)
 	x.pressed.connect(_toggle_drawer)
 	head.add_child(x)
 	v.add_child(head)
@@ -565,18 +581,33 @@ func _build_drawer() -> void:
 
 # ── поповеры ──────────────────────────────────────────────────
 
+func _popover_content(p: PanelContainer, content: Control) -> void:
+	var surface := p as TDModalSurface
+	TDUI.clear(surface.content)
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	surface.content.add_child(content)
+	surface.schedule_fit()
+
+
 func _show_popover(p: PanelContainer, anchor: Control) -> void:
 	_close_popovers()
 	_active_pop = p
 	pop_catcher.visible = true
 	p.visible = true
-	p.reset_size()
-	var gx := anchor.global_position.x + anchor.size.x - p.custom_minimum_size.x
-	p.position = Vector2(clampf(gx, 8.0, size.x - p.custom_minimum_size.x - 8.0), topbar.global_position.y + topbar.size.y + 6.0)
-	# текст с переносом узнаёт свою высоту только после первой раскладки
+	_layout_popover(p, anchor)
+
+
+func _layout_popover(p: PanelContainer, anchor: Control) -> void:
+	var surface := p as TDModalSurface
+	# Advice belongs to the field side of the HUD: never cover the tower inspector/actions.
+	var left := dock.get_global_rect().end.x + 12.0 if p == advice_pop else 16.0
+	surface.viewport_margin = Vector2(left + 16.0, topbar.size.y + 64.0)
+	surface.schedule_fit()
 	await get_tree().process_frame
-	if p.visible:
-		p.reset_size()
+	await get_tree().process_frame
+	if not p.visible or _active_pop != p: return
+	p.reset_size()
+	p.position = Vector2(clampf(anchor.global_position.x + anchor.size.x - p.size.x, left, size.x - p.size.x - 16), topbar.global_position.y + topbar.size.y + 8)
 
 
 func _close_popovers() -> void:
@@ -602,8 +633,7 @@ func _toggle_menu() -> void:
 
 
 func _build_advice() -> void:
-	TDUI.clear(advice_pop)
-	advice_pop.add_child(TDPanels.advice(game, tips, func(k: String):
+	_popover_content(advice_pop, TDPanels.advice(game, tips, func(k: String):
 		_set_tool(k)
 		_close_popovers()))
 	advice_pop.reset_size()
@@ -616,12 +646,14 @@ func _toggle_drawer() -> void:
 	_place_drawer()
 	if drawer.visible:
 		_build_drawer_content()
+		drawer.find_child("DrawerClose", true, false).grab_focus()
 
 
 func _place_drawer() -> void:
-	drawer.custom_minimum_size = Vector2(DRAWER_W, stage.size.y - 16.0)
+	var room := size - Vector2(32, topbar.size.y + 40)
+	drawer.custom_minimum_size = Vector2(minf(DRAWER_W, room.x), maxf(120, room.y))
 	drawer.size = drawer.custom_minimum_size
-	drawer.position = stage.global_position + Vector2(stage.size.x - DRAWER_W - 8.0, 8.0)
+	drawer.position = Vector2(size.x - drawer.size.x - 16, topbar.position.y + topbar.size.y + 12)
 
 
 func _on_lure(gene: String) -> void:
@@ -639,8 +671,28 @@ func _on_vaccine(gene: String) -> void:
 
 
 func _build_drawer_content() -> void:
+	var scroll := drawer_box.get_parent() as ScrollContainer
+	var changed_run: bool = _drawer_context == null or _drawer_context.get_ref() != game
+	_drawer_context = weakref(game)
+	if changed_run:
+		_drawer_scroll_target = 0
+		scroll.scroll_vertical = 0
+	elif not _drawer_scroll_pending:
+		_drawer_scroll_target = scroll.scroll_vertical
+	_drawer_scroll_revision += 1
+	_drawer_scroll_pending = true
 	TDUI.clear(drawer_box)
 	drawer_box.add_child(TDPanels.swarm(game, _on_vaccine, _on_lure))
+	_restore_drawer_scroll(_drawer_scroll_revision)
+
+
+func _restore_drawer_scroll(revision: int) -> void:
+	# Container layout may clamp its old range while the replacement content is measured.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if revision != _drawer_scroll_revision: return
+	(drawer_box.get_parent() as ScrollContainer).scroll_vertical = _drawer_scroll_target
+	_drawer_scroll_pending = false
 
 
 # ── ввод ──────────────────────────────────────────────────────
