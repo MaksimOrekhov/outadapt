@@ -19,6 +19,8 @@ var mode := "standard"
 ## Вакцина: off — не покупать; grow — против самого быстро растущего гена; threat — против полёта, невидимости, щита, лечения, деления; surplus — grow, но только на остаток золота после постройки.
 var vaccine_mode := "off"  # off | grow | threat | surplus (только на остаток золота после постройки)
 var vaccine_buys := 0
+## Принудительное семейство карт: --family=snake|vsnake|stairs|hooks (по умолчанию по сиду).
+var family := ""
 
 const ALL: Array[String] = ["arrow", "frost", "ember", "poison", "arrow", "flak", "cannon", "tesla", "sniper", "beacon"]
 const COMBO: Array[String] = ["arrow", "frost", "arrow", "ember"]
@@ -47,6 +49,8 @@ func _init() -> void:
 			only = a.substr(7)
 		elif a == "--no-upgrades":
 			upgrades = false
+		elif a.begins_with("--family="):
+			family = a.substr(9)
 		elif a.begins_with("--vaccine="):
 			vaccine_mode = a.substr(10)
 		elif a.begins_with("--branch="):
@@ -185,7 +189,7 @@ func _vaccinate(g: TDGame) -> void:
 
 
 func _play(pick: Callable, seed_v: int, show: bool) -> int:
-	var g := TDGame.new(seed_v, null, {"difficulty": difficulty, "mode": mode})
+	var g := TDGame.new(seed_v, TDMap.generate(seed_v, family), {"difficulty": difficulty, "mode": mode})
 	var cells := _coverage_cells(g)
 	var perk_rng := TDRng.new(seed_v * 7919) # бот берёт случайный перк из предложенных
 	var shown := 0
