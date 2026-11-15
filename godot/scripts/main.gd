@@ -17,6 +17,7 @@ const FIELD_PAD_BOTTOM := 0.4
 var _run_overlays = preload("res://scripts/ui/run_overlays.gd").new(self)
 var _workshop = preload("res://scripts/ui/workshop.gd").new(self)
 var _help_tutorial = preload("res://scripts/ui/help_tutorial.gd").new(self)
+var _wave_report = TDWaveReport.new(self)
 var _game_input = preload("res://scripts/ui/game_input.gd").new(self)
 
 var game: TDGame
@@ -32,6 +33,10 @@ var user_paused: bool = false
 ## Окно «Мастерской» (мета-прогрессия).
 var meta_open: bool = false
 var meta_modal: Control
+## Окно «Волна N пройдена»: снимок отчёта (пусто — закрыто) и баннеры, отложенные до закрытия.
+var wave_report_modal: Control
+var wave_report: Dictionary = {}
+var _banner_queue: Array = []
 var victory_overlay: Control
 ## Показан ли уже экран победы в этом забеге.
 var _victory_seen: bool = false
@@ -186,6 +191,8 @@ func _autosave() -> Error:
 
 
 func _show_front() -> void:
+	wave_report = {}
+	_banner_queue = []
 	var save_error := _autosave()
 	_close_popovers()
 	drawer.visible = false
@@ -284,6 +291,9 @@ func _load_slot(slot: int) -> bool:
 	topbar.set_paused(true)
 	pause_lbl.visible = true
 	victory_overlay.visible = false
+	wave_report = {}
+	_banner_queue = []
+	_update_modals()
 	_resume_from_front()
 	_refresh(true)
 	if not _demo:
@@ -425,6 +435,7 @@ func _build_ui() -> void:
 	tutorial_modal = _make_modal_root()
 	help_modal = _make_modal_root()
 	meta_modal = _make_modal_root()
+	wave_report_modal = _make_modal_root()
 
 
 func _build_stage_widgets() -> void:
@@ -671,6 +682,8 @@ func _cycle_speed() -> void:
 
 
 func _start_wave() -> void:
+	if not wave_report.is_empty():
+		return
 	game.start_wave()
 	_dirty = true
 
@@ -736,7 +749,7 @@ func _flash_hint(text: String) -> void:
 
 
 func _blocked() -> bool:
-	return (front != null and front.visible) or tutorial_step >= 0 or help_open or meta_open or victory_overlay.visible or not game.offer.is_empty()
+	return (front != null and front.visible) or tutorial_step >= 0 or help_open or meta_open or victory_overlay.visible or not game.offer.is_empty() or not wave_report.is_empty()
 
 
 func _on_cell_clicked(c: Vector2i, button: int) -> void:
@@ -813,6 +826,9 @@ func _restart(new_map: bool) -> void:
 	user_paused = false
 	topbar.set_paused(false)
 	pause_lbl.visible = false
+	wave_report = {}
+	_banner_queue = []
+	_update_modals()
 	board.set_game(game)
 	selected_tower = null
 	acc = 0.0
@@ -839,7 +855,7 @@ func _process(delta: float) -> void:
 		if _demo:
 			_run_demo(delta)
 		return
-	var paused := tutorial_step >= 0 or help_open or user_paused or meta_open or _active_pop == menu_pop or victory_overlay.visible
+	var paused := tutorial_step >= 0 or help_open or user_paused or meta_open or _active_pop == menu_pop or victory_overlay.visible or not wave_report.is_empty()
 	if not paused:
 		acc = minf(0.5, acc + minf(delta, 0.1) * speed)
 		while acc >= FIXED:
@@ -919,27 +935,9 @@ func _watch_phase() -> void:
 		else:
 			_banner("Волна %d" % game.wave, "%d врагов" % game.wave_genomes.size(), TDUI.TEXT)
 	elif game.phase == "build" and _last_phase == "wave":
-		var r := TDPanels.last_report(game)
-		if not r.is_empty():
-			var sub := "убито %d из %d" % [r["killed"], r["size"]]
-			# главные сдвиги роя: что выросло, почему и чем ответить (подробности — в панели «Рой», Tab)
-			var shown := 0
-			var answer: Array = []
-			for e in TDAdvisor.adaptation(game):
-				if e["verdict"] in ["pressure", "new", "drift"] and shown < 3:
-					if shown == 0:
-						sub += "
-Рой адаптируется:"
-					sub += "
-" + TDAdvisor.adaptation_line(e)
-					shown += 1
-					if answer.is_empty() and not e["counters"].is_empty():
-						for kind in e["counters"]:
-							answer.append(TDConfig.TOWERS[kind]["name"])
-			if not answer.is_empty():
-				sub += "
-Ответят: " + ", ".join(answer)
-			_banner("Волна %d пройдена" % r["wave"], sub, TDUI.OK)
+		# итог волны и объяснения адаптации: постоянное окно с кнопкой «ОК», а не баннер; в демо-режиме не нужно
+		if not _demo and game.phase == "build":
+			_wave_report.open(TDWaveReport.snapshot(game))
 		_check_achievements()
 	if game.phase == "over":
 		if not game.victory:
@@ -972,7 +970,28 @@ func _check_achievements() -> void:
 
 
 func _banner(text: String, sub: String, color: Color) -> void:
+	# пока открыто окно отчёта о волне, короткие баннеры ждут его закрытия, а не прячутся под затемнением
+	if not wave_report.is_empty():
+		_banner_queue.append([text, sub, color])
+		return
 	_run_overlays._banner(text, sub, color)
+
+
+func _open_wave_report(snap: Dictionary) -> void:
+	_wave_report.open(snap)
+
+
+func _close_wave_report() -> void:
+	_wave_report.close()
+
+
+func _fit_wave_report(fit: Callable) -> void:
+	fit.call()
+	call_deferred("_fit_wave_report_once", fit)
+
+
+func _fit_wave_report_once(fit: Callable) -> void:
+	fit.call()
 
 
 func _update_hover_widgets() -> void:
@@ -1196,6 +1215,13 @@ func _run_demo(delta: float) -> void:
 				_toggle_advice()
 			"swarm":
 				_toggle_drawer()
+			"wavereport":
+				# отчёт о последней волне: для кадров и проверки (нужен хотя бы один сыгранный отчёт)
+				game.enemies.clear()
+				game.pending.clear()
+				game.pending_boss.clear()
+				game.phase = "build"
+				_wave_report.open(TDWaveReport.snapshot(game))
 			"menu":
 				_toggle_menu()
 			"newgame":

@@ -8,7 +8,9 @@ func _init(owner: Control) -> void:
 
 func _update_overlays() -> void:
 	var offer_sig = ",".join(host.game.offer)
-	host.perk_overlay.visible = not host.game.offer.is_empty() and host.game.phase != "over"
+	# пока открыт отчёт о волне, усиление и победа ждут его закрытия: окна не накладываются
+	var report_open: bool = not host.wave_report.is_empty()
+	host.perk_overlay.visible = not host.game.offer.is_empty() and host.game.phase != "over" and not report_open
 	if host._sig_changed("perk_overlay", offer_sig):
 		TDUI.clear(host.perk_overlay)
 		if not host.game.offer.is_empty():
@@ -25,7 +27,7 @@ func _update_overlays() -> void:
 	var won = host.game.victory and not host._victory_seen and not over
 	if won and not host._banked_victory:
 		host._bank(false)
-	host.victory_overlay.visible = won
+	host.victory_overlay.visible = won and not report_open
 	if host._sig_changed("victory", str(won) + str(TDMeta.points)):
 		TDUI.clear(host.victory_overlay)
 		if won:
