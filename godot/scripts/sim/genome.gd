@@ -38,6 +38,12 @@ const ADAPT := 0.1
 ## Какой ген защищает от какого типа урона.
 const TYPE_GENE := {"physical": "plated", "fire": "ember", "frost": "frost", "poison": "tough", "shock": "tough"}
 
+## Только для диагностики баланса (tests/balance_audit.gd --swarm=...): отключает части эволюции,
+## чтобы измерить их вклад. "" — обычная игра; "no_press" — без направленной адаптации по типу урона;
+## "no_select" — родители выбираются без учёта fitness; "drift" — и то и другое.
+## В игре всегда "", поток rng и поведение по умолчанию не меняются.
+static var diag_evolution := ""
+
 
 ## Давление на рой: доля урона каждого типа -> ген, который от него защищает.
 ## Возвращает {ген: доля 0..1}.
@@ -117,8 +123,12 @@ static func evolve(parents: Array, size: int, wave: int, rng: TDRng, press: Dict
 		if a[0]["fitness"] != b[0]["fitness"]:
 			return a[0]["fitness"] > b[0]["fitness"]
 		return a[1] < b[1])
+	if diag_evolution in ["no_press", "drift"]:
+		press = {}
 	var pool: Array = []
 	var pool_n: int = maxi(2, int(ceil(indexed.size() * ELITE_SHARE)))
+	if diag_evolution in ["no_select", "drift"]:
+		pool_n = indexed.size()
 	for i in mini(pool_n, indexed.size()):
 		pool.append(indexed[i][0])
 	var out: Array = []

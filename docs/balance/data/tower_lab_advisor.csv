@@ -1,0 +1,141 @@
+profile,board,kind,stars,note
+w8_plain,empty,arrow,5,
+w8_plain,empty,cannon,4,
+w8_plain,empty,ember,4,
+w8_plain,empty,frost,1,
+w8_plain,empty,sniper,3,
+w8_plain,empty,poison,2,
+w8_plain,empty,flak,0,летающих нет
+w8_plain,empty,tesla,3,
+w8_plain,empty,beacon,2,+25% скорость соседям
+w8_plain,empty,net,0,летающих нет
+w8_plain,owner,arrow,4,
+w8_plain,owner,cannon,4,
+w8_plain,owner,ember,5,
+w8_plain,owner,frost,2,
+w8_plain,owner,sniper,3,
+w8_plain,owner,poison,1,
+w8_plain,owner,flak,0,летающих нет
+w8_plain,owner,tesla,3,
+w8_plain,owner,beacon,2,+25% скорость соседям
+w8_plain,owner,net,0,летающих нет
+w8_armor,empty,arrow,1,сопротивления съедают 83% урона
+w8_armor,empty,cannon,4,
+w8_armor,empty,ember,5,
+w8_armor,empty,frost,2,
+w8_armor,empty,sniper,4,
+w8_armor,empty,poison,3,
+w8_armor,empty,flak,0,летающих нет
+w8_armor,empty,tesla,4,
+w8_armor,empty,beacon,2,+25% скорость соседям
+w8_armor,empty,net,0,летающих нет
+w8_armor,owner,arrow,1,сопротивления съедают 83% урона
+w8_armor,owner,cannon,2,
+w8_armor,owner,ember,5,
+w8_armor,owner,frost,1,
+w8_armor,owner,sniper,2,
+w8_armor,owner,poison,1,
+w8_armor,owner,flak,0,летающих нет
+w8_armor,owner,tesla,2,
+w8_armor,owner,beacon,2,+25% скорость соседям
+w8_armor,owner,net,0,летающих нет
+w15_armor,empty,arrow,1,сопротивления съедают 83% урона
+w15_armor,empty,cannon,4,
+w15_armor,empty,ember,5,
+w15_armor,empty,frost,2,
+w15_armor,empty,sniper,4,
+w15_armor,empty,poison,3,
+w15_armor,empty,flak,0,летающих нет
+w15_armor,empty,tesla,4,
+w15_armor,empty,beacon,2,+25% скорость соседям
+w15_armor,empty,net,0,летающих нет
+w15_armor,owner,arrow,1,сопротивления съедают 83% урона
+w15_armor,owner,cannon,2,
+w15_armor,owner,ember,5,
+w15_armor,owner,frost,1,
+w15_armor,owner,sniper,2,
+w15_armor,owner,poison,1,
+w15_armor,owner,flak,0,летающих нет
+w15_armor,owner,tesla,2,
+w15_armor,owner,beacon,2,+25% скорость соседям
+w15_armor,owner,net,0,летающих нет
+w15_fast,empty,arrow,4,
+w15_fast,empty,cannon,5,
+w15_fast,empty,ember,5,
+w15_fast,empty,frost,2,
+w15_fast,empty,sniper,4,
+w15_fast,empty,poison,3,
+w15_fast,empty,flak,0,летающих нет
+w15_fast,empty,tesla,4,
+w15_fast,empty,beacon,2,+25% скорость соседям
+w15_fast,empty,net,0,летающих нет
+w15_fast,owner,arrow,2,
+w15_fast,owner,cannon,2,
+w15_fast,owner,ember,5,
+w15_fast,owner,frost,1,
+w15_fast,owner,sniper,2,
+w15_fast,owner,poison,1,
+w15_fast,owner,flak,0,летающих нет
+w15_fast,owner,tesla,2,
+w15_fast,owner,beacon,2,+25% скорость соседям
+w15_fast,owner,net,0,летающих нет
+w15_air,empty,arrow,4,
+w15_air,empty,cannon,0,все враги летят
+w15_air,empty,ember,5,
+w15_air,empty,frost,2,
+w15_air,empty,sniper,4,
+w15_air,empty,poison,3,
+w15_air,empty,flak,3,
+w15_air,empty,tesla,4,
+w15_air,empty,beacon,2,+25% скорость соседям
+w15_air,empty,net,1,сопротивления съедают 55% урона
+w15_air,owner,arrow,2,
+w15_air,owner,cannon,0,все враги летят
+w15_air,owner,ember,5,
+w15_air,owner,frost,1,
+w15_air,owner,sniper,2,
+w15_air,owner,poison,1,
+w15_air,owner,flak,2,
+w15_air,owner,tesla,2,
+w15_air,owner,beacon,2,+25% скорость соседям
+w15_air,owner,net,1,сопротивления съедают 55% урона
+w15_resist,empty,arrow,4,сопротивления съедают 46% урона
+w15_resist,empty,cannon,5,
+w15_resist,empty,ember,2,сопротивления съедают 68% урона
+w15_resist,empty,frost,1,сопротивления съедают 68% урона
+w15_resist,empty,sniper,4,
+w15_resist,empty,poison,3,
+w15_resist,empty,flak,0,летающих нет
+w15_resist,empty,tesla,4,
+w15_resist,empty,beacon,2,+25% скорость соседям
+w15_resist,empty,net,0,летающих нет
+w15_resist,owner,arrow,3,сопротивления съедают 46% урона
+w15_resist,owner,cannon,5,
+w15_resist,owner,ember,4,сопротивления съедают 68% урона
+w15_resist,owner,frost,1,сопротивления съедают 68% урона
+w15_resist,owner,sniper,3,
+w15_resist,owner,poison,2,
+w15_resist,owner,flak,0,летающих нет
+w15_resist,owner,tesla,3,
+w15_resist,owner,beacon,2,+25% скорость соседям
+w15_resist,owner,net,0,летающих нет
+w25_armor,empty,arrow,1,сопротивления съедают 83% урона
+w25_armor,empty,cannon,4,
+w25_armor,empty,ember,5,
+w25_armor,empty,frost,2,
+w25_armor,empty,sniper,4,
+w25_armor,empty,poison,3,
+w25_armor,empty,flak,0,летающих нет
+w25_armor,empty,tesla,4,
+w25_armor,empty,beacon,2,+25% скорость соседям
+w25_armor,empty,net,0,летающих нет
+w25_armor,owner,arrow,1,сопротивления съедают 83% урона
+w25_armor,owner,cannon,2,
+w25_armor,owner,ember,5,
+w25_armor,owner,frost,1,
+w25_armor,owner,sniper,2,
+w25_armor,owner,poison,1,
+w25_armor,owner,flak,0,летающих нет
+w25_armor,owner,tesla,2,
+w25_armor,owner,beacon,2,+25% скорость соседям
+w25_armor,owner,net,0,летающих нет
