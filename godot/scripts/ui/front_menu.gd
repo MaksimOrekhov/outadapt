@@ -11,6 +11,9 @@ var has_run := false
 var page := "home"
 var _content: VBoxContainer
 var _panel: PanelContainer
+var _menu_scroll: ScrollContainer
+var _home_buttons: GridContainer
+var _crest: TextureRect
 var _notice: Label
 var _pending: Callable
 var _audio_before: Dictionary
@@ -36,29 +39,42 @@ func setup(sound: TDAudio) -> void:
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	var shade := ColorRect.new()
-	shade.color = Color(0.025, 0.02, 0.015, 0.18)
+	shade.color = Color(0.025, 0.06, 0.06, 0.32)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 52)
+		margin.add_theme_constant_override("margin_" + side, 24)
 	add_child(margin)
 	var row := TDUI.hbox()
 	margin.add_child(row)
 	_panel = PanelContainer.new()
-	_panel.add_theme_stylebox_override("panel", TDUI.skin("frame", 28))
+	_panel.add_theme_stylebox_override("panel", TDUI.skin("frame", 24))
 	_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(_panel)
 	_content = TDUI.vbox(10)
-	_panel.add_child(_content)
+	_menu_scroll = ScrollContainer.new()
+	_menu_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_menu_scroll.follow_focus = true
+	_panel.add_child(_menu_scroll)
+	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_menu_scroll.add_child(_content)
+	_content.minimum_size_changed.connect(_fit_menu)
+	resized.connect(_fit_menu)
 	row.add_child(TDUI.spacer())
 	visible = false
 
+func _fit_menu() -> void:
+	if not is_instance_valid(_content): return
+	if is_instance_valid(_home_buttons): _home_buttons.columns = 2 if size.y < 760 else 1
+	if is_instance_valid(_crest): _crest.visible = size.y >= 760
+	_menu_scroll.custom_minimum_size.y = minf(_content.get_combined_minimum_size().y, maxf(80, size.y - 80))
+
 func _begin(title: String, width: float = 440) -> void:
 	TDUI.clear(_content)
-	_panel.custom_minimum_size.x = width
+	_panel.custom_minimum_size.x = minf(width, size.x - 48)
 	_panel.reset_size()
 	_content.add_child(TDUI.label(title, 29, TDUI.TEXT, true))
 	_notice = null
@@ -75,8 +91,7 @@ func _button(text: String, icon: String, callback: Callable, primary := false, d
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.disabled = disabled
 	if primary:
-		button.add_theme_stylebox_override("normal", TDUI.skin("primary", 16))
-		button.add_theme_stylebox_override("hover", TDUI.skin("selected", 16))
+		TDUI.primary(button)
 	button.pressed.connect(callback)
 	_content.add_child(button)
 	return button
@@ -94,7 +109,16 @@ func home(active: bool, text := "") -> void:
 	has_run = active
 	page = "home"
 	_pending = Callable()
-	_begin("OUTADAPT", 440)
+	_begin("OUTADAPT", 480)
+	var crest := TextureRect.new()
+	_crest = crest
+	crest.texture = preload("res://assets/ui/bastion-crest.svg")
+	crest.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	crest.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	crest.custom_minimum_size = Vector2(56, 56)
+	crest.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_content.add_child(crest)
+	_content.move_child(crest, 0)
 	_content.add_child(TDUI.label("ВРАГИ УЧАТСЯ", 25, TDUI.GOLD, true))
 	_content.add_child(TDUI.para("Построй защиту. Останови рой.\nКаждая волна учится у предыдущей.", 14, TDUI.MUTED))
 	_content.add_child(HSeparator.new())
@@ -108,6 +132,17 @@ func home(active: bool, text := "") -> void:
 	_button("Достижения  %d / %d" % [done, TDMeta.ACHIEVEMENTS.size()], "star", achievements_page)
 	_button("Настройки", "menu", settings)
 	_button("Выйти из игры", "portal", func(): confirm("Выйти из игры?", "Текущий забег будет автоматически сохранён." if has_run else "До следующей битвы!", func(): action_requested.emit("quit", -1)))
+	_home_buttons = GridContainer.new()
+	_home_buttons.columns = 2 if size.y < 760 else 1
+	_home_buttons.add_theme_constant_override("h_separation", 8)
+	_home_buttons.add_theme_constant_override("v_separation", 8)
+	_content.add_child(_home_buttons)
+	for child in _content.get_children():
+		if child is Button:
+			_content.remove_child(child)
+			child.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			_home_buttons.add_child(child)
+	_crest.visible = size.y >= 760
 	message(text if text != "" else "Esc — вернуться к забегу" if active else "Выбери новую игру или загрузи сохранение.")
 	if resume.disabled:
 		new_game.grab_focus()
@@ -174,7 +209,7 @@ func new_game_page() -> void:
 	_content.add_child(diff_row)
 	diff_text.text = _diff_info(options["difficulty"])
 	_content.add_child(diff_text)
-	var note := TDUI.para("Карта дня всегда идёт на обычной сложности. Новые карты открываются по мере прохождения: зима, болото, вулкан и подземелье.", 12, Color("#a49476"))
+	var note := TDUI.para("Карта дня всегда идёт на обычной сложности. Новые карты открываются по мере прохождения: зима, болото, вулкан и подземелье.", 12, Color("#b5c4be"))
 	_content.add_child(note)
 	_button("Начать", "play", func():
 		if options["mode"] == "daily":
@@ -219,7 +254,7 @@ func achievements_page() -> void:
 		var line: String = a["desc"]
 		if a["unlock"] != "":
 			line += " · " + a["unlock"]
-		col.add_child(TDUI.para(line, 12, Color("#c7b99e") if got else Color("#8a7d66")))
+		col.add_child(TDUI.para(line, 12, Color("#b5c4be") if got else Color("#8a7d66")))
 		row.add_child(col)
 		row.add_child(TDUI.label("✓" if got else "+%d" % a["reward"], 15, TDUI.OK if got else TDUI.GOLD, true))
 		list.add_child(row)
@@ -303,7 +338,7 @@ func settings() -> void:
 	_resolution = OptionButton.new()
 	_sizes.clear()
 	var screen := DisplayServer.screen_get_size(get_window().current_screen)
-	for candidate in [Vector2i(1200, 700), Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440), Vector2i(3840, 2160)]:
+	for candidate in [Vector2i(960, 540), Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440), Vector2i(3840, 2160)]:
 		if candidate.x <= screen.x and candidate.y <= screen.y:
 			_sizes.append(candidate)
 	var current: Vector2i = TDDisplay.values["resolution"]

@@ -529,10 +529,10 @@ func _draw_selection() -> void:
 	var c := (Vector2(selected.x, selected.y) + Vector2(0.5, 0.5)) * _cs
 	var radius: float = (def["aura"]["radius"] if def.has("aura") else game.t_range(selected)) * _cs
 	var pulse := 0.5 + 0.5 * sin(_time * 4.0)
-	draw_circle(c, radius, Color(1, 1, 1, 0.06))
-	draw_arc(c, radius, 0.0, TAU, 72, Color(1, 1, 1, 0.55), 2.0, true)
+	draw_circle(c, radius, Color(0.46, 0.77, 0.63, 0.045))
+	_dashed_circle(c, radius, Color(0.65, 0.88, 0.76, 0.7), 1.5, 48)
 	var r := Rect2(selected.x * _cs, selected.y * _cs, _cs, _cs).grow(-1.0)
-	draw_rect(r, Color(1.0, 0.83, 0.35, 0.55 + 0.35 * pulse), false, 2.5)
+	draw_texture_rect(preload("res://assets/ui/selection-brackets.svg"), r, false, Color(1, 1, 1, 0.8 + 0.2 * pulse))
 
 
 func _draw_hover() -> void:

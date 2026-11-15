@@ -53,7 +53,7 @@ func build() -> void:
 	var snap: Dictionary = host.wave_report
 	TDUI.clear(modal)
 	var width: float = clampf(host.size.x - 48.0, 320.0, 640.0)
-	var p := TDUI.panel(Color("#282118"), Color("#806440"), 18, 22, 2)
+	var p := TDUI.panel(Color("#1b292b"), Color("#465b59"), 18, 22, 2)
 	p.get_theme_stylebox("panel").shadow_size = 24
 	p.get_theme_stylebox("panel").shadow_color = Color(0, 0, 0, 0.6)
 	p.add_theme_stylebox_override("panel", TDUI.skin("frame", 26))
@@ -100,8 +100,8 @@ func build() -> void:
 	ok.name = "ReportOk"
 	ok.custom_minimum_size = Vector2(160, 44)
 	ok.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	ok.add_theme_stylebox_override("normal", TDUI.sb(Color("#2f9e44"), Color("#1f7a32"), 0, 10, 18))
-	ok.add_theme_stylebox_override("hover", TDUI.sb(Color("#38b04e"), Color("#1f7a32"), 0, 10, 18))
+	ok.add_theme_stylebox_override("normal", TDUI.skin("primary", 18))
+	ok.add_theme_stylebox_override("hover", TDUI.skin("hover", 18))
 	ok.pressed.connect(close)
 	v.add_child(ok)
 	host._center_in(modal, p)

@@ -38,6 +38,10 @@ func _input(ev: InputEvent) -> void:
 		else:
 			host._show_front()
 		return
+	# Once a widget owns focus, Tab/Space belong to native keyboard navigation.
+	var focus: Control = host.get_viewport().gui_get_focus_owner()
+	if focus != null and (k == KEY_TAB or k == KEY_SPACE):
+		return
 	if host.tutorial_step >= 0 or host.help_open:
 		return
 	var idx = -1

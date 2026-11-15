@@ -48,15 +48,7 @@ func _update_modals() -> void:
 
 func _dialog(parent: Control, width: float) -> VBoxContainer:
 	TDUI.clear(parent)
-	var p = TDUI.panel(Color("#282118"), Color("#806440"), 18, 26, 2)
-	p.get_theme_stylebox("panel").shadow_size = 24
-	p.get_theme_stylebox("panel").shadow_color = Color(0, 0, 0, 0.6)
-	p.add_theme_stylebox_override("panel", TDUI.skin("frame", 26))
-	p.custom_minimum_size = Vector2(width, 0)
-	var v = TDUI.vbox(12)
-	p.add_child(v)
-	host._center_in(parent, p)
-	return v
+	return TDModalSurface.mount(parent, width).content
 
 
 func _build_tutorial() -> void:
@@ -68,7 +60,7 @@ func _build_tutorial() -> void:
 	var t = TDUI.label(s["title"], 24, TDUI.TEXT, true)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(t)
-	var tx = TDUI.para(s["text"], 15, Color("#c7b99e"))
+	var tx = TDUI.para(s["text"], 15, Color("#b5c4be"))
 	tx.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(tx)
 	var dots = TDUI.hbox(8)
@@ -88,8 +80,7 @@ func _build_tutorial() -> void:
 	var last: bool = host.tutorial_step == TUTORIAL.size() - 1
 	var nxt = host._btn("Играть" if last else "Дальше")
 	nxt.custom_minimum_size = Vector2(140, 44)
-	nxt.add_theme_stylebox_override("normal", TDUI.sb(Color("#2f9e44"), Color("#1f7a32"), 0, 10, 18))
-	nxt.add_theme_stylebox_override("hover", TDUI.sb(Color("#38b04e"), Color("#1f7a32"), 0, 10, 18))
+	TDUI.primary(nxt)
 	nxt.pressed.connect(func():
 		if last:
 			host._close_tutorial()
@@ -113,7 +104,7 @@ func _help_row(icon_name: String, color: Color, title: String, sub: String, text
 		th.add_child(TDUI.label("· " + sub, 12, TDUI.MUTED))
 	c.add_child(th)
 	if text != "":
-		c.add_child(TDUI.para(text, 13, Color("#c7b99e")))
+		c.add_child(TDUI.para(text, 13, Color("#b5c4be")))
 	r.add_child(c)
 	return r
 
@@ -128,13 +119,8 @@ func _build_help() -> void:
 	x.pressed.connect(host._close_help)
 	head.add_child(x)
 	outer.add_child(head)
-	var sc = ScrollContainer.new()
-	sc.custom_minimum_size = Vector2(0, minf(560.0, host.size.y - 160.0))
-	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	outer.add_child(sc)
-	var v = TDUI.vbox(10)
-	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sc.add_child(v)
+	var v = TDUI.vbox(12)
+	outer.add_child(v)
 	v.add_child(TDUI.section_title("Башни"))
 	for k in TDConfig.TOWER_KINDS:
 		var d: Dictionary = TDConfig.TOWERS[k]

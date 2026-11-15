@@ -24,7 +24,7 @@ static func advice(g: TDGame, tips: Array, on_pick: Callable) -> VBoxContainer:
 	for t in tips:
 		var danger: bool = t["level"] == "danger"
 		var col := Color(t["color"])
-		var tp := TDUI.panel(Color(0.45, 0.12, 0.16, 0.25) if danger else Color("#30291f"), Color(1, 0.42, 0.48, 0.5) if danger else TDUI.LINE, 10, 10)
+		var tp := TDUI.panel(Color(0.45, 0.12, 0.16, 0.25) if danger else Color("#26383a"), Color(1, 0.42, 0.48, 0.5) if danger else TDUI.LINE, 10, 10)
 		var h := TDUI.hbox(10)
 		tp.add_child(h)
 		h.add_child(TDUI.icon(t["icon"], 28, col))
@@ -32,7 +32,7 @@ static func advice(g: TDGame, tips: Array, on_pick: Callable) -> VBoxContainer:
 		c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		h.add_child(c)
 		c.add_child(TDUI.label(t["title"], 14, TDUI.BAD if danger else TDUI.TEXT, true))
-		c.add_child(TDUI.para(t["text"], 13, Color("#c7b99e")))
+		c.add_child(TDUI.para(t["text"], 13, Color("#b5c4be")))
 		var fl := TDUI.flow(6)
 		for k in t["towers"]:
 			fl.add_child(tower_chip(k, on_pick))
@@ -84,8 +84,8 @@ static func swarm(g: TDGame, on_vaccine: Callable = Callable(), on_lure: Callabl
 	for k in TDGenome.GENES:
 		var row := TDUI.data_row("gene-" + k, Color.WHITE, TDGenome.GENE_LABELS[k], avg[k], TDUI.ACCENT, "%d%%" % round(minf(1.0, avg[k]) * 100))
 		row.tooltip_text = TDGenome.GENE_HELP[k]
-		var actions := TDUI.hbox(6)
-		actions.alignment = BoxContainer.ALIGNMENT_END
+		var actions := TDUI.flow(6)
+		actions.alignment = FlowContainer.ALIGNMENT_END
 		if on_vaccine.is_valid():
 			var b := Button.new()
 			var problem := g.vaccine_problem(k)
@@ -93,7 +93,7 @@ static func swarm(g: TDGame, on_vaccine: Callable = Callable(), on_lure: Callabl
 			b.text = "Вакцина %d" % TDConfig.vaccine_cost(g.wave) if not active else "Вакцина: действует"
 			b.disabled = problem != "" or active
 			b.tooltip_text = vaccine_tip(g) if problem == "" else problem
-			b.add_theme_font_size_override("font_size", 11)
+			b.add_theme_font_size_override("font_size", 14)
 			b.pressed.connect(on_vaccine.bind(k))
 			actions.add_child(b)
 		if on_lure.is_valid() and TDConfig.LURE_GENES.has(k):
@@ -103,7 +103,7 @@ static func swarm(g: TDGame, on_vaccine: Callable = Callable(), on_lure: Callabl
 			lb.text = "Приманка +%d%%" % round(TDConfig.lure_boost(k) * 100) if not is_lured else "Приманка: выбрана"
 			lb.disabled = lp != "" or is_lured
 			lb.tooltip_text = lure_tip(g, k) if lp == "" else lp
-			lb.add_theme_font_size_override("font_size", 11)
+			lb.add_theme_font_size_override("font_size", 14)
 			lb.pressed.connect(on_lure.bind(k))
 			actions.add_child(lb)
 		if actions.get_child_count() > 0:
@@ -149,12 +149,11 @@ static func _adaptation_row(e: Dictionary) -> VBoxContainer:
 	box.add_child(head)
 	var counters: Array = e["counters"]
 	if counters.size() > 0:
-		var row := TDUI.hbox(6)
+		var row := TDUI.flow(6)
 		row.add_child(TDUI.label("Ответят:", 12, TDUI.GOLD))
 		for kind in counters:
 			var d: Dictionary = TDConfig.TOWERS[kind]
-			row.add_child(TDUI.icon(d["icon"], 16, Color(d["color"])))
-			row.add_child(TDUI.label(d["name"], 12, TDUI.TEXT))
+			row.add_child(TDUI.chip(d["icon"], d["name"], Color(d["color"])))
 		box.add_child(row)
 	elif e["gene"] == "tough" and e["verdict"] != "fading":
 		box.add_child(TDUI.para("Здоровье не снижает ничей тип урона: нужен общий урон, улучшай башни.", 11, TDUI.MUTED))

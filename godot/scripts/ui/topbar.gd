@@ -12,7 +12,7 @@ signal pause_pressed
 var lives_lbl: Label
 var gold_lbl: Label
 var wave_lbl: Label
-var next_box: HBoxContainer
+var next_box: HFlowContainer
 var go_btn: Button
 var advice_btn: Button
 var menu_btn: Button
@@ -26,11 +26,13 @@ var _sig: String = ""
 
 
 func setup() -> void:
-	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	add_theme_stylebox_override("panel", TDUI.skin("frame", 14))
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	add_theme_stylebox_override("panel", TDUI.skin("frame", 12))
 	custom_minimum_size = Vector2(0, 54)
-	var h := TDUI.hbox(10)
-	add_child(h)
+	var layout := TDUI.vbox(8)
+	add_child(layout)
+	var h := TDUI.hbox(8)
+	layout.add_child(h)
 
 	lives_lbl = _stat(h, "lives", TDUI.BAD, "Жизни: сколько врагов ещё может дойти до замка")
 	gold_lbl = _stat(h, "coin", TDUI.GOLD, "Золото")
@@ -42,12 +44,10 @@ func setup() -> void:
 	wh.add_child(wave_lbl)
 	wp.add_child(wh)
 	h.add_child(wp)
-	h.add_child(TDUI.vsep(30))
-
-	next_box = TDUI.hbox(8)
+	h.add_child(TDUI.spacer())
+	next_box = TDUI.flow(8)
 	next_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	next_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	h.add_child(next_box)
+	layout.add_child(next_box)
 
 	# советы с бейджем-счётчиком
 	advice_btn = _icon_button("info", "Советы (A)")
@@ -73,7 +73,7 @@ func setup() -> void:
 	h.add_child(pause_btn)
 
 	# скорость
-	var seg := TDUI.panel(Color("#1c1813"), Color("#58472f"), 10, 3)
+	var seg := TDUI.panel(Color("#101a1b"), Color("#465b59"), 10, 3)
 	seg.tooltip_text = "Скорость игры (F)"
 	var sh := TDUI.hbox(2)
 	seg.add_child(sh)
@@ -81,14 +81,14 @@ func setup() -> void:
 	for sp in [1, 2, 4]:
 		var b := Button.new()
 		b.text = "×%d" % sp
-		b.focus_mode = Control.FOCUS_NONE
+		b.focus_mode = Control.FOCUS_ALL
 		b.toggle_mode = true
 		b.button_group = grp
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		b.add_theme_stylebox_override("normal", TDUI.sb(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 7, 11))
 		b.add_theme_stylebox_override("hover", TDUI.sb(Color("#403423"), Color(0, 0, 0, 0), 0, 7, 11))
-		b.add_theme_stylebox_override("pressed", TDUI.sb(Color("#6c5730"), Color(0, 0, 0, 0), 0, 7, 11))
-		b.add_theme_stylebox_override("hover_pressed", TDUI.sb(Color("#826938"), Color(0, 0, 0, 0), 0, 7, 11))
+		b.add_theme_stylebox_override("pressed", TDUI.sb(TDUI.PANEL3, Color(0, 0, 0, 0), 0, 7, 11))
+		b.add_theme_stylebox_override("hover_pressed", TDUI.sb(TDUI.PANEL3, Color(0, 0, 0, 0), 0, 7, 11))
 		b.pressed.connect(func(): speed_selected.emit(sp))
 		_speed_btns.append(b)
 		sh.add_child(b)
@@ -96,7 +96,7 @@ func setup() -> void:
 
 	# меню: три полоски
 	menu_btn = Button.new()
-	menu_btn.focus_mode = Control.FOCUS_NONE
+	menu_btn.focus_mode = Control.FOCUS_ALL
 	menu_btn.icon = TDIcons.tex("menu")
 	menu_btn.expand_icon = true
 	menu_btn.custom_minimum_size = Vector2(40, 38)
@@ -120,32 +120,22 @@ func setup() -> void:
 
 	# старт волны
 	go_btn = Button.new()
-	go_btn.focus_mode = Control.FOCUS_NONE
+	go_btn.focus_mode = Control.FOCUS_ALL
 	go_btn.text = "Волна 1"
 	go_btn.icon = TDIcons.tex("play")
 	go_btn.expand_icon = true
-	go_btn.custom_minimum_size = Vector2(196, 40)
+	go_btn.custom_minimum_size = Vector2(184, 40)
 	go_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	go_btn.tooltip_text = "Запустить волну (пробел)"
 	go_btn.add_theme_font_size_override("font_size", 16)
 	go_btn.add_theme_font_override("font", TDUI.font_bold)
-	var g1 := TDUI.skin("primary", 16)
-	var g2: StyleBoxTexture = g1.duplicate()
-	g2.modulate_color = Color(1.15, 1.15, 1.05)
-	var g3: StyleBoxTexture = g1.duplicate()
-	g3.modulate_color = Color(0.8, 0.8, 0.8)
-	var g4 := TDUI.skin("inset", 16)
-	g4.modulate_color = Color(0.65, 0.65, 0.65)
-	go_btn.add_theme_stylebox_override("normal", g1)
-	go_btn.add_theme_stylebox_override("hover", g2)
-	go_btn.add_theme_stylebox_override("pressed", g3)
-	go_btn.add_theme_stylebox_override("disabled", g4)
+	TDUI.primary(go_btn)
 	go_btn.pressed.connect(func(): go_pressed.emit())
 	h.add_child(go_btn)
 
 
 func _pill() -> PanelContainer:
-	var p := TDUI.panel(Color("#32291e"), Color("#79603c"), 20, 12)
+	var p := TDUI.panel(TDUI.BG, TDUI.LINE, 20, 12)
 	var st: StyleBoxFlat = p.get_theme_stylebox("panel")
 	st.content_margin_top = 4
 	st.content_margin_bottom = 4
@@ -168,10 +158,10 @@ func _stat(parent: Control, icon_name: String, color: Color, tip: String) -> Lab
 
 func _icon_button(icon_name: String, tip: String) -> Button:
 	var b := Button.new()
-	b.focus_mode = Control.FOCUS_NONE
+	b.focus_mode = Control.FOCUS_ALL
 	b.icon = TDIcons.tex(icon_name)
 	b.expand_icon = true
-	b.custom_minimum_size = Vector2(40, 38)
+	b.custom_minimum_size = Vector2(40, 40)
 	b.tooltip_text = tip
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	return b
@@ -187,7 +177,7 @@ func _flash(l: Label, c: Color) -> void:
 func set_paused(p: bool) -> void:
 	pause_btn.icon = TDIcons.tex("play" if p else "pause")
 	pause_btn.tooltip_text = "Продолжить (P)" if p else "Пауза (P)"
-	pause_btn.add_theme_stylebox_override("normal", TDUI.sb(Color("#5a3a10") if p else Color("#2e271e"), Color("#ffb347") if p else Color("#66513a"), 1, 8, 8))
+	pause_btn.add_theme_stylebox_override("normal", TDUI.sb(TDUI.PANEL3 if p else TDUI.PANEL2, Color("#ffb347") if p else Color("#465b59"), 1, 8, 8))
 
 
 func update(g: TDGame, info: Dictionary, threat: Dictionary, coverage: Dictionary, tips: Array, speed: int) -> void:

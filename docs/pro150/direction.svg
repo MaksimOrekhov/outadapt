@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+<rect width="1200" height="720" fill="#101A1B"/>
+<g font-family="Segoe UI,Arial,sans-serif"><text x="56" y="54" font-size="14" fill="#76C5A1" letter-spacing="3">OUTADAPT / ART DIRECTION PROPOSAL / PRO-150</text>
+<text x="56" y="116" font-size="46" font-weight="600" fill="#F1EBDD">Бастион и живая эволюция</text>
+<text x="56" y="152" font-size="18" fill="#B5C4BE">Матовый базальт · латунь · ясные силуэты · живой сигнал роя</text>
+<g transform="translate(56 196)">
+<rect width="1088" height="116" rx="8" fill="#1B292B" stroke="#465B59"/>
+<g font-size="13" fill="#B5C4BE">
+<rect x="20" y="20" width="150" height="48" rx="4" fill="#26383A"/><text x="20" y="94">ПОВЕРХНОСТЬ #26383A</text>
+<rect x="198" y="20" width="150" height="48" rx="4" fill="#F1EBDD"/><text x="198" y="94">ТЕКСТ #F1EBDD</text>
+<rect x="376" y="20" width="150" height="48" rx="4" fill="#E2BA72"/><text x="376" y="94">ДЕЙСТВИЕ #E2BA72</text>
+<rect x="554" y="20" width="150" height="48" rx="4" fill="#76C5A1"/><text x="554" y="94">ЭВОЛЮЦИЯ #76C5A1</text>
+<rect x="732" y="20" width="150" height="48" rx="4" fill="#F28B82"/><text x="732" y="94">УГРОЗА #F28B82</text>
+<rect x="910" y="20" width="150" height="48" rx="4" fill="#AE91E8"/><text x="910" y="94">ПОРТАЛ #AE91E8</text>
+</g></g>
+<rect x="56" y="344" width="518" height="252" rx="8" fill="#1B292B" stroke="#465B59"/>
+<text x="80" y="380" font-size="14" fill="#B5C4BE" letter-spacing="2">ТИПОГРАФИКА / ИЕРАРХИЯ</text>
+<text x="80" y="432" font-size="32" fill="#F1EBDD" font-weight="600">Волна 8 пройдена</text>
+<text x="80" y="470" font-size="18" fill="#76C5A1">Броня роя +11%</text>
+<text x="80" y="502" font-size="16" fill="#B5C4BE">Причина → изменение → доступная контрмера</text>
+<text x="80" y="554" font-size="14" fill="#B5C4BE">Числа 20 · текст 16 · подписи 14 · шаг 4 px</text>
+<rect x="606" y="344" width="538" height="252" rx="8" fill="#1B292B" stroke="#465B59"/>
+<text x="630" y="380" font-size="14" fill="#B5C4BE" letter-spacing="2">МАТЕРИАЛ / СОСТОЯНИЯ</text>
+<rect x="630" y="406" width="240" height="52" rx="5" fill="#E2BA72"/><text x="652" y="439" font-size="18" font-weight="600" fill="#101A1B">Начать волну →</text>
+<rect x="888" y="406" width="232" height="52" rx="5" fill="#26383A" stroke="#76C5A1" stroke-width="2"/><text x="912" y="439" font-size="18" fill="#F1EBDD">Рой · выбран</text>
+<rect x="630" y="478" width="240" height="52" rx="5" fill="#26383A" stroke="#B5C4BE" stroke-width="2"/><text x="652" y="511" font-size="18" fill="#F1EBDD">Фокус клавиатуры</text>
+<rect x="888" y="478" width="232" height="52" rx="5" fill="#1B292B" stroke="#465B59"/><text x="912" y="511" font-size="18" fill="#889B95">Недоступно</text>
+<text x="630" y="565" font-size="14" fill="#B5C4BE">Чёткая кромка · спокойный фон · явный маркер выбора</text>
+<path d="M56 636H1144" stroke="#465B59"/><text x="56" y="674" font-size="14" fill="#B5C4BE">КОНЦЕПТ НАПРАВЛЕНИЯ — НЕ СКРИНШОТ ИГРЫ И НЕ РЕАЛИЗОВАННЫЙ РЕДИЗАЙН</text>
+</g></svg>

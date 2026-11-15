@@ -43,65 +43,54 @@ func _center_in(parent: Control, content: Control) -> void:
 
 
 func _build_perk_overlay() -> void:
-	var v = TDUI.vbox(18)
-	var head = TDUI.hbox(10)
-	head.alignment = BoxContainer.ALIGNMENT_CENTER
-	head.add_child(TDUI.label("Выбери усиление", 26, TDUI.TEXT, true))
-	head.add_child(TDUI.label("клик или клавиши 1–3", 13, TDUI.MUTED))
-	v.add_child(head)
-	var row = TDUI.hbox(16)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	var surface := TDModalSurface.mount(host.perk_overlay, 820)
+	var v := surface.content
+	v.add_child(TDUI.label("Выбери усиление", 28, TDUI.TEXT, true))
+	v.add_child(TDUI.para("Одно решение изменит следующую волну. Клик или клавиши 1–4.", 16))
+	var row := GridContainer.new()
+	row.columns = 2
+	row.add_theme_constant_override("h_separation", 12)
+	row.add_theme_constant_override("v_separation", 12)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_child(row)
-	var i = 0
+	var i := 0
 	for id in host.game.offer:
 		i += 1
-		var p = TDConfig.perk_def(id)
-		var b = host._btn()
-		b.custom_minimum_size = Vector2(230, 250)
-		b.add_theme_stylebox_override("normal", TDUI.sb(Color("#30271d"), Color("#a1814c"), 2, 16, 14))
-		b.add_theme_stylebox_override("hover", TDUI.sb(Color("#51412c"), TDUI.GOLD, 2, 16, 14))
-		b.add_theme_stylebox_override("pressed", TDUI.sb(Color("#3e321f"), TDUI.GOLD, 2, 16, 14))
-		b.pressed.connect(host._pick_perk.bind(id))
-		var m = MarginContainer.new()
-		m.set_anchors_preset(Control.PRESET_FULL_RECT)
-		m.add_theme_constant_override("margin_left", 14)
-		m.add_theme_constant_override("margin_right", 14)
-		m.add_theme_constant_override("margin_top", 22)
-		m.add_theme_constant_override("margin_bottom", 14)
-		m.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		b.add_child(m)
-		var c = TDUI.vbox(8)
-		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		m.add_child(c)
-		var ic = TDUI.icon(p["icon"], 56, TDUI.GOLD)
-		ic.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		c.add_child(ic)
-		var nm = TDUI.label(p["name"], 18, TDUI.TEXT, true)
-		nm.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		c.add_child(nm)
-		var ds = TDUI.para(p["desc"], 13, Color("#c7b99e"))
-		ds.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		ds.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		c.add_child(ds)
-		var lv = host.game.perk_level(id)
-		var pl = TDUI.label("уровень %d → %d" % [lv, lv + 1], 12, TDUI.GOLD)
-		pl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		c.add_child(pl)
-		var key = TDUI.label(str(i), 12, TDUI.MUTED, true)
-		key.position = Vector2(12, 8)
-		b.add_child(key)
-		row.add_child(b)
-	host._center_in(host.perk_overlay, v)
+		var perk := TDConfig.perk_def(id)
+		var button: Button = host._btn()
+		button.name = "Perk_" + id
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.custom_minimum_size = Vector2(320, 164)
+		button.pressed.connect(host._pick_perk.bind(id))
+		row.add_child(button)
+		var margin := MarginContainer.new()
+		margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		for side in ["left", "right", "top", "bottom"]:
+			margin.add_theme_constant_override("margin_" + side, 16)
+		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.add_child(margin)
+		var body := TDUI.vbox(10)
+		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		margin.add_child(body)
+		var head := TDUI.hbox(12)
+		head.add_child(TDUI.icon(perk["icon"], 32, TDUI.GOLD))
+		head.add_child(TDUI.para(perk["name"], 20, TDUI.TEXT))
+		head.add_child(TDUI.keycap(str(i)))
+		body.add_child(head)
+		body.add_child(TDUI.para(perk["desc"], 16, TDUI.TEXT))
+		body.add_child(TDUI.para("Уровень %d → %d" % [host.game.perk_level(id), host.game.perk_level(id) + 1], 14, TDUI.GOLD))
+		var fit_card := func(): button.custom_minimum_size.y = maxf(164, margin.get_combined_minimum_size().y)
+		margin.minimum_size_changed.connect(fit_card)
+		fit_card.call()
 
 
 ## Итоги забега: поражение или победа на волне VICTORY_WAVE.
 
 
 func _build_summary(parent: Control, won: bool) -> void:
-	var p = TDUI.panel(Color("#282118"), Color("#ffd35a") if won else Color("#806440"), 18, 22, 2)
-	p.custom_minimum_size = Vector2(640, 0)
-	var v = TDUI.vbox(10)
-	p.add_child(v)
+	var surface := TDModalSurface.mount(parent, 820)
+	var v := surface.content
+
 	var survived: int = host.game.wave - 1
 	var head = TDUI.hbox(14)
 	head.add_child(TDUI.icon("castle", 52, TDUI.GOLD if won else TDUI.BAD))
@@ -116,7 +105,7 @@ func _build_summary(parent: Control, won: bool) -> void:
 	v.add_child(head)
 
 	# главные цифры
-	var nums = TDUI.hbox(8)
+	var nums = TDUI.flow(8)
 	for it in [["Волн пережито", str(survived)], ["Убито", str(host.game.run_kills)], ["Прорвалось", str(host.game.run_leaked)], ["Боссов", str(host.game.bosses_killed)], ["Башен", str(host.game.towers.size())]]:
 		var c = TDUI.panel(TDUI.PANEL2, TDUI.LINE, 10, 8)
 		c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -194,8 +183,8 @@ func _build_summary(parent: Control, won: bool) -> void:
 		kp.add_child(kh)
 		v.add_child(kp)
 
-	var row = TDUI.hbox(10)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	var row = TDUI.flow(10)
+	row.alignment = FlowContainer.ALIGNMENT_CENTER
 	if won:
 		var cont = host._btn("Играть дальше (без конца)")
 		cont.custom_minimum_size = Vector2(0, 44)
@@ -220,7 +209,7 @@ func _build_summary(parent: Control, won: bool) -> void:
 		mb.pressed.connect(host._open_meta)
 		row.add_child(mb)
 	v.add_child(row)
-	host._center_in(parent, p)
+
 
 
 ## Автопроверка вёрстки: ширина дока не должна меняться от содержимого карточки.
@@ -255,5 +244,3 @@ func _banner(text: String, sub: String, color: Color) -> void:
 
 
 # ── подсказки у курсора ───────────────────────────────────────
-
-

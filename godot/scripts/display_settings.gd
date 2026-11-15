@@ -15,7 +15,7 @@ static func load_settings(window: Window) -> void:
 static func apply(window: Window, config: Dictionary) -> void:
 	var screen := DisplayServer.screen_get_size(window.current_screen)
 	var resolution: Vector2i = config.get("resolution", Vector2i(1600, 900))
-	resolution = Vector2i(clampi(resolution.x, 1200, maxi(1200, screen.x)), clampi(resolution.y, 700, maxi(700, screen.y)))
+	resolution = Vector2i(clampi(resolution.x, 960, maxi(960, screen.x)), clampi(resolution.y, 540, maxi(540, screen.y)))
 	if config.get("fullscreen", false):
 		window.mode = Window.MODE_FULLSCREEN
 	else:
