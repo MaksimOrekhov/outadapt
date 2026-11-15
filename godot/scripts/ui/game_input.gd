@@ -15,6 +15,12 @@ func _input(ev: InputEvent) -> void:
 			host.front.back()
 			host.get_viewport().set_input_as_handled()
 		return
+	# окно отчёта о волне: закрывается «ОК», Enter, Space или Esc; остальные клавиши под него не проходят
+	if not host.wave_report.is_empty():
+		if k in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]:
+			host._close_wave_report()
+		host.get_viewport().set_input_as_handled()
+		return
 	if k == KEY_ESCAPE:
 		if host._active_pop != null:
 			host._close_popovers()

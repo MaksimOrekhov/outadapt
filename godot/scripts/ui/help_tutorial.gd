@@ -37,6 +37,7 @@ func _update_modals() -> void:
 	host.tutorial_modal.visible = host.tutorial_step >= 0
 	host.help_modal.visible = host.help_open
 	host.meta_modal.visible = host.meta_open
+	host.wave_report_modal.visible = not host.wave_report.is_empty() and not (host.front != null and host.front.visible)
 	if host.meta_open:
 		host._build_meta()
 	if host.tutorial_step >= 0:
