@@ -126,7 +126,7 @@ func _ready() -> void:
 	get_tree().node_added.connect(func(n: Node):
 		if n is Control:
 			TDUI.fit_tooltip.call_deferred(weakref(n))
-		if n is BaseButton:
+		if n is BaseButton and not (n as BaseButton).pressed.is_connected(audio.ui_click):
 			(n as BaseButton).pressed.connect(audio.ui_click))
 	_build_ui()
 	board.audio = audio

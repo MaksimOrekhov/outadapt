@@ -19,7 +19,7 @@ for t in "${CHECKS[@]}"; do
   timeout 900 "$G" --headless --path . --script "res://tests/$t.gd" 2>&1 | tee "check_$t.log"
   rc=${PIPESTATUS[0]}
   echo "::endgroup::"
-  if [ "$rc" -ne 0 ] || grep -q "^FAIL" "check_$t.log"; then
+  if [ "$rc" -ne 0 ] || grep -Eq "^FAIL|^SCRIPT ERROR:|^ERROR:" "check_$t.log"; then
     failed+=("$t")
     echo "RESULT $t: FAIL (exit=$rc)"
   else

@@ -320,7 +320,7 @@ static func spacer_v() -> Control:
 ## Bound native tooltip text before Godot creates its popup window.
 static func fit_tooltip(reference: WeakRef) -> void:
 	var control := reference.get_ref() as Control
-	if control == null or control.tooltip_text.is_empty(): return
+	if control == null or not control.is_inside_tree() or control.tooltip_text.is_empty(): return
 	if control is Label: control.mouse_filter = Control.MOUSE_FILTER_PASS
 	var width := minf(460, control.get_viewport_rect().size.x - 48)
 	var lines := PackedStringArray()

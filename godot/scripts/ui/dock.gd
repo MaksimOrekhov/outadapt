@@ -275,7 +275,7 @@ func _refresh_perks(g: TDGame) -> void:
 
 # ── инспектор ─────────────────────────────────────────────────
 
-## Однострочная подпись не растягивает док: лишнее обрезается многоточием, полный текст — в подсказке.
+## Wrap inspector text within the dock; full descriptions stay readable in its scroll body.
 func _fit(l: Label) -> Label:
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.custom_minimum_size.x = 20
