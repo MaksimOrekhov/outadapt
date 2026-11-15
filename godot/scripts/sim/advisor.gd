@@ -7,7 +7,7 @@ static func wave_info(g: TDGame) -> Dictionary:
 	var n: int = maxi(1, g.upcoming.size())
 	var phs: Array = []
 	for ge in g.upcoming:
-		phs.append(TDGenome.phenotype(ge, g.wave))
+		phs.append(TDGenome.phenotype(g.lured_genome(ge), g.wave))
 	var mean := func(key: String) -> float:
 		var s := 0.0
 		for p in phs:

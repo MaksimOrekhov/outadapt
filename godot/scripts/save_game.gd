@@ -7,7 +7,7 @@ const DIRECTORY := "user://saves"
 static var directory := DIRECTORY
 const GAME_FIELDS := ["gold", "lives", "wave", "phase", "upcoming", "pending", "wave_genomes", "upcoming_boss", "pending_boss", "boss_killed", "spawn_t", "finished", "killed", "leaked", "damage_by", "perks", "offer", "next_id", "meta", "run_kills", "run_leaked", "bosses_killed", "run_damage", "victory"]
 ## Появились позже версии 1: в старых сохранениях их нет, это не ошибка.
-const OPTIONAL_GAME_FIELDS := ["upcoming_special", "cur_special", "vaccine", "vaccine_cd", "vaccine_uses"]
+const OPTIONAL_GAME_FIELDS := ["upcoming_special", "cur_special", "vaccine", "vaccine_cd", "vaccine_uses", "lure", "lure_cd", "lure_uses"]
 const OPTIONAL_ENEMY_FIELDS := ["ability", "shield", "shield_max", "summon_t", "immune_type", "summon_left"]
 const TOWER_FIELDS := ["id", "kind", "x", "y", "cd", "level", "branch", "spent", "mode", "kills", "dealt", "hits", "boosted", "recoil", "age", "aim", "upgraded_t"]
 const ENEMY_FIELDS := ["id", "genome", "ph", "hp", "dist", "slow_t", "slow_factor", "scorch_t", "scorch_extra", "poison_t", "poison_dps", "boss", "child", "warded", "hit_flash", "last_kind"]
@@ -144,7 +144,15 @@ static func valid(data: Variant) -> bool:
 			return false
 		if vaccine["left"] < 1 or vaccine["left"] > TDConfig.VACCINE_WAVES:
 			return false
-	for key in ["vaccine_cd", "vaccine_uses"]:
+	var lure = data["state"].get("lure", {})
+	if not lure is Dictionary:
+		return false
+	if not lure.is_empty():
+		if not lure.get("gene") is String or not TDConfig.LURE_GENES.has(lure["gene"]) or not numeric(lure.get("boost")) or not lure.get("wave") is int:
+			return false
+		if float(lure["boost"]) <= 0.0 or float(lure["boost"]) > 1.0:
+			return false
+	for key in ["vaccine_cd", "vaccine_uses", "lure_cd", "lure_uses"]:
 		if data["state"].has(key) and (not data["state"][key] is int or data["state"][key] < 0):
 			return false
 	for report in data["reports"]:

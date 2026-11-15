@@ -20,6 +20,7 @@ static func snapshot(g: TDGame) -> Dictionary:
 	return {
 		"wave": int(r["wave"]), "killed": int(r["killed"]), "size": int(r["size"]), "leaked": int(r["leaked"]),
 		"bonus": int(r.get("bonus", 0)), "interest": int(r.get("interest", 0)), "special": String(r.get("special", "")),
+		"lure": r.get("lure", {}).duplicate(),
 		"entries": TDAdvisor.adaptation(g).slice(0, MAX_ENTRIES),
 	}
 
@@ -69,6 +70,8 @@ func build() -> void:
 	chips.add_child(TDUI.chip("", "прорвалось %d" % snap["leaked"], TDUI.BAD if snap["leaked"] > 0 else TDUI.TEXT))
 	if snap["bonus"] + snap["interest"] > 0:
 		chips.add_child(TDUI.chip("coin", "+%d золота" % (snap["bonus"] + snap["interest"]), TDUI.GOLD, "Бонус за волну %d, проценты %d" % [snap["bonus"], snap["interest"]]))
+	if not snap.get("lure", {}).is_empty():
+		chips.add_child(TDUI.chip("coin", "приманка +%d золота" % snap["lure"]["bonus"], TDUI.GOLD, "Награда за ген «%s», усиленный на эту волну" % TDGenome.GENE_LABELS[snap["lure"]["gene"]]))
 	v.add_child(chips)
 
 	var entries: Array = snap["entries"]

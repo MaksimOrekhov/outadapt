@@ -113,6 +113,10 @@ var cur_special: String = ""
 var vaccine: Dictionary = {}
 var vaccine_cd: int = 0
 var vaccine_uses: int = 0
+## Приманка: {} или {gene, boost, wave}; пауза до следующей и число покупок за забег.
+var lure: Dictionary = {}
+var lure_cd: int = 0
+var lure_uses: int = 0
 ## Визуальные события для эффектов (включает поле; на баланс не влияют).
 var emit_events: bool = false
 var events: Array[Dictionary] = []
@@ -302,6 +306,8 @@ func vaccine_problem(gene: String) -> String:
 		return "Только между волнами"
 	if not vaccine.is_empty():
 		return "Уже действует вакцина"
+	if lure.get("gene", "") == gene:
+		return "На этот ген действует приманка"
 	if vaccine_cd > 0:
 		return "Перезарядка: %d" % vaccine_cd
 	if TDGenome.UNLOCK_WAVE.has(gene) and wave < int(TDGenome.UNLOCK_WAVE[gene]) + TDConfig.VACCINE_TRAIT_DELAY:
@@ -324,6 +330,52 @@ func buy_vaccine(gene: String) -> bool:
 	vaccine = {"gene": gene, "left": TDConfig.VACCINE_WAVES, "cap": vaccine_cap(gene)}
 	vaccine_uses += 1
 	upcoming = TDGenome.apply_caps(upcoming, {gene: vaccine["cap"]})
+	return true
+
+
+# ── Приманка ──────────────────────────────────────────────────
+
+## Ожидаемая награда за приманку на ближайшей волне (по числу врагов; убитых может быть меньше).
+func lure_estimate() -> int:
+	var bounty: int = TDConfig.KILL_REWARD + perk_level("bounty")
+	return int(round(TDConfig.LURE_SHARE * (upcoming.size() * bounty + TDConfig.wave_bonus(wave))))
+
+
+## Причина, по которой приманку на ген нельзя взять; "" — можно.
+func lure_problem(gene: String) -> String:
+	if not TDConfig.LURE_GENES.has(gene):
+		return "Приманка только на базовые гены"
+	if phase != "build":
+		return "Только между волнами"
+	if not lure.is_empty():
+		return "Приманка уже выбрана"
+	if lure_cd > 0:
+		return "Перезарядка: %d" % lure_cd
+	if wave < TDConfig.LURE_MIN_WAVE:
+		return "Доступна с волны %d" % TDConfig.LURE_MIN_WAVE
+	if not upcoming_boss.is_empty() or upcoming_special != "":
+		return "Не на боссовых и особых волнах"
+	if vaccine.get("gene", "") == gene:
+		return "На этот ген действует вакцина"
+	return ""
+
+
+## Геном с учётом приманки: усиливает ген только в копии, для фенотипа ближайшей волны.
+## Сами геномы роя не меняются, поэтому приманка не наследуется, не сдвигает отбор и бюджет генов и не трогает rng.
+func lured_genome(ge: Dictionary) -> Dictionary:
+	if lure.is_empty():
+		return ge
+	var copy: Dictionary = ge.duplicate()
+	var gene: String = lure["gene"]
+	copy[gene] = minf(1.0, float(copy.get(gene, 0.0)) + float(lure["boost"]))
+	return copy
+
+
+func buy_lure(gene: String) -> bool:
+	if lure_problem(gene) != "":
+		return false
+	lure = {"gene": gene, "boost": TDConfig.lure_boost(gene), "wave": wave}
+	lure_uses += 1
 	return true
 
 
@@ -671,7 +723,8 @@ func step(dt: float) -> void:
 	while (not pending.is_empty() or not pending_boss.is_empty()) and spawn_t <= 0.0:
 		var is_boss: bool = not pending_boss.is_empty() and pending.size() <= half
 		var genome: Dictionary = pending_boss if is_boss else pending.pop_front()
-		var ph: Dictionary = TDGenome.phenotype(genome, wave)
+		# приманка усиливает фенотип врагов обычной волны; сам геном (для отбора) остаётся прежним
+		var ph: Dictionary = TDGenome.phenotype(lured_genome(genome) if not is_boss else genome, wave)
 		var sp: Dictionary = TDConfig.SPECIAL_WAVES.get(cur_special, {})
 		var hp_mult: float = float(TDConfig.difficulty(meta)["hp"])
 		if is_boss:
@@ -1010,6 +1063,15 @@ func _end_wave() -> void:
 		"bonus": TDConfig.wave_bonus(w),
 	})
 	# проценты считаются с того, что накоплено к концу волны (до бонуса)
+	var lure_bonus := 0
+	if not lure.is_empty() and int(lure["wave"]) == w:
+		var bounty: int = TDConfig.KILL_REWARD + perk_level("bounty")
+		lure_bonus = int(round(TDConfig.LURE_SHARE * (killed * bounty + TDConfig.wave_bonus(w))))
+		reports[reports.size() - 1]["lure"] = {"gene": lure["gene"], "bonus": lure_bonus}
+		lure = {}
+		lure_cd = TDConfig.LURE_COOLDOWN
+	elif lure_cd > 0:
+		lure_cd -= 1
 	var interest: int = mini(TDConfig.INTEREST_CAP, int(floor(gold * TDConfig.INTEREST)))
 	reports[reports.size() - 1]["interest"] = interest
 	var bonus: int = TDConfig.wave_bonus(w)
@@ -1017,7 +1079,7 @@ func _end_wave() -> void:
 		bonus = int(round(bonus * TDConfig.SPECIAL_BONUS))
 		reports[reports.size() - 1]["bonus"] = bonus
 		reports[reports.size() - 1]["special"] = cur_special
-	gold += bonus + interest
+	gold += bonus + interest + lure_bonus
 	for k in damage_by:
 		run_damage[k] = float(run_damage.get(k, 0.0)) + damage_by[k]
 	if w == TDConfig.VICTORY_WAVE and mode_id() != "endless":

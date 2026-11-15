@@ -42,7 +42,7 @@ static func advice(g: TDGame, tips: Array, on_pick: Callable) -> VBoxContainer:
 
 
 ## Сводка: итог прошлой волны, смещение роя, гены, перки.
-static func swarm(g: TDGame, on_vaccine: Callable = Callable()) -> VBoxContainer:
+static func swarm(g: TDGame, on_vaccine: Callable = Callable(), on_lure: Callable = Callable()) -> VBoxContainer:
 	var v := TDUI.vbox(12)
 	var r := last_report(g)
 	if r.is_empty():
@@ -75,22 +75,44 @@ static func swarm(g: TDGame, on_vaccine: Callable = Callable()) -> VBoxContainer
 			v.add_child(sv[0])
 	# гены
 	var gv := _section("Гены следующей волны")
-	var avg := TDGenome.average_genome(g.upcoming)
+	var lured_list: Array = []
+	for ge in g.upcoming:
+		lured_list.append(g.lured_genome(ge))
+	var avg := TDGenome.average_genome(lured_list)
 	gv[1].add_child(vaccine_status(g))
+	gv[1].add_child(lure_status(g))
 	for k in TDGenome.GENES:
 		var row := TDUI.data_row("gene-" + k, Color.WHITE, TDGenome.GENE_LABELS[k], avg[k], TDUI.ACCENT, "%d%%" % round(minf(1.0, avg[k]) * 100))
 		row.tooltip_text = TDGenome.GENE_HELP[k]
+		var actions := TDUI.hbox(6)
+		actions.alignment = BoxContainer.ALIGNMENT_END
 		if on_vaccine.is_valid():
 			var b := Button.new()
 			var problem := g.vaccine_problem(k)
 			var active: bool = g.vaccine.get("gene", "") == k
-			b.text = "Вакцина %d" % TDConfig.vaccine_cost(g.wave) if not active else "Действует"
+			b.text = "Вакцина %d" % TDConfig.vaccine_cost(g.wave) if not active else "Вакцина: действует"
 			b.disabled = problem != "" or active
 			b.tooltip_text = vaccine_tip(g) if problem == "" else problem
-			b.custom_minimum_size = Vector2(96, 0)
+			b.add_theme_font_size_override("font_size", 11)
 			b.pressed.connect(on_vaccine.bind(k))
-			row.add_child(b)
-		gv[1].add_child(row)
+			actions.add_child(b)
+		if on_lure.is_valid() and TDConfig.LURE_GENES.has(k):
+			var lb := Button.new()
+			var lp := g.lure_problem(k)
+			var is_lured: bool = g.lure.get("gene", "") == k
+			lb.text = "Приманка +%d%%" % round(TDConfig.lure_boost(k) * 100) if not is_lured else "Приманка: выбрана"
+			lb.disabled = lp != "" or is_lured
+			lb.tooltip_text = lure_tip(g, k) if lp == "" else lp
+			lb.add_theme_font_size_override("font_size", 11)
+			lb.pressed.connect(on_lure.bind(k))
+			actions.add_child(lb)
+		if actions.get_child_count() > 0:
+			var cell := TDUI.vbox(2)
+			cell.add_child(row)
+			cell.add_child(actions)
+			gv[1].add_child(cell)
+		else:
+			gv[1].add_child(row)
 	v.add_child(gv[0])
 	# перки
 	var owned: Array = []
@@ -137,6 +159,26 @@ static func _adaptation_row(e: Dictionary) -> VBoxContainer:
 	elif e["gene"] == "tough" and e["verdict"] != "fading":
 		box.add_child(TDUI.para("Здоровье не снижает ничей тип урона: нужен общий урон, улучшай башни.", 11, TDUI.MUTED))
 	return box
+
+
+static func lure_tip(g: TDGame, gene: String) -> String:
+	return "Приманка: «%s» у всех врагов следующей волны +%d%% (враги станут опаснее). Награда за пройденную волну: +%d%% её дохода, сейчас около %d золота. Одна за раз, затем пауза %d волна; не на боссовых и особых волнах." % [TDGenome.GENE_LABELS[gene], round(TDConfig.lure_boost(gene) * 100), round(TDConfig.LURE_SHARE * 100), g.lure_estimate(), TDConfig.LURE_COOLDOWN]
+
+
+## Строка состояния приманки: выбрана, перезарядка или подсказка.
+static func lure_status(g: TDGame) -> Control:
+	var text: String
+	var color: Color = TDUI.MUTED
+	if not g.lure.is_empty():
+		text = "Приманка «%s» +%d%%: награда за волну около %d золота" % [TDGenome.GENE_LABELS[g.lure["gene"]], round(float(g.lure["boost"]) * 100), g.lure_estimate()]
+		color = TDUI.GOLD
+	elif g.lure_cd > 0:
+		text = "Приманка перезаряжается: ещё %d" % g.lure_cd
+	else:
+		text = "Приманка: усиль один ген следующей волны ради +%d%% золота волны" % round(TDConfig.LURE_SHARE * 100)
+	var l := TDUI.para(text, 12, color)
+	l.tooltip_text = "Добровольный риск: ген растёт у всех врагов волны, а при победе ты получаешь долю дохода волны."
+	return l
 
 
 static func vaccine_tip(g: TDGame) -> String:
