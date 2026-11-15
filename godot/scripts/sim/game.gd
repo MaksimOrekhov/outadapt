@@ -109,6 +109,10 @@ var victory: bool = false
 ## Особая волна: следующая и идущая сейчас (""/swarm/rush/heavy).
 var upcoming_special: String = ""
 var cur_special: String = ""
+## Вакцина: {} или {gene, left, cap}; пауза до следующей покупки и число покупок за забег.
+var vaccine: Dictionary = {}
+var vaccine_cd: int = 0
+var vaccine_uses: int = 0
 ## Визуальные события для эффектов (включает поле; на баланс не влияют).
 var emit_events: bool = false
 var events: Array[Dictionary] = []
@@ -286,6 +290,41 @@ func _draw_offer() -> Array:
 		pool[i] = pool[j]
 		pool[j] = tmp
 	return pool.slice(0, TDConfig.PERK_CHOICES + int(meta.get("perk_choices", 0)))
+
+
+# ── Вакцина ───────────────────────────────────────────────────
+
+## Причина, по которой вакцину против гена купить нельзя; "" — можно.
+func vaccine_problem(gene: String) -> String:
+	if not TDGenome.GENES.has(gene):
+		return "Неизвестный ген"
+	if phase != "build":
+		return "Только между волнами"
+	if not vaccine.is_empty():
+		return "Уже действует вакцина"
+	if vaccine_cd > 0:
+		return "Перезарядка: %d" % vaccine_cd
+	if TDGenome.UNLOCK_WAVE.has(gene) and wave < int(TDGenome.UNLOCK_WAVE[gene]) + TDConfig.VACCINE_TRAIT_DELAY:
+		return "Признак ещё не изучен: доступно с волны %d" % (int(TDGenome.UNLOCK_WAVE[gene]) + TDConfig.VACCINE_TRAIT_DELAY)
+	if gold < TDConfig.vaccine_cost(wave):
+		return "Не хватает золота"
+	return ""
+
+
+## Потолок для гена: среднее по последней сыгранной волне (до первой волны — по ближайшей).
+func vaccine_cap(gene: String) -> float:
+	var src: Dictionary = reports[reports.size() - 1]["avg"] if not reports.is_empty() else TDGenome.average_genome(upcoming)
+	return minf(float(src.get(gene, 0.0)), float(TDGenome.average_genome(upcoming).get(gene, 0.0)))
+
+
+func buy_vaccine(gene: String) -> bool:
+	if vaccine_problem(gene) != "":
+		return false
+	gold -= TDConfig.vaccine_cost(wave)
+	vaccine = {"gene": gene, "left": TDConfig.VACCINE_WAVES, "cap": vaccine_cap(gene)}
+	vaccine_uses += 1
+	upcoming = TDGenome.apply_caps(upcoming, {gene: vaccine["cap"]})
+	return true
 
 
 # ── Башни ─────────────────────────────────────────────────────
@@ -944,7 +983,17 @@ func _end_wave() -> void:
 	var adapt_mult: float = float(TDConfig.difficulty(meta)["adapt"])
 	for k in press:
 		adapt[k] = press[k] * adapt_mult
-	upcoming = TDGenome.evolve(finished, TDConfig.wave_size(next_wave), next_wave, rng, adapt)
+	var caps := {}
+	if not vaccine.is_empty():
+		vaccine["left"] = int(vaccine["left"]) - 1
+		if int(vaccine["left"]) > 0:
+			caps[vaccine["gene"]] = vaccine["cap"]
+		else:
+			vaccine = {}
+			vaccine_cd = TDConfig.VACCINE_COOLDOWN
+	elif vaccine_cd > 0:
+		vaccine_cd -= 1
+	upcoming = TDGenome.evolve(finished, TDConfig.wave_size(next_wave), next_wave, rng, adapt, caps)
 	upcoming_special = TDConfig.special_for(next_wave)
 	_apply_special(upcoming_special)
 	reports.append({

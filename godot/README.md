@@ -31,7 +31,7 @@ Tower defence на Godot 4.7 + GDScript: враги эволюционируют
 
 ## CI
 
-`.github/workflows/godot-tests.yml` на каждый PR и push в `main` запускает на Linux и Windows все headless-проверки (`sanity`, `features_check`, `save_check`, `menu_check`, `audio_check`, `tower_levels_check`, `presentation_check`) на Godot 4.7.2. Логи лежат в артефактах прогона. Локально то же самое: `GODOT=<путь к консольному Godot> bash tests/run_ci.sh [проверка ...]` из папки `godot` (сначала делает `--import`, затем гонит проверки; код выхода 1 при любой ошибке). Для блокировки merge включить required checks `Linux` и `Windows` в правилах ветки `main`.
+`.github/workflows/godot-tests.yml` на каждый PR и push в `main` запускает на Linux и Windows все headless-проверки (`sanity`, `features_check`, `save_check`, `menu_check`, `audio_check`, `tower_levels_check`, `presentation_check`, `vaccine_check`) на Godot 4.7.2. Логи лежат в артефактах прогона. Локально то же самое: `GODOT=<путь к консольному Godot> bash tests/run_ci.sh [проверка ...]` из папки `godot` (сначала делает `--import`, затем гонит проверки; код выхода 1 при любой ошибке). Для блокировки merge включить required checks `Linux` и `Windows` в правилах ветки `main`.
 
 ## Windows release build
 
@@ -50,6 +50,7 @@ Tower defence на Godot 4.7 + GDScript: враги эволюционируют
 - **Связки**: лёд → +50% физического урона и +50% молнии; огонь → срез брони; яд → останавливает лечение; Маяк → видит невидимок и ускоряет соседей.
 - **Рой** (`genome.gd`): 10 генов. Отбор лучших 30% + направленная адаптация: доля урона каждого типа растит защищающий ген (`TYPE_GENE`, `ADAPT`).
   Причина сдвига показывается в баннере конца волны и в панели «Рой». Новые признаки открываются по расписанию (`UNLOCK_WAVE`): лечение, полёт, невидимость, деление, щит.
+- **Вакцина (эксперимент PRO-117)**: между волнами за золото (`TDConfig.vaccine_cost`) выбранный ген роя не может превысить текущее среднее на 2 волны, затем пауза 2 волны. Подробности, числа и результаты: [docs/vaccine-experiment.md](../docs/vaccine-experiment.md). Проверка: `tests/vaccine_check.gd`.
 - **Экономика**: награда за убийство, бонус за волну, проценты на накопленное (`INTEREST`, не больше `INTEREST_CAP`), перки каждые 3 волны и за босса.
 - **Мета-прогрессия** (`scripts/meta.gd`, сохраняется в `user://meta.cfg`): очки знаний за волны, боссов и победу; Мастерская — постоянные бонусы (золото, жизни, дешёвые улучшения, медленный рост цен, 4 варианта перка, перк на старте). Рекорды по картам.
 

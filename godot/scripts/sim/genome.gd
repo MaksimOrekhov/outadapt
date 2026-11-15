@@ -106,7 +106,9 @@ static func random_genome(rng: TDRng, wave: int) -> Dictionary:
 
 ## parents: Array из {genome, fitness}. Отбор + скрещивание + мутация.
 ## press: {ген: доля урона}, см. pressure(): рой целенаправленно наращивает защиту от того, чем его били.
-static func evolve(parents: Array, size: int, wave: int, rng: TDRng, press: Dictionary = {}) -> Array:
+## caps: {ген: потолок} — вакцина; применяется последним и не расходует rng, поэтому поток случайных чисел
+## эволюции одинаков с вакциной и без неё.
+static func evolve(parents: Array, size: int, wave: int, rng: TDRng, press: Dictionary = {}, caps: Dictionary = {}) -> Array:
 	# стабильная сортировка по убыванию fitness (как Array.sort в JS)
 	var indexed: Array = []
 	for i in parents.size():
@@ -158,6 +160,19 @@ static func evolve(parents: Array, size: int, wave: int, rng: TDRng, press: Dict
 			var copy2: Dictionary = out[idx2].duplicate()
 			copy2[k] = 0.6
 			out[idx2] = fit_to_budget(copy2, wave)
+	return apply_caps(out, caps)
+
+
+## Не даёт генам из caps превысить потолок. Возвращает новый массив; rng не трогает.
+static func apply_caps(list: Array, caps: Dictionary) -> Array:
+	if caps.is_empty():
+		return list
+	var out: Array = []
+	for g in list:
+		var copy: Dictionary = g.duplicate()
+		for k in caps:
+			copy[k] = minf(float(copy.get(k, 0.0)), float(caps[k]))
+		out.append(copy)
 	return out
 
 
