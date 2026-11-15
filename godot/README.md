@@ -33,6 +33,10 @@ Tower defence на Godot 4.7 + GDScript: враги эволюционируют
 
 `.github/workflows/godot-tests.yml` на каждый PR и push в `main` запускает на Linux и Windows все headless-проверки (`sanity`, `features_check`, `save_check`, `menu_check`, `audio_check`, `tower_levels_check`, `presentation_check`) на Godot 4.7.2. Логи лежат в артефактах прогона. Локально то же самое: `GODOT=<путь к консольному Godot> bash tests/run_ci.sh [проверка ...]` из папки `godot` (сначала делает `--import`, затем гонит проверки; код выхода 1 при любой ошибке). Для блокировки merge включить required checks `Linux` и `Windows` в правилах ветки `main`.
 
+## Windows release build
+
+`GODOT=<путь к консольному Godot 4.7.2> bash godot/tools/export_win.sh` из корня репозитория собирает `build/win/Outadapt.exe` (нужны export templates 4.7.2). Результаты проверки и список ручных проверок на чистом ПК: [docs/windows-release-checklist.md](../docs/windows-release-checklist.md).
+
 ## Механики
 
 - **Башни** (`TDConfig.TOWERS`): 9 типов, у каждой 3 уровня. Уровень 2 — общий прирост (`LEVEL2`), уровень 3 — одна из двух специализаций (`BRANCHES`).
