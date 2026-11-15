@@ -78,6 +78,10 @@ var advice_pop: PanelContainer
 var menu_pop: PanelContainer
 var drawer: PanelContainer
 var drawer_box: VBoxContainer
+var _drawer_context: WeakRef
+var _drawer_scroll_revision := 0
+var _drawer_scroll_pending := false
+var _drawer_scroll_target := 0
 var _active_pop: PanelContainer = null
 
 var info: Dictionary = {}
@@ -440,6 +444,7 @@ func _build_ui() -> void:
 	meta_modal = _make_modal_root()
 	wave_report_modal = _make_modal_root()
 	resized.connect(_resize_surfaces)
+	topbar.resized.connect(_resize_surfaces)
 
 
 func _resize_surfaces() -> void:
@@ -448,7 +453,7 @@ func _resize_surfaces() -> void:
 	if not wave_report.is_empty(): _wave_report.build()
 	if _active_pop != null:
 		var anchor: Control = topbar.advice_btn if _active_pop == advice_pop else topbar.menu_btn
-		_show_popover(_active_pop, anchor)
+		_layout_popover(_active_pop, anchor)
 
 
 func _build_stage_widgets() -> void:
@@ -589,14 +594,20 @@ func _show_popover(p: PanelContainer, anchor: Control) -> void:
 	_active_pop = p
 	pop_catcher.visible = true
 	p.visible = true
+	_layout_popover(p, anchor)
+
+
+func _layout_popover(p: PanelContainer, anchor: Control) -> void:
 	var surface := p as TDModalSurface
-	surface.viewport_margin = Vector2(32, topbar.size.y + 64)
+	# Advice belongs to the field side of the HUD: never cover the tower inspector/actions.
+	var left := dock.get_global_rect().end.x + 12.0 if p == advice_pop else 16.0
+	surface.viewport_margin = Vector2(left + 16.0, topbar.size.y + 64.0)
 	surface.schedule_fit()
 	await get_tree().process_frame
 	await get_tree().process_frame
-	if not p.visible: return
+	if not p.visible or _active_pop != p: return
 	p.reset_size()
-	p.position = Vector2(clampf(anchor.global_position.x + anchor.size.x - p.size.x, 16, size.x - p.size.x - 16), topbar.global_position.y + topbar.size.y + 8)
+	p.position = Vector2(clampf(anchor.global_position.x + anchor.size.x - p.size.x, left, size.x - p.size.x - 16), topbar.global_position.y + topbar.size.y + 8)
 
 
 func _close_popovers() -> void:
@@ -660,8 +671,28 @@ func _on_vaccine(gene: String) -> void:
 
 
 func _build_drawer_content() -> void:
+	var scroll := drawer_box.get_parent() as ScrollContainer
+	var changed_run: bool = _drawer_context == null or _drawer_context.get_ref() != game
+	_drawer_context = weakref(game)
+	if changed_run:
+		_drawer_scroll_target = 0
+		scroll.scroll_vertical = 0
+	elif not _drawer_scroll_pending:
+		_drawer_scroll_target = scroll.scroll_vertical
+	_drawer_scroll_revision += 1
+	_drawer_scroll_pending = true
 	TDUI.clear(drawer_box)
 	drawer_box.add_child(TDPanels.swarm(game, _on_vaccine, _on_lure))
+	_restore_drawer_scroll(_drawer_scroll_revision)
+
+
+func _restore_drawer_scroll(revision: int) -> void:
+	# Container layout may clamp its old range while the replacement content is measured.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if revision != _drawer_scroll_revision: return
+	(drawer_box.get_parent() as ScrollContainer).scroll_vertical = _drawer_scroll_target
+	_drawer_scroll_pending = false
 
 
 # ── ввод ──────────────────────────────────────────────────────

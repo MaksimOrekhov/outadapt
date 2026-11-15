@@ -10,6 +10,7 @@ var interactive := false
 var inspect_state := ""
 var inspect_size := Vector2i(960,540)
 var metrics: Array = []
+var capture_states := PackedStringArray()
 
 func _initialize() -> void:
 	call_deferred("run_checks")
@@ -28,6 +29,9 @@ func descendants(node: Node) -> Array[Node]:
 	return result
 
 func capture(state: String, wh: Vector2i) -> void:
+	# Canonical states have no hovered field cell; don't carry a startup pointer tooltip between fixtures.
+	scene.cursor_tip.hide()
+	scene.enemy_tip.hide()
 	scene.board.selected = scene.selected_tower
 	scene.board.queue_redraw()
 	await settle()
@@ -39,6 +43,10 @@ func capture(state: String, wh: Vector2i) -> void:
 			if surface != null and surface.visible:
 				check("%s %s: popup content remains visible" % [wh, state], surface.size.y >= 48)
 				check("%s %s: popup bounded" % [wh, state], bounds.grow(1).encloses(surface.get_global_rect()))
+		if scene._active_pop == scene.advice_pop:
+			check("%s %s: advice leaves inspector uncovered" % [wh, state], not scene.advice_pop.get_global_rect().intersects(scene.dock.get_global_rect()))
+		if state == "empty-swarm":
+			check("%s empty swarm starts at top" % wh, (scene.drawer_box.get_parent() as ScrollContainer).scroll_vertical == 0)
 		for node in descendants(scene):
 			if node is PanelContainer and node.has_meta("modal_surface") and node.is_visible_in_tree():
 				check("%s %s: modal bounded" % [wh, state], bounds.grow(1).encloses(node.get_global_rect()))
@@ -53,7 +61,7 @@ func capture(state: String, wh: Vector2i) -> void:
 				# Vertical scroll is permitted; clipping a label inside its own rect is not.
 				if node.get_minimum_size().y > node.size.y + 1 or node.get_minimum_size().x > node.size.x + 1:
 					check("%s %s: text fits %s (%s / %s)" % [wh, state, node.text.left(50), node.get_minimum_size(), node.size], false)
-	if output != "" and DisplayServer.get_name() != "headless":
+	if output != "" and DisplayServer.get_name() != "headless" and (capture_states.is_empty() or capture_states.has(state)):
 		var image := root.get_texture().get_image()
 		var filename := "%s-%dx%d.png" % [state, wh.x, wh.y]
 		check("saved " + filename, image.save_png(output.path_join(filename)) == OK)
@@ -82,6 +90,7 @@ func fixture() -> void:
 func run_checks() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="): output = ProjectSettings.globalize_path(arg.substr(6))
+		if arg.begins_with("--states="): capture_states = arg.substr(9).split(",")
 		if arg == "--baseline": baseline = true
 		if arg == "--interactive": interactive = true
 		if arg.begins_with("--inspect="): inspect_state = arg.substr(10)

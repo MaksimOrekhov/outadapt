@@ -29,3 +29,5 @@
 Финальное художественное качество и визуальная приёмка остаются за владельцем. PRO-150 оставить In Review; merge не выполнять.
 
 Дополнительная проверка логов выявила два предупреждавшихся только runtime ERROR: повторное подключение ui_click при reparent кнопок home-grid и deferred tooltip для уже отсоединённого Control. Оба исправлены; menu/layout прогнаны повторно. run_ci.sh теперь считает FAIL, SCRIPT ERROR и ERROR ошибкой прогона, чтобы не принимать ложный зелёный exit code.
+
+После ревью добавлен `ui_context_check` (15-я проверка): lifecycle прокрутки Роя и адаптивная безопасная область advice, включая native keyboard/mouse/outside-click и resize. Подробности, изображения и границы визуальной приёмки — в [review-fixes.md](review-fixes.md). Актуальные checks последнего HEAD доступны в PR #9.

@@ -6,7 +6,7 @@ set -u
 G=${GODOT:-godot}
 CHECKS=("$@")
 if [ ${#CHECKS[@]} -eq 0 ]; then
-  CHECKS=(sanity features_check save_check menu_check audio_check tower_levels_check presentation_check vaccine_check map_check adaptation_check wave_report_check lure_check lure_combat_check visual_slice_check)
+  CHECKS=(sanity features_check save_check menu_check audio_check tower_levels_check presentation_check vaccine_check map_check adaptation_check wave_report_check lure_check lure_combat_check visual_slice_check ui_context_check)
 fi
 
 echo "== Godot: $("$G" --version 2>&1 | tail -1)"
