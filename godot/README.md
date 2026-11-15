@@ -29,6 +29,10 @@ Tower defence на Godot 4.7 + GDScript: враги эволюционируют
 - Скриншот: `... --path . -- --shot=out.png --seed=4243 --secs=8 [--skip=W] [--ui=perk|help|tutorial|over|victory|meta|upgrade|select|sell|swarm|advice|menu|startscreen|mainmenu|settings|saves]`.
   В этом режиме Мастерская не даёт бонусов и ничего не сохраняет.
 
+## CI
+
+`.github/workflows/godot-tests.yml` на каждый PR и push в `main` запускает на Linux и Windows все headless-проверки (`sanity`, `features_check`, `save_check`, `menu_check`, `audio_check`, `tower_levels_check`, `presentation_check`) на Godot 4.7.2. Логи лежат в артефактах прогона. Локально то же самое: `GODOT=<путь к консольному Godot> bash tests/run_ci.sh [проверка ...]` из папки `godot` (сначала делает `--import`, затем гонит проверки; код выхода 1 при любой ошибке). Для блокировки merge включить required checks `Linux` и `Windows` в правилах ветки `main`.
+
 ## Механики
 
 - **Башни** (`TDConfig.TOWERS`): 9 типов, у каждой 3 уровня. Уровень 2 — общий прирост (`LEVEL2`), уровень 3 — одна из двух специализаций (`BRANCHES`).
