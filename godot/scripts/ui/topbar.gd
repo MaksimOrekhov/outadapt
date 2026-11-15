@@ -241,7 +241,7 @@ func update(g: TDGame, info: Dictionary, threat: Dictionary, coverage: Dictionar
 
 	# «Следом»: перестраиваем только при изменении
 	var sig := "%d|%d|%s|%d|%s|%d|%s" % [g.wave, g.upcoming.size(), str(not g.upcoming_boss.is_empty()), int(coverage["pct"] * 20), g.phase, g.towers.size(), g.upcoming_special]
-	sig += "|%s|%d|%d" % [str(g.vaccine), g.vaccine_cd, 1 if g.gold >= TDConfig.vaccine_cost(g.wave) else 0]
+	sig += "|%s|%d|%d|%s" % [str(g.vaccine), g.vaccine_cd, 1 if g.gold >= TDConfig.vaccine_cost(g.wave) else 0, str(g.lure)]
 	if sig == _sig:
 		return
 	_sig = sig
@@ -270,5 +270,9 @@ func update(g: TDGame, info: Dictionary, threat: Dictionary, coverage: Dictionar
 	if not g.vaccine.is_empty():
 		var vg: String = g.vaccine["gene"]
 		next_box.add_child(TDUI.mini_chip("gene-" + vg, TDUI.OK, "вакцина %d" % g.vaccine["left"], "Вакцина: «%s» не растёт выше %d%%. Осталось волн: %d" % [TDGenome.GENE_LABELS[vg], round(float(g.vaccine["cap"]) * 100), g.vaccine["left"]]))
+	if not g.lure.is_empty():
+		var lg: String = g.lure["gene"]
+		var lpv := g.lure_preview(lg)
+		next_box.add_child(TDUI.mini_chip("coin", TDUI.GOLD, "приманка: " + TDGenome.GENE_LABELS[lg].to_lower(), "Приманка: у врагов этой волны %s. Под ударом %d%% твоего урона, награда до %d золота" % [lpv["effect"], roundi(float(lpv["risk"]) * 100.0), lpv["reward"]]))
 	if g.towers.size() >= 3 and coverage["pct"] < 0.65:
 		next_box.add_child(TDUI.mini_chip("target", TDUI.BAD, "%d%%" % round(coverage["pct"] * 100), "Только %d%% дороги под обстрелом. Красные клетки на дороге — дыры" % round(coverage["pct"] * 100)))

@@ -21,6 +21,9 @@ var vaccine_mode := "off"  # off | grow | threat | surplus (только на о
 var vaccine_buys := 0
 ## Принудительное семейство карт: --family=snake|vsnake|stairs|hooks (по умолчанию по сиду).
 var family := ""
+## Приманка: --lure=off|tough|swift|plated|ember|frost|rotate (по кругу). Бот берёт её, когда она доступна.
+var lure_mode := "off"
+var lure_buys := 0
 
 const ALL: Array[String] = ["arrow", "frost", "ember", "poison", "arrow", "flak", "cannon", "tesla", "sniper", "beacon"]
 const COMBO: Array[String] = ["arrow", "frost", "arrow", "ember"]
@@ -49,6 +52,8 @@ func _init() -> void:
 			only = a.substr(7)
 		elif a == "--no-upgrades":
 			upgrades = false
+		elif a.begins_with("--lure="):
+			lure_mode = a.substr(7)
 		elif a.begins_with("--family="):
 			family = a.substr(9)
 		elif a.begins_with("--vaccine="):
@@ -77,7 +82,10 @@ func _init() -> void:
 		for r in results:
 			sum += float(r)
 		print("  => дошёл до волны: %s  среднее %.1f  (>%d = не проиграл)%s" % [", ".join(results), sum / results.size(), max_wave, ("  вакцин куплено: %d" % vaccine_buys) if vaccine_mode != "off" else ""])
+		if lure_mode != "off":
+			print("  приманок куплено: %d" % lure_buys)
 		vaccine_buys = 0
+		lure_buys = 0
 	quit()
 
 
@@ -188,6 +196,16 @@ func _vaccinate(g: TDGame) -> void:
 		vaccine_buys += 1
 
 
+func _lure(g: TDGame) -> void:
+	if lure_mode == "off":
+		return
+	var gene := lure_mode
+	if lure_mode == "rotate":
+		gene = TDConfig.LURE_GENES[g.lure_uses % TDConfig.LURE_GENES.size()]
+	if g.lure_problem(gene) == "" and g.buy_lure(gene):
+		lure_buys += 1
+
+
 func _play(pick: Callable, seed_v: int, show: bool) -> int:
 	var g := TDGame.new(seed_v, TDMap.generate(seed_v, family), {"difficulty": difficulty, "mode": mode})
 	var cells := _coverage_cells(g)
@@ -199,6 +217,7 @@ func _play(pick: Callable, seed_v: int, show: bool) -> int:
 				g.choose_perk(g.offer[int(floor(perk_rng.next() * g.offer.size()))])
 			if vaccine_mode != "surplus":
 				_vaccinate(g)
+			_lure(g)
 			_build_phase(g, pick, cells)
 			if vaccine_mode == "surplus":
 				_vaccinate(g)

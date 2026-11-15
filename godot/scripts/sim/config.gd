@@ -205,6 +205,22 @@ const VACCINE_BASE_COST := 40
 const VACCINE_WAVE_COST := 6
 ## Против редких признаков (полёт, невидимость, лечение, деление, щит) вакцина доступна только через столько волн после их появления: нельзя «вычеркнуть» новую механику до знакомства с ней.
 const VACCINE_TRAIT_DELAY := 3
+
+# Приманка: добровольно усилить один базовый ген следующей волны за долю золота этой волны.
+# Эффект: фенотип врагов волны считается с геном +boost (до 1.0); геномы роя не меняются: приманка не наследуется и не трогает rng. Награда: LURE_SHARE от дохода волны
+# (убитые × награда за убийство + бонус за волну) × exposure × saturation, если волна пройдена. Одна за раз, затем пауза; не на боссовых и особых волнах.
+const LURE_GENES: Array[String] = ["tough", "swift", "plated", "ember", "frost"]
+const LURE_BOOST := 0.2
+## Прибавка своя для каждого гена: подобрана ботами так, чтобы приманки были сопоставимы по риску и ни одна не была бесплатной.
+const LURE_BOOSTS := {"tough": 0.2, "swift": 0.4, "plated": 0.5, "ember": 0.7, "frost": 0.7}
+const LURE_SHARE := 0.3
+const LURE_COOLDOWN := 1
+const LURE_MIN_WAVE := 3
+## Риск должен быть настоящим: награда умножается на долю обороны, которую ген действительно затрагивает (exposure),
+## и на степень, в которой ген реально усилился (saturation: у насыщенного гена прибавка упирается в 1.0).
+## Ниже этих порогов приманку взять нельзя, а при выплате ниже порога exposure награда равна нулю.
+const LURE_MIN_EXPOSURE := 0.15
+const LURE_MIN_SATURATION := 0.5
 const PERK_CHOICES := 3
 
 # Боссы: каждые N волн приходит «зеркало» твоей обороны.
@@ -289,6 +305,10 @@ static func boss_bonus(wave: int) -> int:
 
 static func wave_size(wave: int) -> int:
 	return 10 + int(floor(wave * 1.5))
+
+
+static func lure_boost(gene: String) -> float:
+	return float(LURE_BOOSTS.get(gene, LURE_BOOST))
 
 
 static func vaccine_cost(wave: int) -> int:

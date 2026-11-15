@@ -624,6 +624,13 @@ func _place_drawer() -> void:
 	drawer.position = stage.global_position + Vector2(stage.size.x - DRAWER_W - 8.0, 8.0)
 
 
+func _on_lure(gene: String) -> void:
+	if game.buy_lure(gene):
+		_sigs.clear()
+		_dirty = true
+		_build_drawer_content()
+
+
 func _on_vaccine(gene: String) -> void:
 	if game.buy_vaccine(gene):
 		_sigs.clear()
@@ -633,7 +640,7 @@ func _on_vaccine(gene: String) -> void:
 
 func _build_drawer_content() -> void:
 	TDUI.clear(drawer_box)
-	drawer_box.add_child(TDPanels.swarm(game, _on_vaccine))
+	drawer_box.add_child(TDPanels.swarm(game, _on_vaccine, _on_lure))
 
 
 # ── ввод ──────────────────────────────────────────────────────
@@ -901,7 +908,7 @@ func _refresh(_force: bool) -> void:
 		if _sig_changed("advice_pop", "%d|%s|%d" % [game.wave, game.phase, game.towers.size()]):
 			_build_advice()
 	if drawer.visible:
-		if _sig_changed("drawer", "%d|%d|%d|%d|%s|%d|%s" % [game.reports.size(), game.wave, game.perks.size(), game.gold, str(game.vaccine), game.vaccine_cd, game.phase]):
+		if _sig_changed("drawer", "%d|%d|%d|%d|%s|%d|%s|%s|%d" % [game.reports.size(), game.wave, game.perks.size(), game.gold, str(game.vaccine), game.vaccine_cd, game.phase, str(game.lure), game.lure_cd]):
 			_build_drawer_content()
 	_update_overlays()
 	stage_hint.visible = game.towers.is_empty() and game.phase == "build" and game.offer.is_empty()
@@ -1215,6 +1222,25 @@ func _run_demo(delta: float) -> void:
 				_toggle_advice()
 			"swarm":
 				_toggle_drawer()
+			"lure":
+				# между волнами: взять приманку и открыть панель «Рой» (для кадров)
+				game.enemies.clear()
+				game.pending.clear()
+				game.pending_boss.clear()
+				game.phase = "build"
+				game.buy_lure("plated")
+				_toggle_drawer()
+			"lurewave":
+				# волна с приманкой уже идёт: враги с золотой каймой (для кадров)
+				game.enemies.clear()
+				game.pending.clear()
+				game.pending_boss.clear()
+				game.phase = "build"
+				game.upcoming_boss = {}
+				game.upcoming_special = ""
+				if not game.buy_lure("plated"):
+					game.buy_lure("swift")
+				game.start_wave()
 			"wavereport":
 				# отчёт о последней волне: для кадров и проверки (нужен хотя бы один сыгранный отчёт)
 				game.enemies.clear()

@@ -33,6 +33,8 @@ class Enemy:
 	var summon_t: float = 0.0
 	var immune_type: String = ""
 	var summon_left: int = 0
+	## Враг волны с приманкой: какой ген усилен ("" — обычный). Геном для отбора не меняется.
+	var lured_gene: String = ""
 
 
 class Tower:
@@ -113,6 +115,10 @@ var cur_special: String = ""
 var vaccine: Dictionary = {}
 var vaccine_cd: int = 0
 var vaccine_uses: int = 0
+## Приманка: {} или {gene, boost, wave}; пауза до следующей и число покупок за забег.
+var lure: Dictionary = {}
+var lure_cd: int = 0
+var lure_uses: int = 0
 ## Визуальные события для эффектов (включает поле; на баланс не влияют).
 var emit_events: bool = false
 var events: Array[Dictionary] = []
@@ -302,6 +308,8 @@ func vaccine_problem(gene: String) -> String:
 		return "Только между волнами"
 	if not vaccine.is_empty():
 		return "Уже действует вакцина"
+	if lure.get("gene", "") == gene:
+		return "На этот ген действует приманка"
 	if vaccine_cd > 0:
 		return "Перезарядка: %d" % vaccine_cd
 	if TDGenome.UNLOCK_WAVE.has(gene) and wave < int(TDGenome.UNLOCK_WAVE[gene]) + TDConfig.VACCINE_TRAIT_DELAY:
@@ -324,6 +332,140 @@ func buy_vaccine(gene: String) -> bool:
 	vaccine = {"gene": gene, "left": TDConfig.VACCINE_WAVES, "cap": vaccine_cap(gene)}
 	vaccine_uses += 1
 	upcoming = TDGenome.apply_caps(upcoming, {gene: vaccine["cap"]})
+	return true
+
+
+# ── Приманка ──────────────────────────────────────────────────
+
+## Доля обороны, которую затрагивает ген (0..1). Здоровье и скорость врагов влияют на любой урон; броня, огне- и морозостойкость
+## ослабляют только свои типы урона (`TDGenome.TYPE_GENE`). Оценка по номинальному урону в секунду стоящих башен.
+func lure_exposure_estimate(gene: String) -> float:
+	var total := 0.0
+	var hit := 0.0
+	for t in towers:
+		if t.def.has("aura"):
+			continue
+		var dps: float = t_damage(t) / maxf(0.05, t_cooldown(t))
+		total += dps
+		if TDGenome.TYPE_GENE.get(t.def["type"], "") == gene:
+			hit += dps
+	if total <= 0.0:
+		return 0.0
+	return 1.0 if gene in ["tough", "swift"] else hit / total
+
+
+## То же по фактически нанесённому за волну урону (damage_by по типам башен).
+static func lure_exposure_actual(gene: String, dmg_by: Dictionary, any_damage: bool) -> float:
+	if gene in ["tough", "swift"]:
+		return 1.0 if any_damage else 0.0
+	return float(TDGenome.pressure(dmg_by).get(gene, 0.0))
+
+
+## Насколько прибавка реально усилит ген: 1.0 — полностью, 0.0 — ген уже на потолке.
+static func lure_saturation(gene: String, boost: float, list: Array) -> float:
+	if list.is_empty() or boost <= 0.0:
+		return 0.0
+	var applied := 0.0
+	for g in list:
+		var v: float = float(g.get(gene, 0.0))
+		applied += minf(1.0, v + boost) - v
+	return clampf(applied / (boost * list.size()), 0.0, 1.0)
+
+
+## Доход волны для награды: убитые × награда за убийство + бонус за волну.
+func _lure_income(kills: int, w: int) -> int:
+	var bounty: int = TDConfig.KILL_REWARD + perk_level("bounty")
+	return kills * bounty + TDConfig.wave_bonus(w)
+
+
+## Оценка награды за приманку на ген (по числу врагов ближайшей волны, текущей обороне и усилению генов).
+func lure_estimate(gene: String = "") -> int:
+	if gene == "":
+		gene = String(lure.get("gene", ""))
+	if gene == "":
+		return 0
+	var boost := TDConfig.lure_boost(gene)
+	var exposure := lure_exposure_estimate(gene)
+	if exposure < TDConfig.LURE_MIN_EXPOSURE:
+		return 0
+	return int(round(TDConfig.LURE_SHARE * _lure_income(upcoming.size(), wave) * exposure * lure_saturation(gene, boost, upcoming)))
+
+
+## Что изменится для игрока: во сколько раз усилятся враги и какая доля обороны под ударом.
+## effect — человекочитаемо; risk — доля обороны (0..1); reward — ожидаемая награда.
+func lure_preview(gene: String) -> Dictionary:
+	var boost := TDConfig.lure_boost(gene)
+	var base := {"hp": 0.0, "speed": 0.0, "armor": 0.0, "fireRes": 0.0, "frostRes": 0.0}
+	var lured := base.duplicate()
+	for ge in upcoming:
+		var p0 := TDGenome.phenotype(ge, wave)
+		var lg: Dictionary = ge.duplicate()
+		lg[gene] = minf(1.0, float(lg.get(gene, 0.0)) + boost)
+		var p1 := TDGenome.phenotype(lg, wave)
+		for k in base:
+			base[k] += p0[k]
+			lured[k] += p1[k]
+	var n: float = maxf(1.0, float(upcoming.size()))
+	for k in base:
+		base[k] /= n
+		lured[k] /= n
+	var effect := ""
+	match gene:
+		"tough":
+			effect = "здоровье врагов +%d%%" % roundi((lured["hp"] / maxf(1e-6, base["hp"]) - 1.0) * 100.0)
+		"swift":
+			effect = "скорость врагов +%d%%" % roundi((lured["speed"] / maxf(1e-6, base["speed"]) - 1.0) * 100.0)
+		"plated":
+			effect = "броня врагов %.1f → %.1f" % [base["armor"], lured["armor"]]
+		"ember":
+			effect = "огнестойкость врагов %d%% → %d%%" % [roundi(base["fireRes"] * 100.0), roundi(lured["fireRes"] * 100.0)]
+		"frost":
+			effect = "морозостойкость врагов %d%% → %d%%" % [roundi(base["frostRes"] * 100.0), roundi(lured["frostRes"] * 100.0)]
+	return {"gene": gene, "boost": boost, "effect": effect, "risk": lure_exposure_estimate(gene),
+		"saturation": lure_saturation(gene, boost, upcoming), "reward": lure_estimate(gene)}
+
+
+## Причина, по которой приманку на ген нельзя взять; "" — можно.
+func lure_problem(gene: String) -> String:
+	if not TDConfig.LURE_GENES.has(gene):
+		return "Приманка только на базовые гены"
+	if phase != "build":
+		return "Только между волнами"
+	if not lure.is_empty():
+		return "Приманка уже выбрана"
+	if lure_cd > 0:
+		return "Перезарядка: %d" % lure_cd
+	if wave < TDConfig.LURE_MIN_WAVE:
+		return "Доступна с волны %d" % TDConfig.LURE_MIN_WAVE
+	if not upcoming_boss.is_empty() or upcoming_special != "":
+		return "Не на боссовых и особых волнах"
+	if vaccine.get("gene", "") == gene:
+		return "На этот ген действует вакцина"
+	if lure_exposure_estimate(gene) < TDConfig.LURE_MIN_EXPOSURE:
+		if towers.is_empty() or gene in ["tough", "swift"]:
+			return "Нужны башни: без обороны нет ни риска, ни награды"
+		return "Твоя оборона почти не зависит от этого гена: риска нет, награды не будет"
+	if lure_saturation(gene, TDConfig.lure_boost(gene), upcoming) < TDConfig.LURE_MIN_SATURATION:
+		return "Ген врагов уже почти максимален: приманка почти ничего не усилит"
+	return ""
+
+
+## Геном с учётом приманки: усиливает ген только в копии, для фенотипа ближайшей волны.
+## Геномы напрямую не меняются и прибавка не наследуется; итог боя может косвенно изменить отбор через fitness. RNG не сдвигается.
+func lured_genome(ge: Dictionary) -> Dictionary:
+	if lure.is_empty():
+		return ge
+	var copy: Dictionary = ge.duplicate()
+	var gene: String = lure["gene"]
+	copy[gene] = minf(1.0, float(copy.get(gene, 0.0)) + float(lure["boost"]))
+	return copy
+
+
+func buy_lure(gene: String) -> bool:
+	if lure_problem(gene) != "":
+		return false
+	lure = {"gene": gene, "boost": TDConfig.lure_boost(gene), "wave": wave}
+	lure_uses += 1
 	return true
 
 
@@ -671,7 +813,8 @@ func step(dt: float) -> void:
 	while (not pending.is_empty() or not pending_boss.is_empty()) and spawn_t <= 0.0:
 		var is_boss: bool = not pending_boss.is_empty() and pending.size() <= half
 		var genome: Dictionary = pending_boss if is_boss else pending.pop_front()
-		var ph: Dictionary = TDGenome.phenotype(genome, wave)
+		# приманка усиливает фенотип врагов обычной волны; сам геном (для отбора) остаётся прежним
+		var ph: Dictionary = TDGenome.phenotype(lured_genome(genome) if not is_boss else genome, wave)
 		var sp: Dictionary = TDConfig.SPECIAL_WAVES.get(cur_special, {})
 		var hp_mult: float = float(TDConfig.difficulty(meta)["hp"])
 		if is_boss:
@@ -700,6 +843,8 @@ func step(dt: float) -> void:
 		e.ph = ph
 		e.hp = ph["hp"]
 		e.boss = is_boss
+		if not is_boss and not lure.is_empty():
+			e.lured_gene = String(lure["gene"])
 		if is_boss:
 			e.ability = TDConfig.boss_ability(wave)
 			e.immune_type = String(genome.get("immune_type", "physical"))
@@ -907,6 +1052,7 @@ func _split(e: Enemy) -> Array[Enemy]:
 		c.hp = c.ph["hp"]
 		c.dist = maxf(0.0, e.dist - 0.25 * i)
 		c.child = true
+		c.lured_gene = e.lured_gene
 		out.append(c)
 	_ev({"type": "split", "pos": pos_of(e)})
 	return out
@@ -1010,6 +1156,19 @@ func _end_wave() -> void:
 		"bonus": TDConfig.wave_bonus(w),
 	})
 	# проценты считаются с того, что накоплено к концу волны (до бонуса)
+	var lure_bonus := 0
+	if not lure.is_empty() and int(lure["wave"]) == w:
+		var lgene: String = lure["gene"]
+		var income := _lure_income(killed, w)
+		var exposure := lure_exposure_actual(lgene, damage_by, killed > 0)
+		var saturation := lure_saturation(lgene, float(lure["boost"]), wave_genomes)
+		if exposure >= TDConfig.LURE_MIN_EXPOSURE:
+			lure_bonus = int(round(TDConfig.LURE_SHARE * income * exposure * saturation))
+		reports[reports.size() - 1]["lure"] = {"gene": lgene, "bonus": lure_bonus, "exposure": exposure, "saturation": saturation, "income": income}
+		lure = {}
+		lure_cd = TDConfig.LURE_COOLDOWN
+	elif lure_cd > 0:
+		lure_cd -= 1
 	var interest: int = mini(TDConfig.INTEREST_CAP, int(floor(gold * TDConfig.INTEREST)))
 	reports[reports.size() - 1]["interest"] = interest
 	var bonus: int = TDConfig.wave_bonus(w)
@@ -1017,7 +1176,7 @@ func _end_wave() -> void:
 		bonus = int(round(bonus * TDConfig.SPECIAL_BONUS))
 		reports[reports.size() - 1]["bonus"] = bonus
 		reports[reports.size() - 1]["special"] = cur_special
-	gold += bonus + interest
+	gold += bonus + interest + lure_bonus
 	for k in damage_by:
 		run_damage[k] = float(run_damage.get(k, 0.0)) + damage_by[k]
 	if w == TDConfig.VICTORY_WAVE and mode_id() != "endless":

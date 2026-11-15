@@ -20,6 +20,7 @@ static func snapshot(g: TDGame) -> Dictionary:
 	return {
 		"wave": int(r["wave"]), "killed": int(r["killed"]), "size": int(r["size"]), "leaked": int(r["leaked"]),
 		"bonus": int(r.get("bonus", 0)), "interest": int(r.get("interest", 0)), "special": String(r.get("special", "")),
+		"lure": r.get("lure", {}).duplicate(),
 		"entries": TDAdvisor.adaptation(g).slice(0, MAX_ENTRIES),
 	}
 
@@ -69,6 +70,13 @@ func build() -> void:
 	chips.add_child(TDUI.chip("", "прорвалось %d" % snap["leaked"], TDUI.BAD if snap["leaked"] > 0 else TDUI.TEXT))
 	if snap["bonus"] + snap["interest"] > 0:
 		chips.add_child(TDUI.chip("coin", "+%d золота" % (snap["bonus"] + snap["interest"]), TDUI.GOLD, "Бонус за волну %d, проценты %d" % [snap["bonus"], snap["interest"]]))
+	if not snap.get("lure", {}).is_empty():
+		var lr: Dictionary = snap["lure"]
+		var gname: String = TDGenome.GENE_LABELS[lr["gene"]]
+		if lr["bonus"] > 0:
+			chips.add_child(TDUI.chip("coin", "приманка +%d золота" % lr["bonus"], TDUI.GOLD, "«%s»: %d%% дохода волны (%d) × затронутая оборона %d%% × усиление гена %d%%" % [gname, roundi(TDConfig.LURE_SHARE * 100.0), lr["income"], roundi(lr["exposure"] * 100.0), roundi(lr["saturation"] * 100.0)]))
+		else:
+			chips.add_child(TDUI.chip("coin", "приманка без награды", TDUI.MUTED, "«%s»: твой урон почти не зависел от этого гена (затронуто %d%%) или ген уже был максимален — риска не было, награды тоже" % [gname, roundi(lr["exposure"] * 100.0)]))
 	v.add_child(chips)
 
 	var entries: Array = snap["entries"]

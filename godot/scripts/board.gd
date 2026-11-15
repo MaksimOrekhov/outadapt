@@ -708,6 +708,10 @@ func _draw_enemy(e: TDGame.Enemy) -> void:
 			# Four offset copies produce a silhouette rim, never a radius circle.
 			for offset in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
 				_draw_custom_enemy(custom_model, body + offset * maxf(1.0, _cs / 64.0), side * spawn, heading, Color(0.45, 0.80, 1.0, 0.45 * al), phase, fly, e.hit_flash, -1.0, true)
+		if e.lured_gene != "":
+			# золотая кайма по силуэту: враг усилен приманкой (щит рисуется голубой каймой)
+			for offset in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+				_draw_custom_enemy(custom_model, body + offset * maxf(1.0, _cs / 64.0), side * spawn, heading, Color(1.0, 0.82, 0.30, 0.55 * al), phase, fly, e.hit_flash, -1.0, true)
 		_draw_custom_enemy(custom_model, body, side * spawn, heading, enemy_mod, phase, fly, e.hit_flash)
 
 	if e.ph.get("ward", false):
