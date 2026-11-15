@@ -37,6 +37,10 @@ Tower defence на Godot 4.7 + GDScript: враги эволюционируют
 
 `GODOT=<путь к консольному Godot 4.7.2> bash godot/tools/export_win.sh` из корня репозитория собирает `build/win/Outadapt.exe` (нужны export templates 4.7.2). Результаты проверки и список ручных проверок на чистом ПК: [docs/windows-release-checklist.md](../docs/windows-release-checklist.md).
 
+## Лицензии
+
+Сторонние материалы и их лицензии: [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md); аудит, нерешённые вопросы и план раскрытия AI для Steam: [docs/asset-license-audit.md](../docs/asset-license-audit.md).
+
 ## Механики
 
 - **Башни** (`TDConfig.TOWERS`): 9 типов, у каждой 3 уровня. Уровень 2 — общий прирост (`LEVEL2`), уровень 3 — одна из двух специализаций (`BRANCHES`).
