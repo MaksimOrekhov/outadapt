@@ -24,7 +24,7 @@
 Из папки `godot` (Godot 4.7.2, консольная сборка; на Windows — `Godot_v4.7.2-stable_win64_console.exe`):
 
 ```bash
-# полная матрица (328 ячеек × 10 сидов; ~2 ч на 12 потоках)
+# полная матрица (324 ячейки × 10 сидов = 3240 партий; ~2 ч на 12 потоках)
 GODOT=/d/Godot/Godot_v4.7.2-stable_win64_console.exe bash tests/balance_matrix.sh ../build/balance/runs 11 10
 # сводные таблицы и CSV
 python tests/balance_report.py ../build/balance/runs ../docs/balance/data

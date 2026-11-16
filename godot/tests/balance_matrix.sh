@@ -58,7 +58,7 @@ for s in owner mixed adaptive; do
   done
 done
 # E5: смена обороны на 13-й волне (физика → огонь/яд/Тесла/лёд), normal, с Мастерской — латентность ответа роя
-for f in $FAMS; do add "E5_switch_normal_${f}_ws1" --strategy=switch --difficulty=normal --family=$f --workshop=1; done
+for f in $FAMS; do add "E5_switch_normal_${f}_ws1" --strategy=switch --difficulty=normal --family=$f --workshop=1 --cap=0; done
 
 echo "cells: $(wc -l < "$CMDS"), jobs: $JOBS, seeds: $SEEDS, cap: $CAP"
 date

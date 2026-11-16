@@ -1,3 +1,6 @@
+# PRO-151: команды всех ячеек, вошедших в сводку (docs/balance/data/runs.csv): 324 ячейки × 10 сидов = 3240 партий.
+# Запуск из папки godot, G = консольный Godot 4.7.2. Ячейки E4_owner_no-beacon_* выполнены дважды: первый прогон (до исправления
+# абляции реакции на невидимок) заменён в сводке повторным; команда та же, изменился код бота. Подробности — 02-baseline-report.md §2.1.
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=arrow --difficulty=normal --family=snake --workshop=0 --out=../build/balance/runs/E1_arrow_normal_snake_ws0.jsonl
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=arrow --difficulty=normal --family=snake --workshop=1 --out=../build/balance/runs/E1_arrow_normal_snake_ws1.jsonl
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=arrow --difficulty=normal --family=vsnake --workshop=0 --out=../build/balance/runs/E1_arrow_normal_vsnake_ws0.jsonl
@@ -298,14 +301,6 @@ $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=0 --strategy=switch --difficulty=normal --family=vsnake --workshop=1 --out=../build/balance/runs/E5_switch_normal_vsnake_ws1.jsonl
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=0 --strategy=switch --difficulty=normal --family=stairs --workshop=1 --out=../build/balance/runs/E5_switch_normal_stairs_ws1.jsonl
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=0 --strategy=switch --difficulty=normal --family=hooks --workshop=1 --out=../build/balance/runs/E5_switch_normal_hooks_ws1.jsonl
-$G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --ablate=beacon --difficulty=normal --family=snake --out=../build/balance/runs/E4_owner_no-beacon_normal_snake.jsonl
-$G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --ablate=beacon --difficulty=normal --family=vsnake --out=../build/balance/runs/E4_owner_no-beacon_normal_vsnake.jsonl
-$G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --ablate=beacon --difficulty=normal --family=stairs --out=../build/balance/runs/E4_owner_no-beacon_normal_stairs.jsonl
-$G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --ablate=beacon --difficulty=normal --family=hooks --out=../build/balance/runs/E4_owner_no-beacon_normal_hooks.jsonl
-$G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --ablate=beacon --difficulty=hard --family=snake --out=../build/balance/runs/E4_owner_no-beacon_hard_snake.jsonl
-$G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --ablate=beacon --difficulty=hard --family=vsnake --out=../build/balance/runs/E4_owner_no-beacon_hard_vsnake.jsonl
-$G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --ablate=beacon --difficulty=hard --family=stairs --out=../build/balance/runs/E4_owner_no-beacon_hard_stairs.jsonl
-$G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --ablate=beacon --difficulty=hard --family=hooks --out=../build/balance/runs/E4_owner_no-beacon_hard_hooks.jsonl
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --difficulty=normal --family=snake --micro=0 --out=../build/balance/runs/E1b_owner_normal_snake_ws0.jsonl
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --difficulty=normal --family=vsnake --micro=0 --out=../build/balance/runs/E1b_owner_normal_vsnake_ws0.jsonl
 $G --headless --path . --script res://tests/balance_audit.gd -- --seeds=10 --cap=40 --strategy=owner --difficulty=normal --family=stairs --micro=0 --out=../build/balance/runs/E1b_owner_normal_stairs_ws0.jsonl
