@@ -44,6 +44,9 @@ static func advice(g: TDGame, tips: Array, on_pick: Callable) -> VBoxContainer:
 ## Сводка: итог прошлой волны, смещение роя, гены, перки.
 static func swarm(g: TDGame, on_vaccine: Callable = Callable(), on_lure: Callable = Callable()) -> VBoxContainer:
 	var v := TDUI.vbox(12)
+	# PRO-152: ответ роя на оборону — первым, это главное, что меняет состав волн (только с флагом эксперимента)
+	if TDStrains.enabled(g.meta):
+		v.add_child(strains_section(g))
 	var r := last_report(g)
 	if r.is_empty():
 		v.add_child(TDUI.para("Пока нет данных. После первой волны здесь появится итог и то, как изменился рой.", 13, TDUI.MUTED))
@@ -210,6 +213,40 @@ static func vaccine_status(g: TDGame) -> Control:
 	return l
 
 
+## PRO-152: «Рой изучает твою оборону» — сигнатура и пакеты контрмер. Только с флагом эксперимента.
+static func strains_section(g: TDGame) -> Control:
+	var sv := _section("Рой изучает твою оборону · эксперимент")
+	var sig: Dictionary = g.strains.get("sig", {})
+	if not sig.has("del"):
+		sv[1].add_child(TDUI.para("После первых волн рой начнёт отмечать, чем ты бьёшь: тяжёлыми одиночными выстрелами, частым огнём, по площади, цепью или ядом; по замороженным ли врагам; закрыто ли небо.", 12, TDUI.MUTED))
+		return sv[0]
+	var names := {"burst": "тяжёлые одиночные", "rapid": "частый одиночный", "area": "по площади", "chain": "цепь", "dot": "яд"}
+	var colors := {"burst": "#c9a0ff", "rapid": "#d6bd85", "area": "#9aa3b2", "chain": "#7fe3ff", "dot": "#7ddc5a"}
+	for k in TDStrains.DEL:
+		var share: float = float(sig["del"].get(k, 0.0))
+		if share >= 0.01:
+			sv[1].add_child(TDUI.data_row("target", Color(colors[k]), names[k], share, Color(colors[k]), "%d%%" % roundi(share * 100.0)))
+	var chill: float = float(sig.get("chill", 0.0))
+	var gap: float = float(sig.get("air_gap", 0.0))
+	sv[1].add_child(TDUI.data_row("st-frozen", Color("#9fdcff"), "по замороженным", chill, Color("#9fdcff"), "%d%%" % roundi(chill * 100.0)))
+	sv[1].add_child(TDUI.data_row("gene-wings", Color("#9ad7ff"), "небо без ПВО", gap, Color("#9ad7ff"), "%d%%" % roundi(gap * 100.0)))
+	var entries := TDStrains.forecast(g)
+	if entries.is_empty():
+		sv[1].add_child(TDUI.para("Ни один ответ пока не вызревает: оборона не опирается на один способ сильнее порога.", 12, TDUI.MUTED))
+	for e in entries:
+		var box := TDUI.vbox(3)
+		var h := TDUI.hbox(8)
+		h.add_child(TDUI.icon(e["icon"], 22, Color(e["color"])))
+		h.add_child(TDUI.label(e["name"], 14, Color(e["color"]), true))
+		h.add_child(TDUI.bar(clampf(float(e["inc"]) / TDStrains.ANNOUNCE, 0.0, 1.0), Color(e["color"]), 8))
+		box.add_child(h)
+		box.add_child(TDUI.para(TDStrains.line(e), 12, Color("#b5c4be")))
+		sv[1].add_child(box)
+	sv[1].add_child(TDUI.para("Пороги: выводок — тяжёлые одиночные ≥ %d%%, панцирники — лёгкие одиночные ≥ %d%%, стая — небо без ПВО ≥ %d%%." % [roundi(TDStrains.PACK["brood"]["threshold"] * 100), roundi(TDStrains.PACK["hulk"]["threshold"] * 100), roundi(TDStrains.PACK["flock"]["threshold"] * 100)], 11, TDUI.MUTED))
+	sv[1].add_child(TDUI.para("Рой считает удары по обычным врагам (без боссов и своих ответов) и сглаживает их по волнам. Ответ вызревает, только пока доля выше порога, объявляется за %d волны и уходит постепенно, если ты перестроился." % TDStrains.LEAD, 11, TDUI.MUTED))
+	return sv[0]
+
+
 static func _section(title: String) -> Array:
 	var p := TDUI.panel(TDUI.PANEL2, TDUI.LINE, 10, 12)
 	var v := TDUI.vbox(7)
@@ -238,6 +275,14 @@ static func trait_list(e: TDGame.Enemy) -> Array:
 		list.append(["gene-split", Color("#e08af0"), "малыш"])
 	if e.lured_gene != "":
 		list.append(["coin", TDUI.GOLD, "приманка: %s" % TDGenome.GENE_LABELS[e.lured_gene]])
+	if e.strain != "":
+		var pd: Dictionary = TDStrains.PACK[e.strain]
+		var label: String = pd["name"]
+		if e.strain == "brood":
+			label += ": тяжёлые выстрелы не ранят"
+		elif e.strain == "hulk":
+			label += ": лёгкие удары не ранят"
+		list.append([pd["icon"], Color(pd["color"]), label])
 	for t in TDBoard.TRAITS:
 		if e.genome[t[0]] >= 0.3 and not (e.boss and t[0] == "tough"):
 			list.append(["gene-" + String(t[0]), Color(t[1]), TDGenome.GENE_LABELS[t[0]]])

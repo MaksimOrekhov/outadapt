@@ -6,8 +6,15 @@ extends RefCounted
 static func wave_info(g: TDGame) -> Dictionary:
 	var n: int = maxi(1, g.upcoming.size())
 	var phs: Array = []
+	var strain_n := {}
 	for ge in g.upcoming:
-		phs.append(TDGenome.phenotype(g.lured_genome(ge), g.wave))
+		var ph := TDGenome.phenotype(g.lured_genome(ge), g.wave)
+		# PRO-152: враги пакетов (только с флагом эксперимента; без флага ключа "strain" в геномах нет)
+		var strain := String(ge.get("strain", ""))
+		if strain != "":
+			ph = TDStrains.apply_ph(ph, strain)
+			strain_n[strain] = int(strain_n.get(strain, 0)) + 1
+		phs.append(ph)
 	var mean := func(key: String) -> float:
 		var s := 0.0
 		for p in phs:
@@ -40,6 +47,7 @@ static func wave_info(g: TDGame) -> Dictionary:
 		"boss_ability": TDConfig.boss_ability(g.wave) if not g.upcoming_boss.is_empty() else "",
 		"boss_immune": String(g.upcoming_boss.get("immune_type", "")),
 		"special": g.upcoming_special,
+		"strains": strain_n,
 		"avg": {
 			"hp": mean.call("hp"), "speed": mean.call("speed"), "armor": mean.call("armor"),
 			"fireRes": mean.call("fireRes"), "frostRes": mean.call("frostRes"), "regen": mean.call("regen"),
@@ -83,6 +91,14 @@ static func wave_chips(info: Dictionary) -> Array:
 	if info.get("special", "") != "":
 		var sp: Dictionary = TDConfig.SPECIAL_WAVES[info["special"]]
 		chips.append(_chip("wave", "Особая: " + sp["name"], "#ffb347", sp["desc"] + ". За такую волну бонус золота ×1.5"))
+	for p in TDStrains.PACKAGES:
+		var sn: int = int(info.get("strains", {}).get(p, 0))
+		if sn > 0:
+			var pd: Dictionary = TDStrains.PACK[p]
+			var body := "%d×%d" % [sn, TDStrains.BROOD_N] if p == "brood" else str(sn)
+			var effect: String = String(pd["effect"]) % TDStrains.BROOD_N if p == "brood" else String(pd["effect"])
+			chips.append(_chip(pd["icon"], "%s %s" % [pd["name"], body], pd["color"],
+				"Ответ роя на твою оборону: %s. Чем отвечать: %s" % [effect, pd["answer"]], body))
 	if info["fliers"] > 0:
 		chips.append(_chip("gene-wings", "%d летит" % info["fliers"], "#9ad7ff", "Летающие идут напрямик, минуя дорогу", str(info["fliers"])))
 	if info.get("split", 0) > 0:
@@ -144,6 +160,11 @@ static func advice(g: TDGame, info: Dictionary) -> Array:
 			parts.append("морозостойкость %d%%" % round(b["frostRes"] * 100))
 		out.append(_tip("boss", "#ff6b7a", "danger", ["poison", "sniper", "cannon"], "Босс — зеркало твоей защиты",
 			"Копирует то, чем ты бил: %s. Яд и Снайпер идут сквозь сопротивления. Прорвётся — минус 5 жизней.%s" % [", ".join(parts), _boss_ability_tip(info)]))
+	# PRO-152: пакет роя в ближайшей волне или объявленный — с причиной и ответом
+	for e in TDStrains.forecast(g):
+		if String(e["phase"]) in ["announced", "active"]:
+			out.append(_tip(e["icon"], e["color"], "danger" if e["next_count"] > 0 else "tip", e["towers"].slice(0, 3),
+				"Рой готовит «%s»" % e["name"] if e["phase"] == "announced" else "«%s» в волне" % e["name"], TDStrains.line(e)))
 	var anti := 0
 	for k in ["arrow", "ember", "frost", "sniper", "poison", "flak", "tesla"]:
 		anti += g.count_of(k)

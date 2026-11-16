@@ -22,6 +22,7 @@ static func snapshot(g: TDGame) -> Dictionary:
 		"bonus": int(r.get("bonus", 0)), "interest": int(r.get("interest", 0)), "special": String(r.get("special", "")),
 		"lure": r.get("lure", {}).duplicate(),
 		"entries": TDAdvisor.adaptation(g).slice(0, MAX_ENTRIES),
+		"strains": TDStrains.forecast(g),
 	}
 
 
@@ -80,9 +81,10 @@ func build() -> void:
 	v.add_child(chips)
 
 	var entries: Array = snap["entries"]
+	var strains: Array = snap.get("strains", [])
 	var scroll: ScrollContainer = null
 	var content: VBoxContainer = null
-	if entries.size() > 0:
+	if entries.size() > 0 or strains.size() > 0:
 		scroll = ScrollContainer.new()
 		scroll.name = "ReportScroll"
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -90,10 +92,19 @@ func build() -> void:
 		content = TDUI.vbox(8)
 		content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		scroll.add_child(content)
-		content.add_child(TDUI.section_title("Рой адаптируется"))
-		for e in entries:
-			content.add_child(TDPanels._adaptation_row(e))
-		content.add_child(TDUI.para("Сдвиг считается по среднему роя до и после отбора. Давление — доля твоего урона данного типа; оно лишь подталкивает ген. Подробности — в панели «Рой» (Tab).", 11, TDUI.MUTED))
+		# PRO-152: «заметил → готовит → ответ» — выше генов: это то, что меняет состав волн
+		for e in strains:
+			var row := TDUI.hbox(8)
+			row.add_child(TDUI.icon(e["icon"], 22, Color(e["color"])))
+			var para := TDUI.para(TDStrains.line(e), 13, TDUI.TEXT)
+			para.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			row.add_child(para)
+			content.add_child(row)
+		if entries.size() > 0:
+			content.add_child(TDUI.section_title("Рой адаптируется"))
+			for e in entries:
+				content.add_child(TDPanels._adaptation_row(e))
+			content.add_child(TDUI.para("Сдвиг считается по среднему роя до и после отбора. Давление — доля твоего урона данного типа; оно лишь подталкивает ген. Подробности — в панели «Рой» (Tab).", 11, TDUI.MUTED))
 		v.add_child(scroll)
 
 	var ok: Button = host._btn("ОК")
