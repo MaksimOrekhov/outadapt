@@ -1,0 +1,713 @@
+extends SceneTree
+## PRO-151: диагностический баланс-харнесс. Боевую логику не меняет: бот играет через публичное API TDGame,
+## а метрики снимаются чтением состояния между шагами симуляции.
+##
+## Запуск (из папки godot):
+##   Godot --headless --path . --script res://tests/balance_audit.gd -- --strategy=owner --difficulty=normal \
+##     --family=snake --seeds=10 [--seed-from=0] [--workshop=1] [--waves=30] [--cap=45] [--swarm=no_press] \
+##     [--branch=a|b] [--no-upgrades] [--ablate=frost] [--perks=random] [--out=file.jsonl]
+## Каждая партия — одна строка JSON (summary + метрики по волнам). Без --out печатает краткую строку на партию.
+## Сиды: (seed_from + i + 1) * 4243, как у tests/bot.gd, но карта строится с принудительным семейством.
+
+const DT := 1.0 / 30.0
+const PERK_PRIORITY: Array[String] = ["rapid", "range", "pierce", "shatter", "scorch", "variety", "bounty", "bulk", "wildfire", "lives", "coldshell"]
+## Ветки по умолчанию: выбраны по результатам tests/tower_lab.gd (сильнейшая ветка на равный бюджет, см. docs/balance).
+const DEFAULT_BRANCH := {"arrow": "a", "cannon": "b", "ember": "b", "frost": "a", "sniper": "b", "poison": "b",
+	"flak": "b", "tesla": "a", "net": "a", "beacon": "b"}
+
+## Стратегии. core — веса основных башен (строятся без предела в пропорции весов);
+## support — [башня, минимум основных башен, сколько держать, с какой волны]; react — реагировать на состав следующей волны.
+const STRATEGIES := {
+	"arrow": {"core": {"arrow": 1.0}},
+	"sniper": {"core": {"sniper": 1.0}},
+	"arrow_sniper": {"core": {"arrow": 1.0, "sniper": 1.0}},
+	"arrow_frost_ember": {"core": {"arrow": 2.0, "frost": 1.0, "ember": 1.0}},
+	## Стратегия владельца по плейтесту 15.11.2026: основа лучники+снайперы, 1–2 огня, 1–2 льда, 2 яда, 1 Тесла, 1 Маяк.
+	"owner": {"core": {"arrow": 1.0, "sniper": 1.0}, "react": "stealth", "support": [
+		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["frost", 7, 2, 1],
+		["ember", 8, 2, 1], ["poison", 8, 2, 1], ["tesla", 9, 1, 1]]},
+	## Разумная смешанная оборона: пушки, зенитки и сеть в составе.
+	"mixed": {"core": {"arrow": 1.0, "sniper": 0.7, "cannon": 0.7}, "react": "stealth", "support": [
+		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["flak", 4, 1, 6], ["poison", 5, 1, 4], ["net", 6, 1, 6], ["beacon", 6, 1, 1],
+		["frost", 7, 2, 1], ["ember", 8, 2, 1], ["flak", 8, 2, 8], ["tesla", 9, 1, 1]]},
+	## Смена обороны: до волны switch_at — стратегия владельца (почти весь урон физический),
+	## затем всё физическое продаётся и строится огонь/яд/Тесла/лёд — меряем, как быстро рой «забывает» броню.
+	"switch": {"core": {"arrow": 1.0, "sniper": 1.0}, "react": "stealth", "support": [
+		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["frost", 7, 2, 1]],
+		"switch_at": 13, "after": {"core": {"ember": 1.0, "poison": 1.0, "tesla": 1.0}, "react": "stealth", "support": [["frost", 0, 3, 1], ["beacon", 0, 1, 1]]}},
+	## Владелец + реакция на состав следующей волны (невидимки, летающие, броня, лечение, деление, стойкости).
+	"adaptive": {"core": {"arrow": 1.0, "sniper": 1.0}, "react": "full", "support": [
+		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["frost", 7, 2, 1],
+		["ember", 8, 2, 1], ["tesla", 9, 1, 1]]},
+}
+
+var strategy_id := "owner"
+var difficulty := "normal"
+var family := ""
+var seeds := 10
+var seed_from := 0
+var workshop := false
+var max_wave := 30
+## До какой волны играть дальше 30-й, чтобы измерить запас прочности (0 — только max_wave).
+var cap := 0
+var swarm := ""
+var branch_override := ""
+var upgrades := true
+var ablate := ""
+var perk_mode := "smart"
+var out_path := ""
+## Микроконтроль режима прицела на боссовых волнах (--micro=0 — выключить).
+var micro := true
+
+var strat: Dictionary = {}
+var branches: Dictionary = {}
+var spent_build := 0
+var spent_upgrade := 0
+var cells_by_kind: Dictionary = {}
+
+
+func _init() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--strategy="):
+			strategy_id = a.substr(11)
+		elif a.begins_with("--difficulty="):
+			difficulty = a.substr(13)
+		elif a.begins_with("--family="):
+			family = a.substr(9)
+		elif a.begins_with("--seeds="):
+			seeds = int(a.substr(8))
+		elif a.begins_with("--seed-from="):
+			seed_from = int(a.substr(12))
+		elif a.begins_with("--workshop="):
+			workshop = a.substr(11) == "1"
+		elif a.begins_with("--waves="):
+			max_wave = int(a.substr(8))
+		elif a.begins_with("--cap="):
+			cap = int(a.substr(6))
+		elif a.begins_with("--swarm="):
+			swarm = a.substr(8)
+		elif a.begins_with("--branch="):
+			branch_override = a.substr(9)
+		elif a == "--no-upgrades":
+			upgrades = false
+		elif a.begins_with("--ablate="):
+			ablate = a.substr(9)
+		elif a.begins_with("--perks="):
+			perk_mode = a.substr(8)
+		elif a.begins_with("--micro="):
+			micro = a.substr(8) != "0"
+		elif a.begins_with("--out="):
+			out_path = a.substr(6)
+	if not STRATEGIES.has(strategy_id):
+		push_error("unknown strategy " + strategy_id)
+		quit(1)
+		return
+	strat = _ablated(STRATEGIES[strategy_id].duplicate(true))
+	branches = DEFAULT_BRANCH.duplicate()
+	if branch_override in ["a", "b"]:
+		for k in branches:
+			branches[k] = branch_override
+	TDGenome.diag_evolution = swarm
+	var f: FileAccess = null
+	if out_path != "":
+		f = FileAccess.open(out_path, FileAccess.WRITE)
+	for i in seeds:
+		var seed_v: int = (seed_from + i + 1) * 4243
+		var res := _play(seed_v)
+		if f != null:
+			f.store_line(JSON.stringify(res))
+		else:
+			var s: Dictionary = res["summary"]
+			print("%s seed=%d fam=%s end=%d leaks30=%d lives30=%d minlives=%d" % [strategy_id, seed_v, res["family"], s["end_wave"], s["leaks_by_30"], s["lives_at_30"], s["min_lives"]])
+	if f != null:
+		f.close()
+	quit()
+
+
+## Абляция: убрать тип башни из стратегии, чтобы измерить её предельную ценность.
+func _ablated(s: Dictionary) -> Dictionary:
+	if ablate == "":
+		return s
+	var core: Dictionary = s.get("core", {})
+	core.erase(ablate)
+	if core.is_empty():
+		core["arrow"] = 1.0
+	s["core"] = core
+	var sup: Array = []
+	for e in s.get("support", []):
+		if e[0] != ablate:
+			sup.append(e)
+	s["support"] = sup
+	return s
+
+
+func _meta() -> Dictionary:
+	var m := {"difficulty": difficulty, "mode": "standard"}
+	if workshop:
+		# Мастерская на максимуме (TDMeta.bonuses() при всех уровнях).
+		m.merge({"gold": 60, "lives": 6, "upgrade_disc": 0.24, "growth_cut": 0.4, "perk_choices": 1, "start_perk": true})
+	return m
+
+
+# ── Расстановка ──────────────────────────────────────────────────
+
+## Клетки для типа башни по убыванию длины дороги в радиусе (воздух — по прямой вход→выход).
+func _cells_for(g: TDGame, kind: String) -> Array:
+	if cells_by_kind.has(kind):
+		return cells_by_kind[kind]
+	var def: Dictionary = TDConfig.TOWERS[kind]
+	var r: float = def["range"]
+	var cells: Array = []
+	for x in TDConfig.COLS:
+		for y in TDConfig.ROWS:
+			if g.map.is_path(x, y) or g.map.is_blocked(x, y):
+				continue
+			var c := Vector2(x + 0.5, y + 0.5)
+			var score := 0.0
+			if def["ground"]:
+				for s in 120:
+					if g.map.pos_at((s + 0.5) / 120.0 * g.map.length).distance_to(c) <= r:
+						score += g.map.length / 120.0
+			if def["air"]:
+				var w: float = 1.0 if not def["ground"] else 0.35
+				for s in 60:
+					if g.map.fly_pos_at((s + 0.5) / 60.0 * g.map.fly_length).distance_to(c) <= r:
+						score += w * g.map.fly_length / 60.0
+			cells.append({"x": x, "y": y, "score": score})
+	cells.sort_custom(func(a, b): return a["score"] > b["score"])
+	cells_by_kind[kind] = cells
+	return cells
+
+
+## Маяк — туда, где больше всего уже вложенного в стреляющие башни в радиусе ауры.
+func _beacon_cell(g: TDGame) -> Dictionary:
+	var rad: float = TDConfig.TOWERS["beacon"]["aura"]["radius"]
+	var best := {}
+	var best_v := -1.0
+	for x in TDConfig.COLS:
+		for y in TDConfig.ROWS:
+			if g.map.is_path(x, y) or g.map.is_blocked(x, y) or g.tower_at(x, y) != null:
+				continue
+			var v := 0.0
+			for t in g.towers:
+				if not t.def.has("aura") and Vector2(t.x, t.y).distance_to(Vector2(x, y)) <= rad:
+					v += t.spent
+			if v > best_v:
+				best_v = v
+				best = {"x": x, "y": y}
+	return best
+
+
+func _spot(g: TDGame, kind: String) -> Dictionary:
+	if kind == "beacon":
+		return _beacon_cell(g)
+	for c in _cells_for(g, kind):
+		if g.tower_at(c["x"], c["y"]) == null:
+			return c
+	return {}
+
+
+# ── Решения бота ────────────────────────────────────────────────
+
+func _core_count(g: TDGame) -> int:
+	var n := 0
+	for k in strat["core"]:
+		n += g.count_of(k)
+	return n
+
+
+## Реакция на состав следующей волны. "stealth" — только Маяк против невидимок (это делает любой человек);
+## "full" — ещё зенитки, пушки, яд по составу волны.
+func _reactive_need(g: TDGame) -> String:
+	var mode: String = strat.get("react", "")
+	if mode == "":
+		return ""
+	var info := TDAdvisor.wave_info(g)
+	var n: float = maxf(1.0, float(info["n"]))
+	if info["stealth"] > 0 and g.count_of("beacon") < (2 if mode == "full" else 1):
+		return "beacon"
+	if mode != "full":
+		return ""
+	if float(info["fliers"]) / n >= 0.15 and g.count_of("flak") < 1 + int(g.wave / 8):
+		return "flak"
+	if info.get("split", 0) > 1 and g.count_of("cannon") < 2:
+		return "cannon"
+	if info["regen"] * 100.0 >= 0.8 and g.count_of("poison") < 2:
+		return "poison"
+	if info["avg"]["armor"] >= 2.5 and g.count_of("cannon") < 1 + int(g.wave / 10):
+		return "cannon"
+	return ""
+
+
+## Обязательная постройка (реакция или опорная башня по плану) — "" если нет.
+func _forced_build(g: TDGame) -> String:
+	var need := _reactive_need(g)
+	if need == ablate:
+		need = "" # абляция убирает тип и из реакций
+	if need != "":
+		return need
+	var core_n := _core_count(g)
+	for e in strat.get("support", []):
+		if core_n >= int(e[1]) and g.count_of(e[0]) < int(e[2]) and g.wave >= int(e[3]):
+			return e[0]
+	return ""
+
+
+## Основная башня, которой меньше всего относительно веса в стратегии.
+func _core_pick(g: TDGame) -> String:
+	var best := ""
+	var best_v := INF
+	var avg: Dictionary = TDAdvisor.wave_info(g)["avg"]
+	for k in strat["core"]:
+		var w: float = strat["core"][k]
+		if strat.get("react", "") == "full":
+			if k == "frost" and avg["frostRes"] >= 0.4:
+				w *= 0.3
+			if k == "ember" and avg["fireRes"] >= 0.4:
+				w *= 0.3
+		var v: float = (g.count_of(k) + 1.0) / w
+		if v < best_v or (v == best_v and g.tower_cost(k) < g.tower_cost(best)):
+			best_v = v
+			best = k
+	return best
+
+
+## Длина дороги (и прямой полёта с весом доли летающих) в радиусе r от клетки.
+var _cover_cache := {}
+func _cover(g: TDGame, x: int, y: int, def: Dictionary, fly_frac: float) -> float:
+	var r: float = g._range_with_perks(def["range"])
+	var key := "%d,%d,%.2f" % [x, y, r]
+	var gc: Array
+	if _cover_cache.has(key):
+		gc = _cover_cache[key]
+	else:
+		var c := Vector2(x + 0.5, y + 0.5)
+		var gl := 0.0
+		var al := 0.0
+		for s in 120:
+			if g.map.pos_at((s + 0.5) / 120.0 * g.map.length).distance_to(c) <= r:
+				gl += g.map.length / 120.0
+		for s in 60:
+			if g.map.fly_pos_at((s + 0.5) / 60.0 * g.map.fly_length).distance_to(c) <= r:
+				al += g.map.fly_length / 60.0
+		gc = [gl, al]
+		_cover_cache[key] = gc
+	var v := 0.0
+	if def["ground"]:
+		v += float(gc[0]) * (1.0 - fly_frac)
+	if def["air"]:
+		v += float(gc[1]) * fly_frac / TDConfig.FLYER_SPEED
+	return v
+
+
+## Грубая оценка урона в секунду по средней цели следующей волны (для решений бота, не для отчётов).
+func _est_dps(g: TDGame, def: Dictionary, avg: Dictionary) -> float:
+	if def.has("aura"):
+		return 0.0
+	var dmg: float = def["damage"] * g._variety_mult()
+	var per: float = TDGame.effective_damage(dmg, def["type"], avg, {}, g.mods(), def.get("pierce", 0.0))
+	per *= float(def.get("multishot", 1))
+	per *= 1.0 + 1.5 * float(def.get("splash", 0.0))
+	var chain: int = int(def.get("chain", 1))
+	if chain > 1:
+		per *= 1.0 + 0.6 * (chain - 1) * TDConfig.CHAIN_FALLOFF
+	var cd: float = def["cooldown"] * pow(0.9, g.perk_level("rapid"))
+	var dps: float = per / cd
+	if def["type"] == "poison":
+		dps += TDConfig.POISON_DPS * (dmg / TDConfig.TOWERS[def["kind"]]["damage"]) * def.get("poison_mult", 1.0)
+	if def.get("execute", 0.0) > 0.0:
+		dps *= 1.15
+	return dps
+
+
+func _fly_frac(g: TDGame) -> float:
+	var info := TDAdvisor.wave_info(g)
+	return float(info["fliers"]) / maxf(1.0, float(info["n"]))
+
+
+## Польза постройки: урон за проход средней цели на монету.
+func _build_value(g: TDGame, kind: String, spot: Dictionary, avg: Dictionary, ff: float) -> float:
+	var def: Dictionary = TDConfig.tower_def(kind, 1, "")
+	return _est_dps(g, def, avg) * _cover(g, spot["x"], spot["y"], def, ff) / float(g.tower_cost(kind))
+
+
+## Лучшее улучшение по приросту урона за проход на монету. Маяк — по ускорению соседей.
+func _best_upgrade(g: TDGame, avg: Dictionary, ff: float) -> Array:
+	var best: TDGame.Tower = null
+	var best_v := -1.0
+	for t in g.towers:
+		var cost := g.upgrade_cost(t)
+		if cost < 0:
+			continue
+		var nxt: Dictionary = TDConfig.tower_def(t.kind, t.level + 1, String(branches.get(t.kind, "a")))
+		var v := 0.0
+		if t.def.has("aura"):
+			var gain: float = (nxt["aura"]["fireRate"] - t.def["aura"]["fireRate"])
+			for o in g.towers:
+				if not o.def.has("aura") and Vector2(o.x, o.y).distance_to(Vector2(t.x, t.y)) <= nxt["aura"]["radius"]:
+					v += _est_dps(g, o.def, avg) * _cover(g, o.x, o.y, o.def, ff) * maxf(gain, 0.05)
+		else:
+			v = _est_dps(g, nxt, avg) * _cover(g, t.x, t.y, nxt, ff) - _est_dps(g, t.def, avg) * _cover(g, t.x, t.y, t.def, ff)
+		v /= float(cost)
+		if v > best_v:
+			best_v = v
+			best = t
+	return [best, best_v]
+
+
+func _build_phase(g: TDGame) -> void:
+	for _guard in 200:
+		var forced := _forced_build(g)
+		if forced != "":
+			var fs := _spot(g, forced)
+			if not fs.is_empty():
+				if not g.can_place(forced, fs["x"], fs["y"]):
+					# копим на обязательную башню, но не ценой утечек
+					if _comfortable(g) or not _buy_affordable(g, TDAdvisor.wave_info(g)["avg"], _fly_frac(g)):
+						return
+					continue
+				var fc := g.tower_cost(forced)
+				g.place_tower(forced, fs["x"], fs["y"])
+				spent_build += fc
+				continue
+		var avg: Dictionary = TDAdvisor.wave_info(g)["avg"]
+		var ff := _fly_frac(g)
+		var kind := _core_pick(g)
+		var spot := _spot(g, kind)
+		var bv: float = _build_value(g, kind, spot, avg, ff) if not spot.is_empty() else -1.0
+		var up: TDGame.Tower = null
+		var uv := -1.0
+		if upgrades:
+			var bu := _best_upgrade(g, avg, ff)
+			up = bu[0]
+			uv = bu[1]
+		if up != null and uv >= bv:
+			if not g.can_upgrade(up):
+				if _comfortable(g):
+					return # копим на улучшение: прошлую волну держали с запасом
+				# не копим, если прошлая волна дошла далеко: берём лучшее из доступного
+				if _buy_affordable(g, avg, ff):
+					continue
+				return
+			var c := g.upgrade_cost(up)
+			if g.upgrade_tower(up, String(branches.get(up.kind, "a"))):
+				spent_upgrade += c
+				continue
+			return
+		if spot.is_empty():
+			return
+		var cost := g.tower_cost(kind)
+		if not g.can_place(kind, spot["x"], spot["y"]):
+			if g.towers.is_empty():
+				# на тяжёлой стартового золота может не хватить даже на одну основную башню (снайпер 100 > 80): открываемся лучником
+				var a := _spot(g, "arrow")
+				if not a.is_empty() and g.place_tower("arrow", a["x"], a["y"]):
+					spent_build += g.tower_at(a["x"], a["y"]).spent
+					continue
+				return
+			if _comfortable(g) or not _buy_affordable(g, avg, ff):
+				return
+			continue
+		if not g.place_tower(kind, spot["x"], spot["y"]):
+			return
+		spent_build += cost
+
+
+## Сценарий switch: продать физические башни и перейти на вторую стратегию.
+func _switch(g: TDGame) -> void:
+	var after: Dictionary = strat["after"]
+	strat = after.duplicate(true)
+	for t in g.towers.duplicate():
+		if t.def["type"] == "physical" and not t.def.has("aura"):
+			g.sell_tower(t.x, t.y)
+	cells_by_kind = {}
+
+
+## Прошлая волна прошла с запасом: без утечек и 90% убитых не дошли до середины пути.
+func _comfortable(g: TDGame) -> bool:
+	if g.reports.is_empty():
+		return false
+	var r: Dictionary = g.reports[g.reports.size() - 1]
+	if int(r["leaked"]) > 0:
+		return false
+	var prog: Array = []
+	for f in g.finished:
+		prog.append(float(f["fitness"]))
+	return _pct(prog, 0.9) < 0.5
+
+
+## Под давлением не копим: покупаем лучшее по пользе на монету из того, на что хватает (основные башни или улучшения).
+func _buy_affordable(g: TDGame, avg: Dictionary, ff: float) -> bool:
+	var best_t: TDGame.Tower = null
+	var best_kind := ""
+	var best_spot := {}
+	var best_v := 0.0
+	for t in g.towers:
+		if not g.can_upgrade(t) or t.def.has("aura"):
+			continue
+		var nxt: Dictionary = TDConfig.tower_def(t.kind, t.level + 1, String(branches.get(t.kind, "a")))
+		var v: float = (_est_dps(g, nxt, avg) * _cover(g, t.x, t.y, nxt, ff) - _est_dps(g, t.def, avg) * _cover(g, t.x, t.y, t.def, ff)) / float(g.upgrade_cost(t))
+		if v > best_v:
+			best_v = v
+			best_t = t
+	for k in strat["core"]:
+		var sp := _spot(g, k)
+		if sp.is_empty() or not g.can_place(k, sp["x"], sp["y"]):
+			continue
+		var v2 := _build_value(g, k, sp, avg, ff)
+		if v2 > best_v:
+			best_v = v2
+			best_t = null
+			best_kind = k
+			best_spot = sp
+	if best_kind != "":
+		var c := g.tower_cost(best_kind)
+		if g.place_tower(best_kind, best_spot["x"], best_spot["y"]):
+			spent_build += c
+			return true
+		return false
+	if best_t != null:
+		var c2 := g.upgrade_cost(best_t)
+		if g.upgrade_tower(best_t, String(branches.get(best_t.kind, "a"))):
+			spent_upgrade += c2
+			return true
+	return false
+
+
+func _pick_perk(g: TDGame, rng: TDRng) -> void:
+	if g.offer.is_empty():
+		return
+	if perk_mode == "random":
+		g.choose_perk(g.offer[int(floor(rng.next() * g.offer.size()))])
+		return
+	for p in PERK_PRIORITY:
+		if g.offer.has(p):
+			g.choose_perk(p)
+			return
+	g.choose_perk(g.offer[0])
+
+
+# ── Метрики ─────────────────────────────────────────────────────
+
+static func _pct(arr: Array, q: float) -> float:
+	if arr.is_empty():
+		return -1.0
+	var s := arr.duplicate()
+	s.sort()
+	return float(s[mini(s.size() - 1, int(floor(q * s.size())))])
+
+
+static func _mean(arr: Array) -> float:
+	if arr.is_empty():
+		return -1.0
+	var t := 0.0
+	for v in arr:
+		t += float(v)
+	return t / arr.size()
+
+
+static func _r(v: float, d: int = 3) -> float:
+	var m := pow(10.0, d)
+	return round(v * m) / m
+
+
+## Стреляющая башня может прямо сейчас бить врага (тип цели, видимость, радиус).
+func _exposed(g: TDGame, e: TDGame.Enemy) -> bool:
+	var p := g.pos_of(e)
+	for t in g.towers:
+		if t.def.has("aura") or not TDGame.can_hit(t.def, e):
+			continue
+		var c := Vector2(t.x + 0.5, t.y + 0.5)
+		if p.distance_to(c) <= g.t_range(t) and g._visible_to(e, c):
+			return true
+	return false
+
+
+func _play(seed_v: int) -> Dictionary:
+	cells_by_kind = {}
+	_cover_cache = {}
+	strat = _ablated(STRATEGIES[strategy_id].duplicate(true)) # сценарий switch меняет стратегию по ходу партии
+	spent_build = 0
+	spent_upgrade = 0
+	var g := TDGame.new(seed_v, TDMap.generate(seed_v, family), _meta())
+	var perk_rng := TDRng.new(seed_v * 7919)
+	var last := maxi(max_wave, cap)
+	var waves: Array = []
+	var min_lives: int = g.lives
+	var lives_at_30 := -1
+	var leaks_by_30 := 0
+	var t_sim := 0.0
+	# трекинг врагов: id -> [время появления, летит, время под огнём, босс, ребёнок]
+	var track := {}
+	var life_g: Array = []
+	var life_a: Array = []
+	var expo_g: Array = []
+	var expo_a: Array = []
+	while g.phase != "over" and g.wave <= last:
+		if g.phase == "build":
+			if strat.has("switch_at") and g.wave == int(strat["switch_at"]):
+				_switch(g)
+			_pick_perk(g, perk_rng)
+			var gold0 := g.gold
+			var sb0 := spent_build
+			var su0 := spent_upgrade
+			_build_phase(g)
+			_pick_perk(g, perk_rng)
+			if not g.start_wave():
+				break
+			# микро как у человека: на боссовой волне снайперы и пушки бьют самого крепкого
+			if micro:
+				for t in g.towers:
+					if t.kind in ["sniper", "cannon"]:
+						g.set_mode(t, "strong" if not g.pending_boss.is_empty() else "first")
+			life_g = []
+			life_a = []
+			expo_g = []
+			expo_a = []
+			track = {}
+			waves.append({"w": g.wave, "gold_pre": gold0, "gold_post": g.gold, "build": spent_build - sb0, "upg": spent_upgrade - su0, "lives0": g.lives})
+		g.step(DT)
+		t_sim += DT
+		var seen := {}
+		for e in g.enemies:
+			seen[e.id] = true
+			if not track.has(e.id):
+				track[e.id] = [t_sim, bool(e.ph["fly"]), 0.0, e.boss, e.child, 0.0]
+			if e.hp > 0.0 and _exposed(g, e):
+				track[e.id][2] += DT
+			if e.dist >= 0.0:
+				track[e.id][5] = g.progress_of(e)
+			else:
+				track[e.id][5] = 1.5
+			if e.boss and not waves.is_empty():
+				waves[waves.size() - 1]["boss_prog"] = _r(track[e.id][5])
+				waves[waves.size() - 1]["boss_hp"] = int(e.ph["hp"])
+		for id in track.keys():
+			if not seen.has(id):
+				var rec: Array = track[id]
+				if not rec[3] and not rec[4]:
+					(life_a if rec[1] else life_g).append(t_sim - rec[0])
+					(expo_a if rec[1] else expo_g).append(rec[2])
+				track.erase(id)
+		min_lives = mini(min_lives, g.lives)
+		if waves.is_empty() or waves[waves.size() - 1].has("done"):
+			continue
+		if g.phase == "over":
+			var wl: Dictionary = waves[waves.size() - 1]
+			wl["done"] = true
+			wl["lost"] = true
+			wl["leaked"] = g.leaked
+			wl["lives"] = 0
+			if wl["w"] <= 30:
+				leaks_by_30 += g.leaked
+		elif g.phase == "build":
+			_close_wave(g, waves[waves.size() - 1], life_g, life_a, expo_g, expo_a)
+			var wr: Dictionary = waves[waves.size() - 1]
+			if wr["w"] <= 30:
+				leaks_by_30 += int(wr["leaked"])
+			if wr["w"] == 30:
+				lives_at_30 = g.lives
+	var end_wave: int = g.wave if g.phase == "over" else last + 1
+	var comp := {}
+	var spent_by := {}
+	var levels := {}
+	for t in g.towers:
+		comp[t.kind] = int(comp.get(t.kind, 0)) + 1
+		spent_by[t.kind] = int(spent_by.get(t.kind, 0)) + t.spent
+		levels[t.kind] = levels.get(t.kind, []) + [t.level if t.level < 3 else "3" + t.branch]
+	var dmg := {}
+	for k in g.run_damage:
+		if g.run_damage[k] > 0.0:
+			dmg[k] = int(g.run_damage[k])
+	return {
+		"strategy": strategy_id, "seed": seed_v, "family": g.map.family, "difficulty": difficulty, "workshop": workshop,
+		"swarm": swarm, "ablate": ablate, "micro": micro, "branch": branch_override, "upgrades": upgrades, "perks": perk_mode,
+		"path_len": _r(g.map.length, 2), "fly_len": _r(g.map.fly_length, 2),
+		"summary": {
+			"end_wave": end_wave, "won30": end_wave > 30, "lives_at_30": lives_at_30, "leaks_by_30": leaks_by_30,
+			"min_lives": min_lives, "final_lives": g.lives, "spent_build": spent_build, "spent_upgrade": spent_upgrade,
+			"composition": comp, "spent_by": spent_by, "levels": levels, "run_damage": dmg, "perks": g.perks,
+			"bosses_killed": g.bosses_killed,
+		},
+		"waves": waves,
+	}
+
+
+func _close_wave(g: TDGame, wr: Dictionary, life_g: Array, life_a: Array, expo_g: Array, expo_a: Array) -> void:
+	wr["done"] = true
+	var r: Dictionary = g.reports[g.reports.size() - 1]
+	wr["leaked"] = int(r["leaked"])
+	wr["killed"] = int(r["killed"])
+	wr["size"] = int(r["size"])
+	wr["special"] = String(r.get("special", ""))
+	wr["bonus"] = int(r["bonus"])
+	wr["interest"] = int(r["interest"])
+	wr["gold_end"] = g.gold
+	wr["kill_income"] = g.gold - int(wr["gold_post"]) - int(r["bonus"]) - int(r["interest"])
+	wr["lives"] = g.lives
+	wr["lives_lost"] = int(wr["lives0"]) - g.lives
+	# прорвавшийся босс стоит BOSS_LEAK жизней, остальные по одной
+	wr["boss_leak"] = (int(wr["lives_lost"]) - int(wr["leaked"])) / (TDConfig.BOSS_LEAK - 1) if wr.has("boss_prog") else 0
+	var dmg := {}
+	for k in r["damageBy"]:
+		if float(r["damageBy"][k]) > 0.0:
+			dmg[k] = int(r["damageBy"][k])
+	wr["dmg"] = dmg
+	var avg := {}
+	for k in r["avg"]:
+		avg[k] = _r(float(r["avg"][k]))
+	wr["genes"] = avg
+	var press := {}
+	for k in r["pressure"]:
+		press[k] = _r(float(r["pressure"][k]))
+	wr["press"] = press
+	# фенотип волны и активные признаки
+	var n: int = g.wave_genomes.size()
+	var fly := 0
+	var stealth := 0
+	var split := 0
+	var ward := 0
+	var armor := 0.0
+	var fire_res := 0.0
+	var frost_res := 0.0
+	var speed := 0.0
+	var hp := 0.0
+	var arrow_eff := 0.0
+	var arrow3_eff := 0.0
+	var w: int = int(wr["w"])
+	var arrow1: Dictionary = TDConfig.tower_def("arrow", 1, "")
+	var arrow3: Dictionary = TDConfig.tower_def("arrow", 3, "a")
+	for ge in g.wave_genomes:
+		var ph := TDGenome.phenotype(ge, w)
+		fly += 1 if ph["fly"] else 0
+		stealth += 1 if ph["stealth"] else 0
+		split += 1 if ph["split"] else 0
+		ward += 1 if ph["ward"] else 0
+		armor += ph["armor"]
+		fire_res += ph["fireRes"]
+		frost_res += ph["frostRes"]
+		speed += ph["speed"]
+		hp += ph["hp"]
+		arrow_eff += TDGame.effective_damage(arrow1["damage"], "physical", ph) / arrow1["damage"]
+		arrow3_eff += TDGame.effective_damage(arrow3["damage"], "physical", ph) / arrow3["damage"]
+	var nn: float = maxf(1.0, float(n))
+	wr["ph"] = {"fly": fly, "stealth": stealth, "split": split, "ward": ward, "armor": _r(armor / nn), "fireRes": _r(fire_res / nn),
+		"frostRes": _r(frost_res / nn), "speed": _r(speed / nn), "hp": _r(hp / nn, 1), "arrow1_eff": _r(arrow_eff / nn), "arrow3a_eff": _r(arrow3_eff / nn)}
+	# дистанция гибели: доля пути убитого врага (без малышей и босса); 1.5 = прорвался
+	var prog_g: Array = []
+	var prog_a: Array = []
+	for f in g.finished:
+		var p: float = f["fitness"]
+		var is_fly: bool = float(f["genome"].get("wings", 0.0)) > TDGenome.TRAIT_THRESHOLD
+		(prog_a if is_fly else prog_g).append(p)
+	wr["prog_g"] = [_r(_pct(prog_g, 0.5)), _r(_pct(prog_g, 0.9)), prog_g.size()]
+	wr["prog_a"] = [_r(_pct(prog_a, 0.5)), _r(_pct(prog_a, 0.9)), prog_a.size()]
+	wr["life_g"] = [_r(_mean(life_g), 2), _r(_mean(expo_g), 2), life_g.size()]
+	wr["life_a"] = [_r(_mean(life_a), 2), _r(_mean(expo_a), 2), life_a.size()]
+	var invested := 0
+	var counts := {}
+	for t in g.towers:
+		invested += t.spent
+		counts[t.kind] = int(counts.get(t.kind, 0)) + 1
+	wr["invested"] = invested
+	wr["towers"] = counts
