@@ -36,6 +36,7 @@ func run_checks() -> void:
 	var off_log := await _one_run("")
 	check("два забега — два журнала", on_log != off_log and on_log != "" and off_log != "")
 	_cleanup()
+	await create_timer(0.1).timeout
 	print("playtest_check: %s" % ("OK" if failures == 0 else "%d FAIL" % failures))
 	quit(1 if failures > 0 else 0)
 
@@ -52,6 +53,8 @@ func _one_run(model: String) -> String:
 	for frame in 4:
 		await process_frame
 	scene.audio.config_path = TMP + "/audio.cfg"
+	# как в демо-режиме: без звуков — их таймеры пережили бы сцену, которую тест освобождает
+	scene.audio.sfx_on = false
 	scene._tutorial_seen = true
 	button_named(scene.front, "Новая игра").pressed.emit()
 	await process_frame
@@ -90,15 +93,18 @@ func _one_run(model: String) -> String:
 			and run["difficulty"] == "normal" and run["workshop"] == false)
 		check("%s: старт волны — постройки и состав обороны" % tag, lines[1]["built"].size() > 0 and int(lines[1]["towers"].get("arrow", 0)) > 0)
 		check("%s: конец волны — жизни, утечки, урон" % tag, lines[2].has("lives") and lines[2].has("leaked") and lines[2]["damage"].has("arrow"))
-	# закрыть окно отчёта до освобождения сцены: у него отложенная подгонка размера
+	# как в menu_check: закрыть окно отчёта (у него отложенная подгонка), снять сцену и дать движку освободить ресурсы
+	# окно отчёта подгоняет размер в следующих кадрах: игрок не может закрыть его раньше
+	for frame in 3:
+		await process_frame
 	scene._close_wave_report()
-	scene._show_front()
+	scene._run_started = false
 	for frame in 3:
 		await process_frame
 	root.remove_child(scene)
-	scene.free()
-	for frame in 3:
-		await process_frame
+	scene.queue_free()
+	await process_frame
+	await create_timer(0.1).timeout
 	return path
 
 
