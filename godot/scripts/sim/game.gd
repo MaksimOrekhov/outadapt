@@ -697,7 +697,8 @@ func _hit(e: Enemy, t: Tower, m: Dictionary, mult: float = 1.0) -> void:
 	var full := effective_damage(dmg, def["type"], e.ph, status_of(e), m, pierce)
 	# PRO-152: панцирь пакета гасит урон своего класса ударов (выводок — тяжёлые одиночные, панцирники — лёгкие одиночные);
 	# эффекты удара (замедление, яд, ожог) ложатся. Класс — TDStrains.del_class, тот же, что в сигнатуре.
-	if e.shell > 0 and TDStrains.deflects(e.strain, TDStrains.del_class(def, dmg, e.ph["hp"])):
+	var deflected: bool = e.shell > 0 and TDStrains.deflects(e.strain, TDStrains.del_class(def))
+	if deflected:
 		base = 0.0
 		full = 0.0
 		_ev({"type": "shell", "pos": pos_of(e), "strain": e.strain})
@@ -713,7 +714,8 @@ func _hit(e: Enemy, t: Tower, m: Dictionary, mult: float = 1.0) -> void:
 	e.hp -= minf(e.hp, through)
 	# «Палач»: добивает ослабленных
 	var ex: float = def.get("execute", 0.0)
-	if ex > 0.0 and not e.boss and e.hp > 0.0 and e.hp < ex * e.ph["hp"]:
+	# погашенный панцирем удар (PRO-152) не добивает; без флага deflected всегда false
+	if ex > 0.0 and not e.boss and e.hp > 0.0 and e.hp < ex * e.ph["hp"] and not deflected:
 		dealt += e.hp
 		e.hp = 0.0
 	if e.hp <= 0.0:
@@ -725,7 +727,7 @@ func _hit(e: Enemy, t: Tower, m: Dictionary, mult: float = 1.0) -> void:
 	t.dealt += dealt
 	t.hits += 1
 	if not strain_acc.is_empty() and TDStrains.eligible(e):
-		TDStrains.record_hit(strain_acc, def, t.kind, Vector2(t.x + 0.5, t.y + 0.5), pos_of(e), e.ph["fly"], e.ph["hp"], dmg, dealt, chilled_before)
+		TDStrains.record_hit(strain_acc, def, t.kind, Vector2(t.x + 0.5, t.y + 0.5), pos_of(e), e.ph["fly"], dealt, chilled_before)
 	if full > base * 1.02:
 		t.boosted += 1
 		if fx.size() < 120:

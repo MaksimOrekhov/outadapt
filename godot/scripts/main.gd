@@ -107,6 +107,12 @@ var _skip_to: int = 0
 ## Загруженный забег сохраняет свою модель из сохранения.
 var _swarm_model: String = ""
 var _ptlog: TDPlaytestLog = null
+## PRO-115, живые плейтесты (run_playtest.bat): журнал волн и для контрольных забегов без флага, одна карта на все
+## новые забеги сессии (A/B на одном сиде), игра без бонусов Мастерской, метка сборки для протокола.
+var _playtest: bool = false
+var _fixed_seed: int = -1
+var _no_workshop: bool = false
+var _build: String = ""
 
 
 func _ready() -> void:
@@ -169,6 +175,15 @@ func _parse_args() -> void:
 			_demo = true
 		elif a.begins_with("--swarm="):
 			_swarm_model = a.substr(8)
+		elif a == "--playtest":
+			_playtest = true
+		elif a.begins_with("--fixed-seed="):
+			_fixed_seed = int(a.substr(13))
+			seed_v = _fixed_seed
+		elif a == "--no-workshop":
+			_no_workshop = true
+		elif a.begins_with("--build="):
+			_build = a.substr(8)
 		elif a.begins_with("--size="):
 			var wh := a.substr(7).split("x")
 			get_window().size = Vector2i(int(wh[0]), int(wh[1]))
@@ -828,6 +843,8 @@ func _pick_perk(id: String) -> void:
 
 ## Карта забега: в режиме «Карта дня» — одна на всех, иначе случайная из открытых биомов.
 func _pick_seed() -> int:
+	if _fixed_seed >= 0:
+		return _fixed_seed
 	TDMeta.load_meta()
 	if _opts.get("mode", "standard") == "daily":
 		return TDMeta.daily_seed()
@@ -855,7 +872,7 @@ func _game_meta() -> Dictionary:
 
 ## Бонусы Мастерской; в режиме автопроверки — без них, чтобы скриншоты были одинаковыми.
 func _meta_bonus() -> Dictionary:
-	return {} if _demo else TDMeta.bonuses()
+	return {} if _demo or _no_workshop else TDMeta.bonuses()
 
 
 ## Переводит прогресс забега в очки знаний. final — забег окончен (поражение или рестарт).
@@ -1052,12 +1069,14 @@ func _demo_force_strains() -> void:
 	game.upcoming = TDStrains.assign(game.upcoming, st, game.wave)
 
 
-## PRO-152: журнал живого плейтеста (только забеги с флагом эксперимента, не в демо).
+## PRO-152/115: журнал живого плейтеста — забеги с флагом эксперимента или любые при `--playtest` (контроль без флага).
 func _playtest_log(event: String) -> void:
-	if _demo or not game.strains_on():
+	if _demo or not (game.strains_on() or _playtest):
 		return
 	if _ptlog == null or not _ptlog.path.contains(_run_id.replace(":", "-")):
 		_ptlog = TDPlaytestLog.new(_run_id if _run_id != "" else "run-%d" % seed_v)
+		_ptlog.header(game, {"build": _build if _build != "" else "unknown", "fixed_seed": _fixed_seed, "workshop": not _no_workshop,
+			"window": "%dx%d" % [get_window().size.x, get_window().size.y]})
 	match event:
 		"start":
 			_ptlog.wave_started(game)

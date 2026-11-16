@@ -23,6 +23,9 @@ func _initialize() -> void:
 	_answers()
 	_vaccine_and_lure()
 	_playtest_log()
+	_shell_matrix()
+	_execute_vs_shell()
+	_warning_lead()
 	_cleanup()
 	print("strains_check: %s" % ("OK" if failures == 0 else "%d FAIL" % failures))
 	quit(1 if failures > 0 else 0)
@@ -40,17 +43,17 @@ func _metric() -> void:
 	var arrow: Dictionary = TDConfig.tower_def("arrow", 1, "")
 	var blizzard: Dictionary = TDConfig.tower_def("frost", 3, "a")
 	var tesla: Dictionary = TDConfig.tower_def("tesla", 1, "")
-	TDStrains.record_hit(acc, snipe, "sniper", Vector2.ZERO, Vector2(5, 0), false, 100.0, 55.0, 55.0, false)
-	TDStrains.record_hit(acc, arrow, "arrow", Vector2.ZERO, Vector2(2, 0), true, 100.0, 6.0, 4.0, true)
-	TDStrains.record_hit(acc, tesla, "tesla", Vector2.ZERO, Vector2(3, 0), false, 100.0, 14.0, 14.0, false)
+	TDStrains.record_hit(acc, snipe, "sniper", Vector2.ZERO, Vector2(5, 0), false, 55.0, false)
+	TDStrains.record_hit(acc, arrow, "arrow", Vector2.ZERO, Vector2(2, 0), true, 4.0, true)
+	TDStrains.record_hit(acc, tesla, "tesla", Vector2.ZERO, Vector2(3, 0), false, 14.0, false)
 	var before: float = acc["total"]
-	TDStrains.record_hit(acc, blizzard, "frost", Vector2.ZERO, Vector2(1, 0), false, 100.0, 7.0, 7.0, false)
+	TDStrains.record_hit(acc, blizzard, "frost", Vector2.ZERO, Vector2(1, 0), false, 7.0, false)
 	check("«Вьюга»: один удар — одна запись в каждом распределении", is_equal_approx(acc["total"] - before, 7.0)
 		and is_equal_approx(acc["del"]["area"], 7.0) and is_equal_approx(acc["el"]["frost"], 7.0))
 	TDStrains.record_dot(acc, Vector2.ZERO, Vector2(2, 0), false, 3.0, false)
 	check("классы: снайпер burst, стрела rapid, Тесла chain, яд dot", acc["del"]["burst"] == 55.0 and acc["del"]["rapid"] == 4.0
 		and acc["del"]["chain"] == 14.0 and acc["del"]["dot"] == 3.0)
-	TDStrains.record_hit(acc, arrow, "arrow", Vector2.ZERO, Vector2(1, 0), false, 100.0, 6.0, 0.0, false)
+	TDStrains.record_hit(acc, arrow, "arrow", Vector2.ZERO, Vector2(1, 0), false, 0.0, false)
 	check("удар без урона (скорлупа, иммунитет) не попадает в сигнатуру", is_equal_approx(acc["total"], 83.0))
 	var s := TDStrains.sample(acc)
 	var sums_ok := true
@@ -101,7 +104,7 @@ func _feed(g: TDGame, cls: String, n: int = 20) -> void:
 	g.strain_acc = TDStrains.new_acc()
 	var def: Dictionary = TDConfig.tower_def("sniper" if cls == "burst" else "arrow", 1, "")
 	for i in n:
-		TDStrains.record_hit(g.strain_acc, def, "sniper" if cls == "burst" else "arrow", Vector2.ZERO, Vector2(3, 0), false, 100.0, 55.0 if cls == "burst" else 6.0, 10.0, false)
+		TDStrains.record_hit(g.strain_acc, def, "sniper" if cls == "burst" else "arrow", Vector2.ZERO, Vector2(3, 0), false, 10.0, false)
 
 
 func _incubation() -> void:
@@ -461,6 +464,201 @@ func _playtest_log() -> void:
 	var last = JSON.parse_string(lines[lines.size() - 1]) if lines.size() > 0 else null
 	check("журнал плейтеста: старт и конец волны", lines.size() == 2 and first is Dictionary and last is Dictionary
 		and first["event"] == "start" and int(first["seed"]) == 4243 and first["built"].size() > 0 and last["event"] == "end" and last.has("forecast"))
+
+
+# ── PRO-184: панцири обещают то же, что делают ───────────────────
+
+## Что обещает подсказка, записано независимо от реализации: тяжёлые одиночные выстрелы — снайпер (все уровни и ветки),
+## «Гарпун» (сеть 3Б), «Стужа» (лёд 3Б); лёгкие одиночные — лучники (все), одиночный огонь, укус яда. Площадь и цепь — ни то ни другое.
+const PROMISE_HEAVY := ["sniper:1:", "sniper:2:", "sniper:3:a", "sniper:3:b", "net:3:b", "frost:3:b"]
+const PROMISE_LIGHT := ["arrow:1:", "arrow:2:", "arrow:3:a", "arrow:3:b", "ember:1:", "ember:2:", "ember:3:b", "poison:1:", "poison:2:", "poison:3:a", "poison:3:b"]
+
+
+static func _variants() -> Array:
+	var out: Array = []
+	for k in TDConfig.TOWER_KINDS:
+		if TDConfig.TOWERS[k].has("aura"):
+			continue
+		for v in [[1, ""], [2, ""], [3, "a"], [3, "b"]]:
+			out.append([k, v[0], v[1]])
+	return out
+
+
+## Матрица: башня × уровень/ветка × перки × волна (HP врага, ген «здоровья» 0/1) × сложность × пакет.
+## Для каждой комбинации — класс удара, прошёл ли урон и совпадает ли это с обещанием подсказки.
+func _shell_matrix() -> void:
+	var rows: Array = ["kind,level,branch,perks,wave,tough,difficulty,strain,max_hp,class,deflected,promise,ok"]
+	var bad: Array = []
+	var classes := {}
+	for v in _variants():
+		var key := "%s:%d:%s" % v
+		var promise := "heavy" if PROMISE_HEAVY.has(key) else ("light" if PROMISE_LIGHT.has(key) else "other")
+		for perks in ["none", "max"]:
+			for diff in ["normal", "hard"]:
+				var g := TDGame.new(4243, null, {"difficulty": diff, "swarm_model": TDStrains.MODEL})
+				if perks == "max":
+					g.perks = {"rapid": 2, "variety": 1, "pierce": 3, "shatter": 3, "scorch": 2, "range": 2}
+					g.gold = 100000
+					var placed := 0
+					for x in TDConfig.COLS:
+						for y in TDConfig.ROWS:
+							if placed < TDConfig.TOWER_KINDS.size() and g.can_place(TDConfig.TOWER_KINDS[placed], x, y):
+								g.place_tower(TDConfig.TOWER_KINDS[placed], x, y)
+								placed += 1
+				var t := TDGame.Tower.new()
+				t.kind = v[0]
+				t.level = v[1]
+				t.branch = v[2]
+				t.def = TDConfig.tower_def(v[0], v[1], v[2])
+				t.x = 0
+				t.y = 0
+				for wave in [6, 10, 15, 20, 30, 40]:
+					for tough in [0.0, 1.0]:
+						for strain in ["", "brood", "hulk"]:
+							var ge := {}
+							for gk in TDGenome.GENES:
+								ge[gk] = 0.0
+							ge["tough"] = tough
+							var e := TDGame.Enemy.new()
+							e.ph = TDStrains.apply_ph(TDGenome.phenotype(ge, wave), strain)
+							e.ph["hp"] = e.ph["hp"] * float(TDConfig.difficulty(g.meta)["hp"])
+							e.hp = e.ph["hp"]
+							e.genome = ge
+							e.strain = strain
+							e.shell = 1 if TDStrains.DEFLECT.has(strain) else 0
+							var hp0 := e.hp
+							g._hit(e, t, g.mods())
+							var deflected := e.hp >= hp0
+							var expected: bool = (strain == "brood" and promise == "heavy") or (strain == "hulk" and promise == "light")
+							var cls := TDStrains.del_class(t.def)
+							classes[key] = classes.get(key, {})
+							classes[key][cls] = true
+							var ok: bool = deflected == expected
+							if not ok:
+								bad.append("%s %s w%d tough%d %s %s: class=%s deflected=%s promise=%s" % [key, perks, wave, int(tough), diff, strain, cls, deflected, promise])
+							rows.append("%s,%d,%s,%s,%d,%d,%s,%s,%d,%s,%s,%s,%s" % [v[0], v[1], v[2], perks, wave, int(tough), diff, strain if strain != "" else "base", int(e.ph["hp"]), cls, deflected, promise, ok])
+	var unstable: Array = []
+	for key in classes:
+		if classes[key].size() > 1:
+			unstable.append(key)
+	check("класс удара не зависит от HP, волны, сложности и перков (%d вариантов башен)" % classes.size(), unstable.is_empty())
+	if not unstable.is_empty():
+		print("     нестабильны: ", unstable)
+	check("панцири делают то, что обещает подсказка: %d расхождений из %d комбинаций" % [bad.size(), rows.size() - 1], bad.is_empty())
+	for b in bad.slice(0, 6):
+		print("     ", b)
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--matrix="):
+			var f := FileAccess.open(a.substr(9), FileAccess.WRITE)
+			f.store_string("\n".join(rows) + "\n")
+			f.close()
+
+
+## «Палач» не добивает сквозь панцирь, который погасил удар; обычное добивание и эффекты сквозь панцирь — как раньше.
+func _execute_vs_shell() -> void:
+	for model in ["", TDStrains.MODEL]:
+		var meta := {"difficulty": "normal"}
+		if model != "":
+			meta["swarm_model"] = model
+		var g := TDGame.new(4243, null, meta)
+		var t := TDGame.Tower.new()
+		t.kind = "sniper"
+		t.level = 3
+		t.branch = "a"
+		t.def = TDConfig.tower_def("sniper", 3, "a")
+		var ge := {}
+		for gk in TDGenome.GENES:
+			ge[gk] = 0.0
+		ge["tough"] = 1.0
+		var mk := func(strain: String) -> TDGame.Enemy:
+			var e := TDGame.Enemy.new()
+			e.ph = TDStrains.apply_ph(TDGenome.phenotype(ge, 30), strain)
+			e.genome = ge
+			e.strain = strain
+			e.shell = 1 if TDStrains.DEFLECT.has(strain) else 0
+			# здоровье чуть ниже порога «Палача», но выше урона одного выстрела: убить может только добивание
+			e.hp = e.ph["hp"] * (float(t.def["execute"]) - 0.01)
+			return e
+		var plain: TDGame.Enemy = mk.call("")
+		var dmg_one: float = g.t_damage(t)
+		g._hit(plain, t, g.mods())
+		check("%s: обычный враг ниже порога добивается «Палачом»" % ("флаг" if model != "" else "без флага"), plain.hp == 0.0 and plain.ph["hp"] * 0.24 > dmg_one)
+		if model == "":
+			continue
+		var mite: TDGame.Enemy = mk.call("brood")
+		var hp0 := mite.hp
+		g._hit(mite, t, g.mods())
+		check("выводок: «Палач» не добивает сквозь панцирь (hp %.0f → %.0f)" % [hp0, mite.hp], mite.hp == hp0)
+		var hulk: TDGame.Enemy = mk.call("hulk")
+		g._hit(hulk, t, g.mods())
+		check("панцирники: тяжёлый выстрел проходит, «Палач» добивает как обычно", hulk.hp == 0.0)
+	# эффекты удара сквозь панцирь: укус яда по панцирнику не ранит, но яд ложится и тикает
+	var g2 := TDGame.new(4243, null, {"difficulty": "normal", "swarm_model": TDStrains.MODEL})
+	var pt := TDGame.Tower.new()
+	pt.kind = "poison"
+	pt.level = 1
+	pt.def = TDConfig.tower_def("poison", 1, "")
+	var ge2 := {}
+	for gk in TDGenome.GENES:
+		ge2[gk] = 0.0
+	var hk := TDGame.Enemy.new()
+	hk.ph = TDStrains.apply_ph(TDGenome.phenotype(ge2, 12), "hulk")
+	hk.genome = ge2
+	hk.hp = hk.ph["hp"]
+	hk.strain = "hulk"
+	hk.shell = 1
+	var h0 := hk.hp
+	g2._hit(hk, pt, g2.mods())
+	check("панцирник: укус яда не ранит, но яд ложится", hk.hp == h0 and hk.poison_t > 0.0)
+	g2.enemies.append(hk)
+	g2.phase = "wave"
+	g2.pending_boss = {}
+	for i in 30:
+		g2.step(1.0 / 30.0)
+	check("панцирник: яд тикает сквозь панцирь", hk.hp < h0)
+
+
+## PRO-115: игрок видит пакет за 2 фазы строительства до появления — в окне отчёта, совете и плашке «Следом»,
+## а в волне появления — в составе «Следом» с числом врагов; текст называет башни-ответы, которые реально пробивают панцирь.
+func _warning_lead() -> void:
+	var g := _covered_game()
+	var blank := {}
+	for k in TDGenome.GENES:
+		blank[k] = 0.0
+	var seen_announce := -1
+	var seen_in_wave := -1
+	var ok_report := false
+	var ok_advice := false
+	var ok_chip := false
+	var answers_ok := true
+	for w in range(1, 14):
+		g.wave = w + 1
+		g.upcoming = []
+		for i in TDConfig.wave_size(w + 1):
+			g.upcoming.append(TDGenome.random_genome(g.rng, w + 1))
+		_feed(g, "burst")
+		g.reports.append({"wave": w, "killed": 0, "size": 0, "leaked": 0, "avg": blank, "nextAvg": blank, "prevAvg": blank, "pressure": {}, "damageBy": TDGame._zero_damage()})
+		TDStrains.end_wave(g, w)
+		var k: Dictionary = g.strains["pk"]["brood"]
+		if k["phase"] == "announced" and seen_announce < 0:
+			seen_announce = w
+			var snap := TDWaveReport.snapshot(g)
+			for e in snap["strains"]:
+				if e["id"] == "brood" and e["phase"] == "announced" and TDStrains.line(e).contains("в волне %d" % k["appear"]):
+					ok_report = true
+				for t in e["towers"]:
+					answers_ok = answers_ok and not TDStrains.deflects("brood", TDStrains.del_class(TDConfig.tower_def(t, 1, "")))
+			for tip in TDAdvisor.advice(g, TDAdvisor.wave_info(g)):
+				ok_advice = ok_advice or String(tip["title"]).contains("Выводок")
+		if k["phase"] == "active" and seen_in_wave < 0:
+			seen_in_wave = w + 1
+			for c in TDAdvisor.wave_chips(TDAdvisor.wave_info(g)):
+				ok_chip = ok_chip or String(c["text"]).begins_with("Выводок")
+	check("анонс в окне отчёта с номером волны появления", ok_report)
+	check("анонс в советах", ok_advice)
+	check("в волне появления — плашка «Следом» с выводком", ok_chip)
+	check("между анонсом (после волны %d) и появлением (волна %d) — 2 фазы строительства" % [seen_announce, seen_in_wave], seen_in_wave - seen_announce == 2)
+	check("башни-ответы в предупреждении пробивают панцирь выводка", answers_ok)
 
 
 func _cleanup() -> void:

@@ -27,13 +27,13 @@ want() { [ "$CELLS" = all ] || [[ ",$CELLS," == *",$1,"* ]]; }
 # фаза 1: контроль с записью журнала, остальные живые плечи
 P1="$OUT/phase1.txt"; : > "$P1"
 for f in $FAMS; do
-  for cell in "owner normal 0" "owner hard 0" "mixed normal 0" "adaptive normal 0" "arrow normal 0" "arrow_sniper normal 0" "switch normal 1"; do
+  for cell in "owner normal 0" "owner hard 0" "mixed normal 0" "adaptive normal 0" "arrow normal 0" "arrow_sniper normal 0" "switch normal 1" "cannon normal 0"; do
     set -- $cell; s=$1; d=$2; ws=$3; id="${s}_${d}"
     want "$id" || continue
     base="--strategy=$s --difficulty=$d --family=$f --workshop=$ws"
     run "${id}_${f}_A0" $base --model=observe --record=$OUT/rec/${id}_${f}.json >> "$P1"
     run "${id}_${f}_A1" $base --model=signature >> "$P1"
-    if [[ "$s" == owner || "$s" == mixed ]]; then
+    if [[ "$s" == owner || "$s" == mixed || "$s" == cannon ]]; then
       run "${id}_${f}_B0" $base --model=observe --counter=auto >> "$P1"
       run "${id}_${f}_B1" $base --model=signature --counter=auto >> "$P1"
     fi

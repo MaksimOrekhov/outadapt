@@ -1,9 +1,9 @@
 class_name TDPlaytestLog
 extends RefCounted
-## PRO-152: журнал живого плейтеста эксперимента роя. Пишется только в забегах с флагом эксперимента
-## (`-- --swarm=signature`), по строке JSON на сыгранную волну: что рой заметил и готовит, что игрок построил,
-## улучшил и продал между волнами, утечки по типам врагов. Наблюдатель сверяет его с записью экрана
-## (docs/balance/experiment-signature-incubation.md, §плейтест). На игру не влияет.
+## PRO-152/115: журнал живого плейтеста. Пишется в забегах с флагом эксперимента (`-- --swarm=signature`) и в любых
+## забегах при `-- --playtest` (контрольная партия без флага). Первая строка — конфигурация забега, дальше по строке JSON
+## на старт и конец волны: что рой заметил и готовит, что игрок построил, улучшил и продал, режимы прицела, утечки по
+## типам врагов. Сводка — tests/playtest_summary.py; протокол — docs/balance/pro152-live-playtest.md. На игру не влияет.
 
 static var directory := "user://playtest"
 
@@ -18,8 +18,21 @@ func _init(run_id: String) -> void:
 static func _tower_state(g: TDGame) -> Dictionary:
 	var d := {}
 	for t in g.towers:
-		d[t.id] = {"kind": t.kind, "level": t.level, "branch": t.branch}
+		d[t.id] = {"kind": t.kind, "level": t.level, "branch": t.branch, "mode": t.mode}
 	return d
+
+
+## Конфигурация забега: сборка, флаг, сид, семейство карты, сложность, режим, Мастерская (бонусы), окно.
+func header(g: TDGame, info: Dictionary) -> void:
+	var bonuses := {}
+	for k in g.meta:
+		if k not in ["difficulty", "mode", "locked", "swarm_model"]:
+			bonuses[k] = g.meta[k]
+	var d := info.duplicate()
+	d.merge({"event": "run", "swarm_model": String(g.meta.get("swarm_model", "off")), "seed": g.seed_value, "family": g.map.family,
+		"map": g.map.map_name, "difficulty": g.difficulty_id(), "mode": g.mode_id(), "workshop_bonuses": bonuses,
+		"locked": g.meta.get("locked", []), "start_gold": g.gold, "start_lives": g.lives})
+	_write(d)
 
 
 ## Запомнить оборону на старте волны: изменения считаются между стартами соседних волн.
@@ -28,16 +41,20 @@ func wave_started(g: TDGame) -> void:
 	var built: Array = []
 	var upgraded: Array = []
 	var sold: Array = []
+	var retargeted: Array = []
 	for id in now:
 		if not _towers.has(id):
 			built.append(now[id]["kind"])
 		elif int(now[id]["level"]) > int(_towers[id]["level"]):
 			upgraded.append("%s→%d%s" % [now[id]["kind"], now[id]["level"], now[id]["branch"]])
+		if _towers.has(id) and now[id]["mode"] != _towers[id]["mode"]:
+			retargeted.append("%s:%s" % [now[id]["kind"], now[id]["mode"]])
 	for id in _towers:
 		if not now.has(id):
 			sold.append(_towers[id]["kind"])
 	_towers = now
-	_write({"event": "start", "seed": g.seed_value, "family": g.map.family, "difficulty": g.difficulty_id(), "wave": g.wave, "lives": g.lives, "gold": g.gold, "built": built, "upgraded": upgraded, "sold": sold,
+	_write({"event": "start", "seed": g.seed_value, "family": g.map.family, "difficulty": g.difficulty_id(), "wave": g.wave, "lives": g.lives, "gold": g.gold, "built": built, "upgraded": upgraded, "sold": sold, "retargeted": retargeted,
+		"towers": _counts(g),
 		"strains_in_wave": _wave_strains(g)})
 
 
@@ -55,12 +72,19 @@ func wave_ended(g: TDGame) -> void:
 	var sx: Dictionary = r.get("strains", {})
 	var sig: Dictionary = sx.get("sig", {})
 	_write({"event": "end", "wave": int(r["wave"]), "lives": g.lives, "gold": g.gold, "killed": int(r["killed"]), "leaked": int(r["leaked"]),
-		"damage": dmg, "burst": snappedf(float(sig.get("burst", 0.0)), 0.01), "chill": snappedf(float(sig.get("chill", 0.0)), 0.01),
+		"damage": dmg, "burst": snappedf(float(sig.get("burst", 0.0)), 0.01), "rapid": snappedf(float(sig.get("rapid", 0.0)), 0.01), "chill": snappedf(float(sig.get("chill", 0.0)), 0.01),
 		"air_gap": snappedf(float(sig.get("air_gap", 0.0)), 0.01), "C": snappedf(float(sx.get("C", 0.0)), 0.01), "forecast": forecast})
 
 
 func run_over(g: TDGame) -> void:
 	_write({"event": "over", "wave": g.wave, "victory": g.victory, "lives": g.lives})
+
+
+static func _counts(g: TDGame) -> Dictionary:
+	var n := {}
+	for t in g.towers:
+		n[t.kind] = int(n.get(t.kind, 0)) + 1
+	return n
 
 
 static func _wave_strains(g: TDGame) -> Dictionary:

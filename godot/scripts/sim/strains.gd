@@ -17,14 +17,18 @@ const OBSERVE := "observe"
 
 # ── Сигнатура ─────────────────────────────────────────────────────
 ## Распределения урона: в каждом классы взаимоисключающие, каждое событие урона попадает ровно в один класс.
-## Способ доставки определяется механикой башни, а не плотностью врагов (иначе ответ роя менял бы собственный сигнал):
-## burst — одиночный удар не меньше HEAVY_HIT от полного здоровья цели; rapid — одиночный удар слабее (каждая стрела «Залпа» тоже);
+## Способ доставки — свойство башни на её уровне и ветке, а не цели (PRO-184): иначе один и тот же выстрел менял бы класс
+## с ростом здоровья врагов, а ответ роя (плотные кладки) менял бы собственный сигнал.
+## burst — одиночный удар башни, у которой урон выстрела (уровень и ветка, без перков) не меньше HEAVY_SHOT: снайпер,
+## «Гарпун», «Стужа»; rapid — одиночный удар слабее: лучники (и каждая стрела «Залпа»), одиночный огонь, укус яда;
 ## area — удар башни с радиусом взрыва; chain — любой удар цепной башни; dot — тик яда.
 const DEL: Array[String] = ["burst", "rapid", "area", "chain", "dot"]
 const EL: Array[String] = ["physical", "fire", "frost", "poison", "shock"]
 const RANGE_CLS: Array[String] = ["near", "mid", "far"]
 const TGT: Array[String] = ["ground", "air"]
-const HEAVY_HIT := 0.25
+## Граница «тяжёлого» выстрела. Лёгкие максимум — 18,2 (огонь 3Б «Плавильня»), тяжёлые минимум — 21 («Стужа»);
+## разделение держит матрица tests/strains_check.gd (_shell_matrix).
+const HEAVY_SHOT := 20.0
 const NEAR := 2.5
 const FAR := 4.0
 ## Сглаживание сигнатуры: новая волна весит EMA, полупериод памяти ≈ 1,6 волны.
@@ -77,14 +81,15 @@ const MAX_LIVE := 2
 # ── Бюджет угрозы пакетов ─────────────────────────────────────────
 ## Панцирь (Enemy.shell > 0) гасит урон ударов одного класса доставки (deflects) — правило, а не броня: его не снимают
 ## пробитие снайпера, огонь, лёд и перки. Эффекты удара (замедление, яд, ожог) ложатся. Панцирь не разбивается.
+## Удар, погашенный панцирем, не добивает («Палач» не срабатывает).
 ## Выводок: один геном → BROOD_N малышей по BROOD_HP здоровья (суммарно 0,9 исходного), панцирь против burst —
-## одиночного удара не меньше HEAVY_HIT здоровья малыша. Лёгкие удары, площадь, цепь и яд проходят.
+## тяжёлых одиночных выстрелов. Лёгкие удары, площадь, цепь и яд проходят.
 ## Золото: носитель даёт награду за убийство минус (BROOD_N−1) × SPLIT_REWARD, малыши — SPLIT_REWARD; итог как у одного врага.
 const BROOD_N := 3
 const BROOD_HP := 0.30
 const BROOD_SIZE := 0.6
 const BROOD_SPEED := 1.1
-## Панцирники: панцирь против rapid — одиночного удара слабее HEAVY_HIT здоровья; тяжёлые выстрелы, площадь, цепь и яд проходят.
+## Панцирники: панцирь против rapid — лёгких одиночных ударов; тяжёлые выстрелы, площадь, цепь и яд проходят.
 ## Оплачено здоровьем и скоростью.
 const HULK_HP := 0.9
 const HULK_SPEED := 0.9
@@ -139,12 +144,13 @@ static func eligible(e) -> bool:
 	return not e.boss and not e.child and e.strain == ""
 
 
-static func del_class(def: Dictionary, raw: float, max_hp: float) -> String:
+## Класс удара башни по её параметрам (TDConfig.tower_def с уровнем и веткой). Не зависит от цели, перков и Маяка.
+static func del_class(def: Dictionary) -> String:
 	if float(def.get("splash", 0.0)) > 0.0:
 		return "area"
 	if int(def.get("chain", 1)) > 1:
 		return "chain"
-	return "burst" if raw >= HEAVY_HIT * maxf(1.0, max_hp) else "rapid"
+	return "burst" if float(def["damage"]) >= HEAVY_SHOT else "rapid"
 
 
 static func range_class(d: float) -> String:
@@ -166,9 +172,9 @@ static func _add(acc: Dictionary, cls: String, el: String, dist: float, fly: boo
 		acc["chill"] += dealt
 
 
-## Удар башни (_hit). raw — номинальный урон удара до брони и сопротивлений.
-static func record_hit(acc: Dictionary, def: Dictionary, kind: String, tower_pos: Vector2, target_pos: Vector2, fly: bool, max_hp: float, raw: float, dealt: float, chilled: bool) -> void:
-	_add(acc, del_class(def, raw, max_hp), String(def["type"]), tower_pos.distance_to(target_pos), fly, chilled, kind, dealt)
+## Удар башни (_hit).
+static func record_hit(acc: Dictionary, def: Dictionary, kind: String, tower_pos: Vector2, target_pos: Vector2, fly: bool, dealt: float, chilled: bool) -> void:
+	_add(acc, del_class(def), String(def["type"]), tower_pos.distance_to(target_pos), fly, chilled, kind, dealt)
 
 
 ## Тик яда: доставка dot, стихия poison, дистанция — от башни-источника.

@@ -40,6 +40,8 @@ const STRATEGIES := {
 	"switch": {"core": {"arrow": 1.0, "sniper": 1.0}, "react": "stealth", "support": [
 		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["frost", 7, 2, 1]],
 		"switch_at": 13, "after": {"core": {"ember": 1.0, "poison": 1.0, "tesla": 1.0}, "react": "stealth", "support": [["frost", 0, 3, 1], ["beacon", 0, 1, 1]]}},
+	## PRO-152: оборона без ПВО (только пушки + Маяк по невидимкам) — проверка «Стаи», которую остальные стратегии не вызывают.
+	"cannon": {"core": {"cannon": 1.0}, "react": "stealth"},
 	## Владелец + реакция на состав следующей волны (невидимки, летающие, броня, лечение, деление, стойкости).
 	"adaptive": {"core": {"arrow": 1.0, "sniper": 1.0}, "react": "full", "support": [
 		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["frost", 7, 2, 1],

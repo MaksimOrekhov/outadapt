@@ -39,7 +39,7 @@ adaptive_normal,A1-A0,42430,hooks,"жизни −, окно",0
 adaptive_normal,A1-A0,42430,snake,"жизни −, окно",0
 adaptive_normal,A1-A0,42430,stairs,"жизни −, окно",0
 adaptive_normal,A1-A0,42430,vsnake,"жизни −, окно",0
-adaptive_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.0
+adaptive_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.0023
 adaptive_normal,A1-A0,4243,snake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,4243,stairs,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,4243,vsnake,"p90 гибели, окно",0.0
@@ -50,12 +50,12 @@ adaptive_normal,A1-A0,8486,vsnake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,12729,hooks,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,12729,snake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,12729,stairs,"p90 гибели, окно",0.0
-adaptive_normal,A1-A0,12729,vsnake,"p90 гибели, окно",0.0
+adaptive_normal,A1-A0,12729,vsnake,"p90 гибели, окно",-0.0019
 adaptive_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.0
-adaptive_normal,A1-A0,16972,snake,"p90 гибели, окно",0.01
-adaptive_normal,A1-A0,16972,stairs,"p90 гибели, окно",0.0367
-adaptive_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.0
-adaptive_normal,A1-A0,21215,hooks,"p90 гибели, окно",0.0138
+adaptive_normal,A1-A0,16972,snake,"p90 гибели, окно",0.0044
+adaptive_normal,A1-A0,16972,stairs,"p90 гибели, окно",0.038
+adaptive_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.0006
+adaptive_normal,A1-A0,21215,hooks,"p90 гибели, окно",0.0112
 adaptive_normal,A1-A0,21215,snake,"p90 гибели, окно",0.0839
 adaptive_normal,A1-A0,21215,stairs,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,21215,vsnake,"p90 гибели, окно",-0.0258
@@ -66,7 +66,7 @@ adaptive_normal,A1-A0,25458,vsnake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,29701,hooks,"p90 гибели, окно",0.0069
 adaptive_normal,A1-A0,29701,snake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,29701,stairs,"p90 гибели, окно",0.0
-adaptive_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.0033
+adaptive_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.0072
 adaptive_normal,A1-A0,33944,hooks,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,33944,snake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,33944,stairs,"p90 гибели, окно",0.0
@@ -74,7 +74,7 @@ adaptive_normal,A1-A0,33944,vsnake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,38187,hooks,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,38187,snake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,38187,stairs,"p90 гибели, окно",0.0
-adaptive_normal,A1-A0,38187,vsnake,"p90 гибели, окно",0.0554
+adaptive_normal,A1-A0,38187,vsnake,"p90 гибели, окно",-0.0063
 adaptive_normal,A1-A0,42430,hooks,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,42430,snake,"p90 гибели, окно",0.0
 adaptive_normal,A1-A0,42430,stairs,"p90 гибели, окно",0.0
@@ -100,7 +100,7 @@ adaptive_normal,A1-A0,21215,snake,побед 30,0.0
 adaptive_normal,A1-A0,21215,stairs,побед 30,0.0
 adaptive_normal,A1-A0,21215,vsnake,побед 30,0.0
 adaptive_normal,A1-A0,25458,hooks,побед 30,0.0
-adaptive_normal,A1-A0,25458,snake,побед 30,-1.0
+adaptive_normal,A1-A0,25458,snake,побед 30,0.0
 adaptive_normal,A1-A0,25458,stairs,побед 30,0.0
 adaptive_normal,A1-A0,25458,vsnake,побед 30,0.0
 adaptive_normal,A1-A0,29701,hooks,побед 30,0.0
@@ -140,7 +140,7 @@ adaptive_normal,A1-A0,21215,snake,"конец, волна",0.0
 adaptive_normal,A1-A0,21215,stairs,"конец, волна",0.0
 adaptive_normal,A1-A0,21215,vsnake,"конец, волна",0.0
 adaptive_normal,A1-A0,25458,hooks,"конец, волна",0.0
-adaptive_normal,A1-A0,25458,snake,"конец, волна",-1.0
+adaptive_normal,A1-A0,25458,snake,"конец, волна",0.0
 adaptive_normal,A1-A0,25458,stairs,"конец, волна",0.0
 adaptive_normal,A1-A0,25458,vsnake,"конец, волна",0.0
 adaptive_normal,A1-A0,29701,hooks,"конец, волна",0.0
@@ -159,7 +159,7 @@ adaptive_normal,A1-A0,42430,hooks,"конец, волна",0.0
 adaptive_normal,A1-A0,42430,snake,"конец, волна",0.0
 adaptive_normal,A1-A0,42430,stairs,"конец, волна",0.0
 adaptive_normal,A1-A0,42430,vsnake,"конец, волна",0.0
-adaptive_normal,A1-A0,4243,hooks,жизни к 30,0.0
+adaptive_normal,A1-A0,4243,hooks,жизни к 30,5.0
 adaptive_normal,A1-A0,4243,snake,жизни к 30,0.0
 adaptive_normal,A1-A0,4243,stairs,жизни к 30,0.0
 adaptive_normal,A1-A0,4243,vsnake,жизни к 30,0.0
@@ -180,7 +180,7 @@ adaptive_normal,A1-A0,21215,snake,жизни к 30,0.0
 adaptive_normal,A1-A0,21215,stairs,жизни к 30,0.0
 adaptive_normal,A1-A0,21215,vsnake,жизни к 30,0.0
 adaptive_normal,A1-A0,25458,hooks,жизни к 30,0.0
-adaptive_normal,A1-A0,25458,snake,жизни к 30,-15.0
+adaptive_normal,A1-A0,25458,snake,жизни к 30,0.0
 adaptive_normal,A1-A0,25458,stairs,жизни к 30,0.0
 adaptive_normal,A1-A0,25458,vsnake,жизни к 30,0.0
 adaptive_normal,A1-A0,29701,hooks,жизни к 30,0.0
@@ -189,7 +189,7 @@ adaptive_normal,A1-A0,29701,stairs,жизни к 30,0.0
 adaptive_normal,A1-A0,29701,vsnake,жизни к 30,-5.0
 adaptive_normal,A1-A0,33944,hooks,жизни к 30,0.0
 adaptive_normal,A1-A0,33944,snake,жизни к 30,0.0
-adaptive_normal,A1-A0,33944,stairs,жизни к 30,0.0
+adaptive_normal,A1-A0,33944,stairs,жизни к 30,-5.0
 adaptive_normal,A1-A0,33944,vsnake,жизни к 30,0.0
 adaptive_normal,A1-A0,38187,hooks,жизни к 30,0.0
 adaptive_normal,A1-A0,38187,snake,жизни к 30,0.0
@@ -402,28 +402,28 @@ arrow_normal,A1-A0,42430,vsnake,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,4243,hooks,"жизни −, окно",0
 arrow_sniper_normal,A1-A0,4243,snake,"жизни −, окно",0
 arrow_sniper_normal,A1-A0,4243,stairs,"жизни −, окно",0
-arrow_sniper_normal,A1-A0,4243,vsnake,"жизни −, окно",-3
+arrow_sniper_normal,A1-A0,4243,vsnake,"жизни −, окно",16
 arrow_sniper_normal,A1-A0,8486,hooks,"жизни −, окно",-5
 arrow_sniper_normal,A1-A0,8486,snake,"жизни −, окно",-1
 arrow_sniper_normal,A1-A0,8486,stairs,"жизни −, окно",-1
 arrow_sniper_normal,A1-A0,8486,vsnake,"жизни −, окно",0
-arrow_sniper_normal,A1-A0,12729,hooks,"жизни −, окно",-2
+arrow_sniper_normal,A1-A0,12729,hooks,"жизни −, окно",0
 arrow_sniper_normal,A1-A0,12729,snake,"жизни −, окно",10
 arrow_sniper_normal,A1-A0,12729,stairs,"жизни −, окно",-1
-arrow_sniper_normal,A1-A0,12729,vsnake,"жизни −, окно",15
+arrow_sniper_normal,A1-A0,12729,vsnake,"жизни −, окно",12
 arrow_sniper_normal,A1-A0,16972,hooks,"жизни −, окно",12
 arrow_sniper_normal,A1-A0,16972,snake,"жизни −, окно",-1
-arrow_sniper_normal,A1-A0,16972,stairs,"жизни −, окно",13
+arrow_sniper_normal,A1-A0,16972,stairs,"жизни −, окно",1
 arrow_sniper_normal,A1-A0,16972,vsnake,"жизни −, окно",13
-arrow_sniper_normal,A1-A0,21215,hooks,"жизни −, окно",-11
-arrow_sniper_normal,A1-A0,21215,snake,"жизни −, окно",20
+arrow_sniper_normal,A1-A0,21215,hooks,"жизни −, окно",0
+arrow_sniper_normal,A1-A0,21215,snake,"жизни −, окно",3
 arrow_sniper_normal,A1-A0,21215,stairs,"жизни −, окно",-2
-arrow_sniper_normal,A1-A0,21215,vsnake,"жизни −, окно",15
+arrow_sniper_normal,A1-A0,21215,vsnake,"жизни −, окно",16
 arrow_sniper_normal,A1-A0,25458,hooks,"жизни −, окно",0
 arrow_sniper_normal,A1-A0,25458,snake,"жизни −, окно",7
-arrow_sniper_normal,A1-A0,25458,stairs,"жизни −, окно",10
+arrow_sniper_normal,A1-A0,25458,stairs,"жизни −, окно",7
 arrow_sniper_normal,A1-A0,25458,vsnake,"жизни −, окно",0
-arrow_sniper_normal,A1-A0,29701,hooks,"жизни −, окно",3
+arrow_sniper_normal,A1-A0,29701,hooks,"жизни −, окно",2
 arrow_sniper_normal,A1-A0,29701,snake,"жизни −, окно",0
 arrow_sniper_normal,A1-A0,29701,stairs,"жизни −, окно",0
 arrow_sniper_normal,A1-A0,29701,vsnake,"жизни −, окно",0
@@ -442,28 +442,28 @@ arrow_sniper_normal,A1-A0,42430,vsnake,"жизни −, окно",0
 arrow_sniper_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.094
 arrow_sniper_normal,A1-A0,4243,snake,"p90 гибели, окно",0.0
 arrow_sniper_normal,A1-A0,4243,stairs,"p90 гибели, окно",0.0
-arrow_sniper_normal,A1-A0,4243,vsnake,"p90 гибели, окно",0.4474
+arrow_sniper_normal,A1-A0,4243,vsnake,"p90 гибели, окно",0.2554
 arrow_sniper_normal,A1-A0,8486,hooks,"p90 гибели, окно",0.0
 arrow_sniper_normal,A1-A0,8486,snake,"p90 гибели, окно",0.0
 arrow_sniper_normal,A1-A0,8486,stairs,"p90 гибели, окно",0.0
 arrow_sniper_normal,A1-A0,8486,vsnake,"p90 гибели, окно",0.0
 arrow_sniper_normal,A1-A0,12729,hooks,"p90 гибели, окно",0.0
-arrow_sniper_normal,A1-A0,12729,snake,"p90 гибели, окно",0.2313
+arrow_sniper_normal,A1-A0,12729,snake,"p90 гибели, окно",0.0177
 arrow_sniper_normal,A1-A0,12729,stairs,"p90 гибели, окно",0.0
-arrow_sniper_normal,A1-A0,12729,vsnake,"p90 гибели, окно",0.0991
-arrow_sniper_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.463
+arrow_sniper_normal,A1-A0,12729,vsnake,"p90 гибели, окно",0.1497
+arrow_sniper_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.3378
 arrow_sniper_normal,A1-A0,16972,snake,"p90 гибели, окно",0.0
-arrow_sniper_normal,A1-A0,16972,stairs,"p90 гибели, окно",0.1072
-arrow_sniper_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.3706
+arrow_sniper_normal,A1-A0,16972,stairs,"p90 гибели, окно",-0.001
+arrow_sniper_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.2757
 arrow_sniper_normal,A1-A0,21215,hooks,"p90 гибели, окно",0.0
-arrow_sniper_normal,A1-A0,21215,snake,"p90 гибели, окно",0.2913
+arrow_sniper_normal,A1-A0,21215,snake,"p90 гибели, окно",0.039
 arrow_sniper_normal,A1-A0,21215,stairs,"p90 гибели, окно",0.0717
-arrow_sniper_normal,A1-A0,21215,vsnake,"p90 гибели, окно",0.6198
+arrow_sniper_normal,A1-A0,21215,vsnake,"p90 гибели, окно",0.1974
 arrow_sniper_normal,A1-A0,25458,hooks,"p90 гибели, окно",0.0
-arrow_sniper_normal,A1-A0,25458,snake,"p90 гибели, окно",0.237
-arrow_sniper_normal,A1-A0,25458,stairs,"p90 гибели, окно",0.2198
+arrow_sniper_normal,A1-A0,25458,snake,"p90 гибели, окно",0.1162
+arrow_sniper_normal,A1-A0,25458,stairs,"p90 гибели, окно",0.0849
 arrow_sniper_normal,A1-A0,25458,vsnake,"p90 гибели, окно",0.0
-arrow_sniper_normal,A1-A0,29701,hooks,"p90 гибели, окно",0.3111
+arrow_sniper_normal,A1-A0,29701,hooks,"p90 гибели, окно",-0.011
 arrow_sniper_normal,A1-A0,29701,snake,"p90 гибели, окно",0.0
 arrow_sniper_normal,A1-A0,29701,stairs,"p90 гибели, окно",0.0
 arrow_sniper_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.0
@@ -496,7 +496,7 @@ arrow_sniper_normal,A1-A0,16972,snake,побед 30,0.0
 arrow_sniper_normal,A1-A0,16972,stairs,побед 30,0.0
 arrow_sniper_normal,A1-A0,16972,vsnake,побед 30,0.0
 arrow_sniper_normal,A1-A0,21215,hooks,побед 30,0.0
-arrow_sniper_normal,A1-A0,21215,snake,побед 30,-1.0
+arrow_sniper_normal,A1-A0,21215,snake,побед 30,0.0
 arrow_sniper_normal,A1-A0,21215,stairs,побед 30,0.0
 arrow_sniper_normal,A1-A0,21215,vsnake,побед 30,0.0
 arrow_sniper_normal,A1-A0,25458,hooks,побед 30,0.0
@@ -522,36 +522,36 @@ arrow_sniper_normal,A1-A0,42430,vsnake,побед 30,0.0
 arrow_sniper_normal,A1-A0,4243,hooks,"конец, волна",-2.0
 arrow_sniper_normal,A1-A0,4243,snake,"конец, волна",-1.0
 arrow_sniper_normal,A1-A0,4243,stairs,"конец, волна",0.0
-arrow_sniper_normal,A1-A0,4243,vsnake,"конец, волна",-15.0
+arrow_sniper_normal,A1-A0,4243,vsnake,"конец, волна",-11.0
 arrow_sniper_normal,A1-A0,8486,hooks,"конец, волна",-2.0
 arrow_sniper_normal,A1-A0,8486,snake,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,8486,stairs,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,8486,vsnake,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,12729,hooks,"конец, волна",0.0
-arrow_sniper_normal,A1-A0,12729,snake,"конец, волна",-6.0
+arrow_sniper_normal,A1-A0,12729,snake,"конец, волна",-5.0
 arrow_sniper_normal,A1-A0,12729,stairs,"конец, волна",0.0
-arrow_sniper_normal,A1-A0,12729,vsnake,"конец, волна",-9.0
-arrow_sniper_normal,A1-A0,16972,hooks,"конец, волна",-8.0
+arrow_sniper_normal,A1-A0,12729,vsnake,"конец, волна",-7.0
+arrow_sniper_normal,A1-A0,16972,hooks,"конец, волна",-5.0
 arrow_sniper_normal,A1-A0,16972,snake,"конец, волна",0.0
-arrow_sniper_normal,A1-A0,16972,stairs,"конец, волна",-9.0
-arrow_sniper_normal,A1-A0,16972,vsnake,"конец, волна",-12.0
-arrow_sniper_normal,A1-A0,21215,hooks,"конец, волна",-1.0
-arrow_sniper_normal,A1-A0,21215,snake,"конец, волна",-16.0
+arrow_sniper_normal,A1-A0,16972,stairs,"конец, волна",-1.0
+arrow_sniper_normal,A1-A0,16972,vsnake,"конец, волна",-10.0
+arrow_sniper_normal,A1-A0,21215,hooks,"конец, волна",0.0
+arrow_sniper_normal,A1-A0,21215,snake,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,21215,stairs,"конец, волна",-1.0
-arrow_sniper_normal,A1-A0,21215,vsnake,"конец, волна",-13.0
+arrow_sniper_normal,A1-A0,21215,vsnake,"конец, волна",-9.0
 arrow_sniper_normal,A1-A0,25458,hooks,"конец, волна",0.0
-arrow_sniper_normal,A1-A0,25458,snake,"конец, волна",-3.0
-arrow_sniper_normal,A1-A0,25458,stairs,"конец, волна",-3.0
-arrow_sniper_normal,A1-A0,25458,vsnake,"конец, волна",-2.0
-arrow_sniper_normal,A1-A0,29701,hooks,"конец, волна",-4.0
-arrow_sniper_normal,A1-A0,29701,snake,"конец, волна",-1.0
+arrow_sniper_normal,A1-A0,25458,snake,"конец, волна",-2.0
+arrow_sniper_normal,A1-A0,25458,stairs,"конец, волна",-1.0
+arrow_sniper_normal,A1-A0,25458,vsnake,"конец, волна",-1.0
+arrow_sniper_normal,A1-A0,29701,hooks,"конец, волна",0.0
+arrow_sniper_normal,A1-A0,29701,snake,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,29701,stairs,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,29701,vsnake,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,33944,hooks,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,33944,snake,"конец, волна",-3.0
 arrow_sniper_normal,A1-A0,33944,stairs,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,33944,vsnake,"конец, волна",0.0
-arrow_sniper_normal,A1-A0,38187,hooks,"конец, волна",0.0
+arrow_sniper_normal,A1-A0,38187,hooks,"конец, волна",-1.0
 arrow_sniper_normal,A1-A0,38187,snake,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,38187,stairs,"конец, волна",0.0
 arrow_sniper_normal,A1-A0,38187,vsnake,"конец, волна",0.0
@@ -576,7 +576,7 @@ arrow_sniper_normal,A1-A0,16972,snake,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,16972,stairs,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,16972,vsnake,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,21215,hooks,жизни к 30,0.0
-arrow_sniper_normal,A1-A0,21215,snake,жизни к 30,-11.0
+arrow_sniper_normal,A1-A0,21215,snake,жизни к 30,-8.0
 arrow_sniper_normal,A1-A0,21215,stairs,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,21215,vsnake,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,25458,hooks,жизни к 30,0.0
@@ -599,6 +599,206 @@ arrow_sniper_normal,A1-A0,42430,hooks,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,42430,snake,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,42430,stairs,жизни к 30,0.0
 arrow_sniper_normal,A1-A0,42430,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,4243,hooks,"жизни −, окно",0
+cannon_normal,A1-A0,4243,snake,"жизни −, окно",0
+cannon_normal,A1-A0,4243,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,4243,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,8486,hooks,"жизни −, окно",0
+cannon_normal,A1-A0,8486,snake,"жизни −, окно",0
+cannon_normal,A1-A0,8486,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,8486,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,12729,hooks,"жизни −, окно",0
+cannon_normal,A1-A0,12729,snake,"жизни −, окно",0
+cannon_normal,A1-A0,12729,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,12729,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,16972,hooks,"жизни −, окно",0
+cannon_normal,A1-A0,16972,snake,"жизни −, окно",0
+cannon_normal,A1-A0,16972,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,16972,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,21215,hooks,"жизни −, окно",8
+cannon_normal,A1-A0,21215,snake,"жизни −, окно",0
+cannon_normal,A1-A0,21215,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,21215,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,25458,hooks,"жизни −, окно",0
+cannon_normal,A1-A0,25458,snake,"жизни −, окно",0
+cannon_normal,A1-A0,25458,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,25458,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,29701,hooks,"жизни −, окно",0
+cannon_normal,A1-A0,29701,snake,"жизни −, окно",0
+cannon_normal,A1-A0,29701,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,29701,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,33944,hooks,"жизни −, окно",5
+cannon_normal,A1-A0,33944,snake,"жизни −, окно",0
+cannon_normal,A1-A0,33944,stairs,"жизни −, окно",14
+cannon_normal,A1-A0,33944,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,38187,hooks,"жизни −, окно",5
+cannon_normal,A1-A0,38187,snake,"жизни −, окно",0
+cannon_normal,A1-A0,38187,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,38187,vsnake,"жизни −, окно",10
+cannon_normal,A1-A0,42430,hooks,"жизни −, окно",0
+cannon_normal,A1-A0,42430,snake,"жизни −, окно",0
+cannon_normal,A1-A0,42430,stairs,"жизни −, окно",0
+cannon_normal,A1-A0,42430,vsnake,"жизни −, окно",0
+cannon_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.1076
+cannon_normal,A1-A0,4243,snake,"p90 гибели, окно",0.1222
+cannon_normal,A1-A0,4243,stairs,"p90 гибели, окно",0.1267
+cannon_normal,A1-A0,4243,vsnake,"p90 гибели, окно",0.1298
+cannon_normal,A1-A0,8486,hooks,"p90 гибели, окно",0.1306
+cannon_normal,A1-A0,8486,snake,"p90 гибели, окно",0.1063
+cannon_normal,A1-A0,8486,stairs,"p90 гибели, окно",0.1229
+cannon_normal,A1-A0,8486,vsnake,"p90 гибели, окно",0.1119
+cannon_normal,A1-A0,12729,hooks,"p90 гибели, окно",0.1286
+cannon_normal,A1-A0,12729,snake,"p90 гибели, окно",0.1278
+cannon_normal,A1-A0,12729,stairs,"p90 гибели, окно",0.1177
+cannon_normal,A1-A0,12729,vsnake,"p90 гибели, окно",0.2891
+cannon_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.2659
+cannon_normal,A1-A0,16972,snake,"p90 гибели, окно",0.2069
+cannon_normal,A1-A0,16972,stairs,"p90 гибели, окно",0.1317
+cannon_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.1357
+cannon_normal,A1-A0,21215,hooks,"p90 гибели, окно",0.5421
+cannon_normal,A1-A0,21215,snake,"p90 гибели, окно",0.1026
+cannon_normal,A1-A0,21215,stairs,"p90 гибели, окно",0.2324
+cannon_normal,A1-A0,21215,vsnake,"p90 гибели, окно",0.2078
+cannon_normal,A1-A0,25458,hooks,"p90 гибели, окно",0.1267
+cannon_normal,A1-A0,25458,snake,"p90 гибели, окно",0.1216
+cannon_normal,A1-A0,25458,stairs,"p90 гибели, окно",0.1297
+cannon_normal,A1-A0,25458,vsnake,"p90 гибели, окно",0.1279
+cannon_normal,A1-A0,29701,hooks,"p90 гибели, окно",0.2696
+cannon_normal,A1-A0,29701,snake,"p90 гибели, окно",0.1209
+cannon_normal,A1-A0,29701,stairs,"p90 гибели, окно",0.2198
+cannon_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.2486
+cannon_normal,A1-A0,33944,hooks,"p90 гибели, окно",0.3844
+cannon_normal,A1-A0,33944,snake,"p90 гибели, окно",0.2866
+cannon_normal,A1-A0,33944,stairs,"p90 гибели, окно",0.3162
+cannon_normal,A1-A0,33944,vsnake,"p90 гибели, окно",0.1428
+cannon_normal,A1-A0,38187,hooks,"p90 гибели, окно",0.6658
+cannon_normal,A1-A0,38187,snake,"p90 гибели, окно",0.1391
+cannon_normal,A1-A0,38187,stairs,"p90 гибели, окно",0.2087
+cannon_normal,A1-A0,38187,vsnake,"p90 гибели, окно",0.3957
+cannon_normal,A1-A0,42430,hooks,"p90 гибели, окно",0.0987
+cannon_normal,A1-A0,42430,snake,"p90 гибели, окно",0.1082
+cannon_normal,A1-A0,42430,stairs,"p90 гибели, окно",0.1002
+cannon_normal,A1-A0,42430,vsnake,"p90 гибели, окно",0.1532
+cannon_normal,A1-A0,4243,hooks,побед 30,0.0
+cannon_normal,A1-A0,4243,snake,побед 30,0.0
+cannon_normal,A1-A0,4243,stairs,побед 30,0.0
+cannon_normal,A1-A0,4243,vsnake,побед 30,0.0
+cannon_normal,A1-A0,8486,hooks,побед 30,0.0
+cannon_normal,A1-A0,8486,snake,побед 30,0.0
+cannon_normal,A1-A0,8486,stairs,побед 30,0.0
+cannon_normal,A1-A0,8486,vsnake,побед 30,0.0
+cannon_normal,A1-A0,12729,hooks,побед 30,0.0
+cannon_normal,A1-A0,12729,snake,побед 30,0.0
+cannon_normal,A1-A0,12729,stairs,побед 30,0.0
+cannon_normal,A1-A0,12729,vsnake,побед 30,0.0
+cannon_normal,A1-A0,16972,hooks,побед 30,0.0
+cannon_normal,A1-A0,16972,snake,побед 30,0.0
+cannon_normal,A1-A0,16972,stairs,побед 30,0.0
+cannon_normal,A1-A0,16972,vsnake,побед 30,0.0
+cannon_normal,A1-A0,21215,hooks,побед 30,0.0
+cannon_normal,A1-A0,21215,snake,побед 30,0.0
+cannon_normal,A1-A0,21215,stairs,побед 30,0.0
+cannon_normal,A1-A0,21215,vsnake,побед 30,0.0
+cannon_normal,A1-A0,25458,hooks,побед 30,0.0
+cannon_normal,A1-A0,25458,snake,побед 30,0.0
+cannon_normal,A1-A0,25458,stairs,побед 30,0.0
+cannon_normal,A1-A0,25458,vsnake,побед 30,0.0
+cannon_normal,A1-A0,29701,hooks,побед 30,0.0
+cannon_normal,A1-A0,29701,snake,побед 30,0.0
+cannon_normal,A1-A0,29701,stairs,побед 30,0.0
+cannon_normal,A1-A0,29701,vsnake,побед 30,0.0
+cannon_normal,A1-A0,33944,hooks,побед 30,0.0
+cannon_normal,A1-A0,33944,snake,побед 30,0.0
+cannon_normal,A1-A0,33944,stairs,побед 30,0.0
+cannon_normal,A1-A0,33944,vsnake,побед 30,0.0
+cannon_normal,A1-A0,38187,hooks,побед 30,0.0
+cannon_normal,A1-A0,38187,snake,побед 30,0.0
+cannon_normal,A1-A0,38187,stairs,побед 30,0.0
+cannon_normal,A1-A0,38187,vsnake,побед 30,0.0
+cannon_normal,A1-A0,42430,hooks,побед 30,0.0
+cannon_normal,A1-A0,42430,snake,побед 30,0.0
+cannon_normal,A1-A0,42430,stairs,побед 30,0.0
+cannon_normal,A1-A0,42430,vsnake,побед 30,0.0
+cannon_normal,A1-A0,4243,hooks,"конец, волна",0.0
+cannon_normal,A1-A0,4243,snake,"конец, волна",0.0
+cannon_normal,A1-A0,4243,stairs,"конец, волна",0.0
+cannon_normal,A1-A0,4243,vsnake,"конец, волна",0.0
+cannon_normal,A1-A0,8486,hooks,"конец, волна",0.0
+cannon_normal,A1-A0,8486,snake,"конец, волна",0.0
+cannon_normal,A1-A0,8486,stairs,"конец, волна",0.0
+cannon_normal,A1-A0,8486,vsnake,"конец, волна",-1.0
+cannon_normal,A1-A0,12729,hooks,"конец, волна",0.0
+cannon_normal,A1-A0,12729,snake,"конец, волна",0.0
+cannon_normal,A1-A0,12729,stairs,"конец, волна",0.0
+cannon_normal,A1-A0,12729,vsnake,"конец, волна",-1.0
+cannon_normal,A1-A0,16972,hooks,"конец, волна",-1.0
+cannon_normal,A1-A0,16972,snake,"конец, волна",-1.0
+cannon_normal,A1-A0,16972,stairs,"конец, волна",0.0
+cannon_normal,A1-A0,16972,vsnake,"конец, волна",0.0
+cannon_normal,A1-A0,21215,hooks,"конец, волна",-4.0
+cannon_normal,A1-A0,21215,snake,"конец, волна",-1.0
+cannon_normal,A1-A0,21215,stairs,"конец, волна",-1.0
+cannon_normal,A1-A0,21215,vsnake,"конец, волна",-1.0
+cannon_normal,A1-A0,25458,hooks,"конец, волна",0.0
+cannon_normal,A1-A0,25458,snake,"конец, волна",0.0
+cannon_normal,A1-A0,25458,stairs,"конец, волна",-1.0
+cannon_normal,A1-A0,25458,vsnake,"конец, волна",0.0
+cannon_normal,A1-A0,29701,hooks,"конец, волна",-1.0
+cannon_normal,A1-A0,29701,snake,"конец, волна",0.0
+cannon_normal,A1-A0,29701,stairs,"конец, волна",-1.0
+cannon_normal,A1-A0,29701,vsnake,"конец, волна",-1.0
+cannon_normal,A1-A0,33944,hooks,"конец, волна",-1.0
+cannon_normal,A1-A0,33944,snake,"конец, волна",-1.0
+cannon_normal,A1-A0,33944,stairs,"конец, волна",-2.0
+cannon_normal,A1-A0,33944,vsnake,"конец, волна",0.0
+cannon_normal,A1-A0,38187,hooks,"конец, волна",-5.0
+cannon_normal,A1-A0,38187,snake,"конец, волна",0.0
+cannon_normal,A1-A0,38187,stairs,"конец, волна",-1.0
+cannon_normal,A1-A0,38187,vsnake,"конец, волна",-2.0
+cannon_normal,A1-A0,42430,hooks,"конец, волна",0.0
+cannon_normal,A1-A0,42430,snake,"конец, волна",0.0
+cannon_normal,A1-A0,42430,stairs,"конец, волна",0.0
+cannon_normal,A1-A0,42430,vsnake,"конец, волна",0.0
+cannon_normal,A1-A0,4243,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,4243,snake,жизни к 30,0.0
+cannon_normal,A1-A0,4243,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,4243,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,8486,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,8486,snake,жизни к 30,0.0
+cannon_normal,A1-A0,8486,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,8486,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,12729,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,12729,snake,жизни к 30,0.0
+cannon_normal,A1-A0,12729,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,12729,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,16972,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,16972,snake,жизни к 30,0.0
+cannon_normal,A1-A0,16972,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,16972,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,21215,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,21215,snake,жизни к 30,0.0
+cannon_normal,A1-A0,21215,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,21215,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,25458,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,25458,snake,жизни к 30,0.0
+cannon_normal,A1-A0,25458,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,25458,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,29701,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,29701,snake,жизни к 30,0.0
+cannon_normal,A1-A0,29701,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,29701,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,33944,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,33944,snake,жизни к 30,0.0
+cannon_normal,A1-A0,33944,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,33944,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,38187,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,38187,snake,жизни к 30,0.0
+cannon_normal,A1-A0,38187,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,38187,vsnake,жизни к 30,0.0
+cannon_normal,A1-A0,42430,hooks,жизни к 30,0.0
+cannon_normal,A1-A0,42430,snake,жизни к 30,0.0
+cannon_normal,A1-A0,42430,stairs,жизни к 30,0.0
+cannon_normal,A1-A0,42430,vsnake,жизни к 30,0.0
 mixed_normal,A1-A0,4243,hooks,"жизни −, окно",0
 mixed_normal,A1-A0,4243,snake,"жизни −, окно",0
 mixed_normal,A1-A0,4243,stairs,"жизни −, окно",0
@@ -612,7 +812,7 @@ mixed_normal,A1-A0,12729,snake,"жизни −, окно",0
 mixed_normal,A1-A0,12729,stairs,"жизни −, окно",0
 mixed_normal,A1-A0,12729,vsnake,"жизни −, окно",0
 mixed_normal,A1-A0,16972,hooks,"жизни −, окно",0
-mixed_normal,A1-A0,16972,snake,"жизни −, окно",3
+mixed_normal,A1-A0,16972,snake,"жизни −, окно",1
 mixed_normal,A1-A0,16972,stairs,"жизни −, окно",0
 mixed_normal,A1-A0,16972,vsnake,"жизни −, окно",0
 mixed_normal,A1-A0,21215,hooks,"жизни −, окно",0
@@ -639,43 +839,43 @@ mixed_normal,A1-A0,42430,hooks,"жизни −, окно",0
 mixed_normal,A1-A0,42430,snake,"жизни −, окно",0
 mixed_normal,A1-A0,42430,stairs,"жизни −, окно",0
 mixed_normal,A1-A0,42430,vsnake,"жизни −, окно",0
-mixed_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,4243,snake,"p90 гибели, окно",0.0
+mixed_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.0044
+mixed_normal,A1-A0,4243,snake,"p90 гибели, окно",-0.0013
 mixed_normal,A1-A0,4243,stairs,"p90 гибели, окно",0.0
 mixed_normal,A1-A0,4243,vsnake,"p90 гибели, окно",-0.0081
 mixed_normal,A1-A0,8486,hooks,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,8486,snake,"p90 гибели, окно",-0.0011
+mixed_normal,A1-A0,8486,snake,"p90 гибели, окно",0.0017
 mixed_normal,A1-A0,8486,stairs,"p90 гибели, окно",0.0
 mixed_normal,A1-A0,8486,vsnake,"p90 гибели, окно",0.0034
 mixed_normal,A1-A0,12729,hooks,"p90 гибели, окно",-0.0014
-mixed_normal,A1-A0,12729,snake,"p90 гибели, окно",-0.0068
+mixed_normal,A1-A0,12729,snake,"p90 гибели, окно",-0.0173
 mixed_normal,A1-A0,12729,stairs,"p90 гибели, окно",0.0016
-mixed_normal,A1-A0,12729,vsnake,"p90 гибели, окно",-0.002
-mixed_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.0007
-mixed_normal,A1-A0,16972,snake,"p90 гибели, окно",0.0823
+mixed_normal,A1-A0,12729,vsnake,"p90 гибели, окно",-0.0011
+mixed_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.0001
+mixed_normal,A1-A0,16972,snake,"p90 гибели, окно",0.0537
 mixed_normal,A1-A0,16972,stairs,"p90 гибели, окно",0.0551
 mixed_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,21215,hooks,"p90 гибели, окно",-0.0012
+mixed_normal,A1-A0,21215,hooks,"p90 гибели, окно",-0.0122
 mixed_normal,A1-A0,21215,snake,"p90 гибели, окно",0.0007
 mixed_normal,A1-A0,21215,stairs,"p90 гибели, окно",0.0
 mixed_normal,A1-A0,21215,vsnake,"p90 гибели, окно",0.0092
-mixed_normal,A1-A0,25458,hooks,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,25458,snake,"p90 гибели, окно",-0.0126
-mixed_normal,A1-A0,25458,stairs,"p90 гибели, окно",0.0
+mixed_normal,A1-A0,25458,hooks,"p90 гибели, окно",0.0356
+mixed_normal,A1-A0,25458,snake,"p90 гибели, окно",-0.0802
+mixed_normal,A1-A0,25458,stairs,"p90 гибели, окно",0.0068
 mixed_normal,A1-A0,25458,vsnake,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,29701,hooks,"p90 гибели, окно",-0.0013
+mixed_normal,A1-A0,29701,hooks,"p90 гибели, окно",-0.0021
 mixed_normal,A1-A0,29701,snake,"p90 гибели, окно",0.0
 mixed_normal,A1-A0,29701,stairs,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.0
+mixed_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.0036
 mixed_normal,A1-A0,33944,hooks,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,33944,snake,"p90 гибели, окно",0.0
+mixed_normal,A1-A0,33944,snake,"p90 гибели, окно",-0.0234
 mixed_normal,A1-A0,33944,stairs,"p90 гибели, окно",0.0
 mixed_normal,A1-A0,33944,vsnake,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,38187,hooks,"p90 гибели, окно",0.2006
+mixed_normal,A1-A0,38187,hooks,"p90 гибели, окно",0.0492
 mixed_normal,A1-A0,38187,snake,"p90 гибели, окно",-0.0064
 mixed_normal,A1-A0,38187,stairs,"p90 гибели, окно",0.0
 mixed_normal,A1-A0,38187,vsnake,"p90 гибели, окно",0.0
-mixed_normal,A1-A0,42430,hooks,"p90 гибели, окно",0.02
+mixed_normal,A1-A0,42430,hooks,"p90 гибели, окно",0.0128
 mixed_normal,A1-A0,42430,snake,"p90 гибели, окно",0.0097
 mixed_normal,A1-A0,42430,stairs,"p90 гибели, окно",0.0
 mixed_normal,A1-A0,42430,vsnake,"p90 гибели, окно",-0.0052
@@ -762,9 +962,9 @@ mixed_normal,A1-A0,42430,vsnake,"конец, волна",0.0
 mixed_normal,A1-A0,4243,hooks,жизни к 30,0.0
 mixed_normal,A1-A0,4243,snake,жизни к 30,0.0
 mixed_normal,A1-A0,4243,stairs,жизни к 30,0.0
-mixed_normal,A1-A0,4243,vsnake,жизни к 30,0.0
+mixed_normal,A1-A0,4243,vsnake,жизни к 30,5.0
 mixed_normal,A1-A0,8486,hooks,жизни к 30,0.0
-mixed_normal,A1-A0,8486,snake,жизни к 30,5.0
+mixed_normal,A1-A0,8486,snake,жизни к 30,0.0
 mixed_normal,A1-A0,8486,stairs,жизни к 30,0.0
 mixed_normal,A1-A0,8486,vsnake,жизни к 30,0.0
 mixed_normal,A1-A0,12729,hooks,жизни к 30,0.0
@@ -772,14 +972,14 @@ mixed_normal,A1-A0,12729,snake,жизни к 30,0.0
 mixed_normal,A1-A0,12729,stairs,жизни к 30,0.0
 mixed_normal,A1-A0,12729,vsnake,жизни к 30,0.0
 mixed_normal,A1-A0,16972,hooks,жизни к 30,5.0
-mixed_normal,A1-A0,16972,snake,жизни к 30,-8.0
+mixed_normal,A1-A0,16972,snake,жизни к 30,-6.0
 mixed_normal,A1-A0,16972,stairs,жизни к 30,-5.0
-mixed_normal,A1-A0,16972,vsnake,жизни к 30,5.0
+mixed_normal,A1-A0,16972,vsnake,жизни к 30,0.0
 mixed_normal,A1-A0,21215,hooks,жизни к 30,0.0
-mixed_normal,A1-A0,21215,snake,жизни к 30,-5.0
+mixed_normal,A1-A0,21215,snake,жизни к 30,0.0
 mixed_normal,A1-A0,21215,stairs,жизни к 30,0.0
 mixed_normal,A1-A0,21215,vsnake,жизни к 30,0.0
-mixed_normal,A1-A0,25458,hooks,жизни к 30,0.0
+mixed_normal,A1-A0,25458,hooks,жизни к 30,-5.0
 mixed_normal,A1-A0,25458,snake,жизни к 30,0.0
 mixed_normal,A1-A0,25458,stairs,жизни к 30,0.0
 mixed_normal,A1-A0,25458,vsnake,жизни к 30,0.0
@@ -790,8 +990,8 @@ mixed_normal,A1-A0,29701,vsnake,жизни к 30,-5.0
 mixed_normal,A1-A0,33944,hooks,жизни к 30,0.0
 mixed_normal,A1-A0,33944,snake,жизни к 30,0.0
 mixed_normal,A1-A0,33944,stairs,жизни к 30,0.0
-mixed_normal,A1-A0,33944,vsnake,жизни к 30,0.0
-mixed_normal,A1-A0,38187,hooks,жизни к 30,0.0
+mixed_normal,A1-A0,33944,vsnake,жизни к 30,-5.0
+mixed_normal,A1-A0,38187,hooks,жизни к 30,4.0
 mixed_normal,A1-A0,38187,snake,жизни к 30,0.0
 mixed_normal,A1-A0,38187,stairs,жизни к 30,0.0
 mixed_normal,A1-A0,38187,vsnake,жизни к 30,0.0
@@ -812,7 +1012,7 @@ mixed_normal,F1-F0,12729,snake,"жизни −, окно",0
 mixed_normal,F1-F0,12729,stairs,"жизни −, окно",0
 mixed_normal,F1-F0,12729,vsnake,"жизни −, окно",0
 mixed_normal,F1-F0,16972,hooks,"жизни −, окно",0
-mixed_normal,F1-F0,16972,snake,"жизни −, окно",3
+mixed_normal,F1-F0,16972,snake,"жизни −, окно",1
 mixed_normal,F1-F0,16972,stairs,"жизни −, окно",1
 mixed_normal,F1-F0,16972,vsnake,"жизни −, окно",0
 mixed_normal,F1-F0,21215,hooks,"жизни −, окно",0
@@ -831,7 +1031,7 @@ mixed_normal,F1-F0,33944,hooks,"жизни −, окно",0
 mixed_normal,F1-F0,33944,snake,"жизни −, окно",0
 mixed_normal,F1-F0,33944,stairs,"жизни −, окно",0
 mixed_normal,F1-F0,33944,vsnake,"жизни −, окно",0
-mixed_normal,F1-F0,38187,hooks,"жизни −, окно",9
+mixed_normal,F1-F0,38187,hooks,"жизни −, окно",-4
 mixed_normal,F1-F0,38187,snake,"жизни −, окно",0
 mixed_normal,F1-F0,38187,stairs,"жизни −, окно",0
 mixed_normal,F1-F0,38187,vsnake,"жизни −, окно",0
@@ -839,43 +1039,43 @@ mixed_normal,F1-F0,42430,hooks,"жизни −, окно",0
 mixed_normal,F1-F0,42430,snake,"жизни −, окно",0
 mixed_normal,F1-F0,42430,stairs,"жизни −, окно",0
 mixed_normal,F1-F0,42430,vsnake,"жизни −, окно",0
-mixed_normal,F1-F0,4243,hooks,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,4243,snake,"p90 гибели, окно",0.0
+mixed_normal,F1-F0,4243,hooks,"p90 гибели, окно",0.004
+mixed_normal,F1-F0,4243,snake,"p90 гибели, окно",-0.0018
 mixed_normal,F1-F0,4243,stairs,"p90 гибели, окно",0.0
 mixed_normal,F1-F0,4243,vsnake,"p90 гибели, окно",-0.0081
 mixed_normal,F1-F0,8486,hooks,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,8486,snake,"p90 гибели, окно",-0.0011
+mixed_normal,F1-F0,8486,snake,"p90 гибели, окно",0.0017
 mixed_normal,F1-F0,8486,stairs,"p90 гибели, окно",0.0
 mixed_normal,F1-F0,8486,vsnake,"p90 гибели, окно",0.0034
 mixed_normal,F1-F0,12729,hooks,"p90 гибели, окно",-0.0014
-mixed_normal,F1-F0,12729,snake,"p90 гибели, окно",-0.0273
+mixed_normal,F1-F0,12729,snake,"p90 гибели, окно",-0.0173
 mixed_normal,F1-F0,12729,stairs,"p90 гибели, окно",0.0052
-mixed_normal,F1-F0,12729,vsnake,"p90 гибели, окно",-0.002
-mixed_normal,F1-F0,16972,hooks,"p90 гибели, окно",0.0007
-mixed_normal,F1-F0,16972,snake,"p90 гибели, окно",0.052
+mixed_normal,F1-F0,12729,vsnake,"p90 гибели, окно",-0.0011
+mixed_normal,F1-F0,16972,hooks,"p90 гибели, окно",0.0001
+mixed_normal,F1-F0,16972,snake,"p90 гибели, окно",0.0537
 mixed_normal,F1-F0,16972,stairs,"p90 гибели, окно",0.0881
 mixed_normal,F1-F0,16972,vsnake,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,21215,hooks,"p90 гибели, окно",-0.0012
+mixed_normal,F1-F0,21215,hooks,"p90 гибели, окно",-0.0083
 mixed_normal,F1-F0,21215,snake,"p90 гибели, окно",0.002
 mixed_normal,F1-F0,21215,stairs,"p90 гибели, окно",0.0
 mixed_normal,F1-F0,21215,vsnake,"p90 гибели, окно",0.0094
-mixed_normal,F1-F0,25458,hooks,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,25458,snake,"p90 гибели, окно",-0.0126
-mixed_normal,F1-F0,25458,stairs,"p90 гибели, окно",0.0
+mixed_normal,F1-F0,25458,hooks,"p90 гибели, окно",0.0288
+mixed_normal,F1-F0,25458,snake,"p90 гибели, окно",-0.0802
+mixed_normal,F1-F0,25458,stairs,"p90 гибели, окно",0.0057
 mixed_normal,F1-F0,25458,vsnake,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,29701,hooks,"p90 гибели, окно",-0.0013
+mixed_normal,F1-F0,29701,hooks,"p90 гибели, окно",-0.0021
 mixed_normal,F1-F0,29701,snake,"p90 гибели, окно",0.0
 mixed_normal,F1-F0,29701,stairs,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,29701,vsnake,"p90 гибели, окно",0.0
+mixed_normal,F1-F0,29701,vsnake,"p90 гибели, окно",0.0036
 mixed_normal,F1-F0,33944,hooks,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,33944,snake,"p90 гибели, окно",0.0
+mixed_normal,F1-F0,33944,snake,"p90 гибели, окно",-0.0234
 mixed_normal,F1-F0,33944,stairs,"p90 гибели, окно",0.0
 mixed_normal,F1-F0,33944,vsnake,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,38187,hooks,"p90 гибели, окно",0.2106
+mixed_normal,F1-F0,38187,hooks,"p90 гибели, окно",0.0292
 mixed_normal,F1-F0,38187,snake,"p90 гибели, окно",-0.0064
 mixed_normal,F1-F0,38187,stairs,"p90 гибели, окно",0.0
 mixed_normal,F1-F0,38187,vsnake,"p90 гибели, окно",0.0
-mixed_normal,F1-F0,42430,hooks,"p90 гибели, окно",0.02
+mixed_normal,F1-F0,42430,hooks,"p90 гибели, окно",0.0128
 mixed_normal,F1-F0,42430,snake,"p90 гибели, окно",0.0097
 mixed_normal,F1-F0,42430,stairs,"p90 гибели, окно",0.0
 mixed_normal,F1-F0,42430,vsnake,"p90 гибели, окно",-0.0052
@@ -892,7 +1092,7 @@ mixed_normal,F1-F0,12729,snake,побед 30,0.0
 mixed_normal,F1-F0,12729,stairs,побед 30,0.0
 mixed_normal,F1-F0,12729,vsnake,побед 30,0.0
 mixed_normal,F1-F0,16972,hooks,побед 30,0.0
-mixed_normal,F1-F0,16972,snake,побед 30,-1.0
+mixed_normal,F1-F0,16972,snake,побед 30,0.0
 mixed_normal,F1-F0,16972,stairs,побед 30,0.0
 mixed_normal,F1-F0,16972,vsnake,побед 30,0.0
 mixed_normal,F1-F0,21215,hooks,побед 30,0.0
@@ -911,7 +1111,7 @@ mixed_normal,F1-F0,33944,hooks,побед 30,0.0
 mixed_normal,F1-F0,33944,snake,побед 30,0.0
 mixed_normal,F1-F0,33944,stairs,побед 30,0.0
 mixed_normal,F1-F0,33944,vsnake,побед 30,0.0
-mixed_normal,F1-F0,38187,hooks,побед 30,-1.0
+mixed_normal,F1-F0,38187,hooks,побед 30,0.0
 mixed_normal,F1-F0,38187,snake,побед 30,0.0
 mixed_normal,F1-F0,38187,stairs,побед 30,0.0
 mixed_normal,F1-F0,38187,vsnake,побед 30,0.0
@@ -932,7 +1132,7 @@ mixed_normal,F1-F0,12729,snake,"конец, волна",0.0
 mixed_normal,F1-F0,12729,stairs,"конец, волна",0.0
 mixed_normal,F1-F0,12729,vsnake,"конец, волна",0.0
 mixed_normal,F1-F0,16972,hooks,"конец, волна",0.0
-mixed_normal,F1-F0,16972,snake,"конец, волна",-1.0
+mixed_normal,F1-F0,16972,snake,"конец, волна",0.0
 mixed_normal,F1-F0,16972,stairs,"конец, волна",0.0
 mixed_normal,F1-F0,16972,vsnake,"конец, волна",0.0
 mixed_normal,F1-F0,21215,hooks,"конец, волна",0.0
@@ -951,7 +1151,7 @@ mixed_normal,F1-F0,33944,hooks,"конец, волна",0.0
 mixed_normal,F1-F0,33944,snake,"конец, волна",0.0
 mixed_normal,F1-F0,33944,stairs,"конец, волна",0.0
 mixed_normal,F1-F0,33944,vsnake,"конец, волна",0.0
-mixed_normal,F1-F0,38187,hooks,"конец, волна",-15.0
+mixed_normal,F1-F0,38187,hooks,"конец, волна",0.0
 mixed_normal,F1-F0,38187,snake,"конец, волна",0.0
 mixed_normal,F1-F0,38187,stairs,"конец, волна",0.0
 mixed_normal,F1-F0,38187,vsnake,"конец, волна",0.0
@@ -971,16 +1171,16 @@ mixed_normal,F1-F0,12729,hooks,жизни к 30,0.0
 mixed_normal,F1-F0,12729,snake,жизни к 30,0.0
 mixed_normal,F1-F0,12729,stairs,жизни к 30,0.0
 mixed_normal,F1-F0,12729,vsnake,жизни к 30,5.0
-mixed_normal,F1-F0,16972,hooks,жизни к 30,0.0
-mixed_normal,F1-F0,16972,snake,жизни к 30,-10.0
-mixed_normal,F1-F0,16972,stairs,жизни к 30,-1.0
+mixed_normal,F1-F0,16972,hooks,жизни к 30,5.0
+mixed_normal,F1-F0,16972,snake,жизни к 30,-6.0
+mixed_normal,F1-F0,16972,stairs,жизни к 30,-6.0
 mixed_normal,F1-F0,16972,vsnake,жизни к 30,0.0
 mixed_normal,F1-F0,21215,hooks,жизни к 30,0.0
 mixed_normal,F1-F0,21215,snake,жизни к 30,0.0
 mixed_normal,F1-F0,21215,stairs,жизни к 30,0.0
 mixed_normal,F1-F0,21215,vsnake,жизни к 30,0.0
-mixed_normal,F1-F0,25458,hooks,жизни к 30,-2.0
-mixed_normal,F1-F0,25458,snake,жизни к 30,-1.0
+mixed_normal,F1-F0,25458,hooks,жизни к 30,-5.0
+mixed_normal,F1-F0,25458,snake,жизни к 30,0.0
 mixed_normal,F1-F0,25458,stairs,жизни к 30,0.0
 mixed_normal,F1-F0,25458,vsnake,жизни к 30,0.0
 mixed_normal,F1-F0,29701,hooks,жизни к 30,0.0
@@ -991,7 +1191,7 @@ mixed_normal,F1-F0,33944,hooks,жизни к 30,0.0
 mixed_normal,F1-F0,33944,snake,жизни к 30,0.0
 mixed_normal,F1-F0,33944,stairs,жизни к 30,0.0
 mixed_normal,F1-F0,33944,vsnake,жизни к 30,0.0
-mixed_normal,F1-F0,38187,hooks,жизни к 30,-5.0
+mixed_normal,F1-F0,38187,hooks,жизни к 30,3.0
 mixed_normal,F1-F0,38187,snake,жизни к 30,0.0
 mixed_normal,F1-F0,38187,stairs,жизни к 30,0.0
 mixed_normal,F1-F0,38187,vsnake,жизни к 30,0.0
@@ -1001,11 +1201,11 @@ mixed_normal,F1-F0,42430,stairs,жизни к 30,0.0
 mixed_normal,F1-F0,42430,vsnake,жизни к 30,0.0
 owner_hard,A1-A0,4243,hooks,"жизни −, окно",0
 owner_hard,A1-A0,4243,snake,"жизни −, окно",0
-owner_hard,A1-A0,4243,stairs,"жизни −, окно",1
+owner_hard,A1-A0,4243,stairs,"жизни −, окно",0
 owner_hard,A1-A0,4243,vsnake,"жизни −, окно",2
 owner_hard,A1-A0,8486,hooks,"жизни −, окно",0
-owner_hard,A1-A0,8486,snake,"жизни −, окно",7
-owner_hard,A1-A0,8486,stairs,"жизни −, окно",7
+owner_hard,A1-A0,8486,snake,"жизни −, окно",0
+owner_hard,A1-A0,8486,stairs,"жизни −, окно",0
 owner_hard,A1-A0,8486,vsnake,"жизни −, окно",0
 owner_hard,A1-A0,12729,hooks,"жизни −, окно",0
 owner_hard,A1-A0,12729,snake,"жизни −, окно",0
@@ -1015,199 +1215,199 @@ owner_hard,A1-A0,16972,hooks,"жизни −, окно",0
 owner_hard,A1-A0,16972,snake,"жизни −, окно",0
 owner_hard,A1-A0,16972,stairs,"жизни −, окно",-1
 owner_hard,A1-A0,16972,vsnake,"жизни −, окно",0
-owner_hard,A1-A0,21215,hooks,"жизни −, окно",0
+owner_hard,A1-A0,21215,hooks,"жизни −, окно",1
 owner_hard,A1-A0,21215,snake,"жизни −, окно",0
-owner_hard,A1-A0,21215,stairs,"жизни −, окно",4
+owner_hard,A1-A0,21215,stairs,"жизни −, окно",1
 owner_hard,A1-A0,21215,vsnake,"жизни −, окно",0
 owner_hard,A1-A0,25458,hooks,"жизни −, окно",0
 owner_hard,A1-A0,25458,snake,"жизни −, окно",0
 owner_hard,A1-A0,25458,stairs,"жизни −, окно",3
 owner_hard,A1-A0,25458,vsnake,"жизни −, окно",6
-owner_hard,A1-A0,29701,hooks,"жизни −, окно",1
+owner_hard,A1-A0,29701,hooks,"жизни −, окно",0
 owner_hard,A1-A0,29701,snake,"жизни −, окно",0
-owner_hard,A1-A0,29701,stairs,"жизни −, окно",3
+owner_hard,A1-A0,29701,stairs,"жизни −, окно",0
 owner_hard,A1-A0,29701,vsnake,"жизни −, окно",0
 owner_hard,A1-A0,33944,hooks,"жизни −, окно",6
 owner_hard,A1-A0,33944,snake,"жизни −, окно",0
-owner_hard,A1-A0,33944,stairs,"жизни −, окно",7
+owner_hard,A1-A0,33944,stairs,"жизни −, окно",0
 owner_hard,A1-A0,33944,vsnake,"жизни −, окно",3
 owner_hard,A1-A0,38187,hooks,"жизни −, окно",0
 owner_hard,A1-A0,38187,snake,"жизни −, окно",0
 owner_hard,A1-A0,38187,stairs,"жизни −, окно",0
 owner_hard,A1-A0,38187,vsnake,"жизни −, окно",0
-owner_hard,A1-A0,42430,hooks,"жизни −, окно",0
+owner_hard,A1-A0,42430,hooks,"жизни −, окно",1
 owner_hard,A1-A0,42430,snake,"жизни −, окно",0
 owner_hard,A1-A0,42430,stairs,"жизни −, окно",0
 owner_hard,A1-A0,42430,vsnake,"жизни −, окно",0
-owner_hard,A1-A0,4243,hooks,"p90 гибели, окно",0.0361
+owner_hard,A1-A0,4243,hooks,"p90 гибели, окно",0.0538
 owner_hard,A1-A0,4243,snake,"p90 гибели, окно",-0.0008
-owner_hard,A1-A0,4243,stairs,"p90 гибели, окно",-0.0376
-owner_hard,A1-A0,4243,vsnake,"p90 гибели, окно",0.0447
-owner_hard,A1-A0,8486,hooks,"p90 гибели, окно",0.0468
-owner_hard,A1-A0,8486,snake,"p90 гибели, окно",0.3747
-owner_hard,A1-A0,8486,stairs,"p90 гибели, окно",0.385
-owner_hard,A1-A0,8486,vsnake,"p90 гибели, окно",0.0022
-owner_hard,A1-A0,12729,hooks,"p90 гибели, окно",0.0779
-owner_hard,A1-A0,12729,snake,"p90 гибели, окно",0.0023
-owner_hard,A1-A0,12729,stairs,"p90 гибели, окно",0.0156
-owner_hard,A1-A0,12729,vsnake,"p90 гибели, окно",0.0226
-owner_hard,A1-A0,16972,hooks,"p90 гибели, окно",0.0196
+owner_hard,A1-A0,4243,stairs,"p90 гибели, окно",0.0601
+owner_hard,A1-A0,4243,vsnake,"p90 гибели, окно",0.0482
+owner_hard,A1-A0,8486,hooks,"p90 гибели, окно",0.0492
+owner_hard,A1-A0,8486,snake,"p90 гибели, окно",0.0034
+owner_hard,A1-A0,8486,stairs,"p90 гибели, окно",-0.0271
+owner_hard,A1-A0,8486,vsnake,"p90 гибели, окно",0.0017
+owner_hard,A1-A0,12729,hooks,"p90 гибели, окно",0.0541
+owner_hard,A1-A0,12729,snake,"p90 гибели, окно",-0.0032
+owner_hard,A1-A0,12729,stairs,"p90 гибели, окно",0.001
+owner_hard,A1-A0,12729,vsnake,"p90 гибели, окно",0.0097
+owner_hard,A1-A0,16972,hooks,"p90 гибели, окно",0.0186
 owner_hard,A1-A0,16972,snake,"p90 гибели, окно",0.0047
-owner_hard,A1-A0,16972,stairs,"p90 гибели, окно",0.0282
+owner_hard,A1-A0,16972,stairs,"p90 гибели, окно",0.0237
 owner_hard,A1-A0,16972,vsnake,"p90 гибели, окно",0.0151
-owner_hard,A1-A0,21215,hooks,"p90 гибели, окно",0.0073
-owner_hard,A1-A0,21215,snake,"p90 гибели, окно",0.0051
+owner_hard,A1-A0,21215,hooks,"p90 гибели, окно",0.0508
+owner_hard,A1-A0,21215,snake,"p90 гибели, окно",0.0017
 owner_hard,A1-A0,21215,stairs,"p90 гибели, окно",0.034
-owner_hard,A1-A0,21215,vsnake,"p90 гибели, окно",0.0189
+owner_hard,A1-A0,21215,vsnake,"p90 гибели, окно",0.0164
 owner_hard,A1-A0,25458,hooks,"p90 гибели, окно",0.0152
-owner_hard,A1-A0,25458,snake,"p90 гибели, окно",0.0077
+owner_hard,A1-A0,25458,snake,"p90 гибели, окно",0.0429
 owner_hard,A1-A0,25458,stairs,"p90 гибели, окно",0.0554
 owner_hard,A1-A0,25458,vsnake,"p90 гибели, окно",0.1538
-owner_hard,A1-A0,29701,hooks,"p90 гибели, окно",0.0269
-owner_hard,A1-A0,29701,snake,"p90 гибели, окно",0.102
-owner_hard,A1-A0,29701,stairs,"p90 гибели, окно",0.0349
+owner_hard,A1-A0,29701,hooks,"p90 гибели, окно",0.0137
+owner_hard,A1-A0,29701,snake,"p90 гибели, окно",0.0298
+owner_hard,A1-A0,29701,stairs,"p90 гибели, окно",-0.0036
 owner_hard,A1-A0,29701,vsnake,"p90 гибели, окно",0.0013
-owner_hard,A1-A0,33944,hooks,"p90 гибели, окно",0.4667
-owner_hard,A1-A0,33944,snake,"p90 гибели, окно",0.004
-owner_hard,A1-A0,33944,stairs,"p90 гибели, окно",0.1964
+owner_hard,A1-A0,33944,hooks,"p90 гибели, окно",0.3981
+owner_hard,A1-A0,33944,snake,"p90 гибели, окно",0.0033
+owner_hard,A1-A0,33944,stairs,"p90 гибели, окно",0.0
 owner_hard,A1-A0,33944,vsnake,"p90 гибели, окно",0.0638
 owner_hard,A1-A0,38187,hooks,"p90 гибели, окно",0.0
-owner_hard,A1-A0,38187,snake,"p90 гибели, окно",0.0604
+owner_hard,A1-A0,38187,snake,"p90 гибели, окно",0.0351
 owner_hard,A1-A0,38187,stairs,"p90 гибели, окно",0.0
-owner_hard,A1-A0,38187,vsnake,"p90 гибели, окно",0.002
-owner_hard,A1-A0,42430,hooks,"p90 гибели, окно",0.0574
-owner_hard,A1-A0,42430,snake,"p90 гибели, окно",0.0117
+owner_hard,A1-A0,38187,vsnake,"p90 гибели, окно",0.0011
+owner_hard,A1-A0,42430,hooks,"p90 гибели, окно",0.0827
+owner_hard,A1-A0,42430,snake,"p90 гибели, окно",0.0034
 owner_hard,A1-A0,42430,stairs,"p90 гибели, окно",0.0
-owner_hard,A1-A0,42430,vsnake,"p90 гибели, окно",0.0121
-owner_hard,A1-A0,4243,hooks,побед 30,-1.0
+owner_hard,A1-A0,42430,vsnake,"p90 гибели, окно",-0.001
+owner_hard,A1-A0,4243,hooks,побед 30,0.0
 owner_hard,A1-A0,4243,snake,побед 30,0.0
 owner_hard,A1-A0,4243,stairs,побед 30,-1.0
 owner_hard,A1-A0,4243,vsnake,побед 30,0.0
-owner_hard,A1-A0,8486,hooks,побед 30,-1.0
-owner_hard,A1-A0,8486,snake,побед 30,-1.0
+owner_hard,A1-A0,8486,hooks,побед 30,0.0
+owner_hard,A1-A0,8486,snake,побед 30,0.0
 owner_hard,A1-A0,8486,stairs,побед 30,-1.0
 owner_hard,A1-A0,8486,vsnake,побед 30,0.0
-owner_hard,A1-A0,12729,hooks,побед 30,-1.0
-owner_hard,A1-A0,12729,snake,побед 30,-1.0
-owner_hard,A1-A0,12729,stairs,побед 30,-1.0
+owner_hard,A1-A0,12729,hooks,побед 30,0.0
+owner_hard,A1-A0,12729,snake,побед 30,0.0
+owner_hard,A1-A0,12729,stairs,побед 30,0.0
 owner_hard,A1-A0,12729,vsnake,побед 30,0.0
-owner_hard,A1-A0,16972,hooks,побед 30,-1.0
-owner_hard,A1-A0,16972,snake,побед 30,-1.0
+owner_hard,A1-A0,16972,hooks,побед 30,0.0
+owner_hard,A1-A0,16972,snake,побед 30,0.0
 owner_hard,A1-A0,16972,stairs,побед 30,0.0
-owner_hard,A1-A0,16972,vsnake,побед 30,-1.0
+owner_hard,A1-A0,16972,vsnake,побед 30,0.0
 owner_hard,A1-A0,21215,hooks,побед 30,0.0
-owner_hard,A1-A0,21215,snake,побед 30,-1.0
+owner_hard,A1-A0,21215,snake,побед 30,0.0
 owner_hard,A1-A0,21215,stairs,побед 30,-1.0
-owner_hard,A1-A0,21215,vsnake,побед 30,-1.0
+owner_hard,A1-A0,21215,vsnake,побед 30,0.0
 owner_hard,A1-A0,25458,hooks,побед 30,0.0
-owner_hard,A1-A0,25458,snake,побед 30,-1.0
+owner_hard,A1-A0,25458,snake,побед 30,0.0
 owner_hard,A1-A0,25458,stairs,побед 30,-1.0
 owner_hard,A1-A0,25458,vsnake,побед 30,-1.0
-owner_hard,A1-A0,29701,hooks,побед 30,-1.0
-owner_hard,A1-A0,29701,snake,побед 30,-1.0
-owner_hard,A1-A0,29701,stairs,побед 30,-1.0
-owner_hard,A1-A0,29701,vsnake,побед 30,-1.0
+owner_hard,A1-A0,29701,hooks,побед 30,0.0
+owner_hard,A1-A0,29701,snake,побед 30,0.0
+owner_hard,A1-A0,29701,stairs,побед 30,0.0
+owner_hard,A1-A0,29701,vsnake,побед 30,0.0
 owner_hard,A1-A0,33944,hooks,побед 30,0.0
 owner_hard,A1-A0,33944,snake,побед 30,0.0
 owner_hard,A1-A0,33944,stairs,побед 30,-1.0
 owner_hard,A1-A0,33944,vsnake,побед 30,-1.0
 owner_hard,A1-A0,38187,hooks,побед 30,0.0
-owner_hard,A1-A0,38187,snake,побед 30,-1.0
+owner_hard,A1-A0,38187,snake,побед 30,0.0
 owner_hard,A1-A0,38187,stairs,побед 30,-1.0
-owner_hard,A1-A0,38187,vsnake,побед 30,-1.0
-owner_hard,A1-A0,42430,hooks,побед 30,-1.0
-owner_hard,A1-A0,42430,snake,побед 30,-1.0
+owner_hard,A1-A0,38187,vsnake,побед 30,0.0
+owner_hard,A1-A0,42430,hooks,побед 30,0.0
+owner_hard,A1-A0,42430,snake,побед 30,0.0
 owner_hard,A1-A0,42430,stairs,побед 30,0.0
 owner_hard,A1-A0,42430,vsnake,побед 30,-1.0
-owner_hard,A1-A0,4243,hooks,"конец, волна",-1.0
+owner_hard,A1-A0,4243,hooks,"конец, волна",0.0
 owner_hard,A1-A0,4243,snake,"конец, волна",-14.0
-owner_hard,A1-A0,4243,stairs,"конец, волна",-11.0
+owner_hard,A1-A0,4243,stairs,"конец, волна",-15.0
 owner_hard,A1-A0,4243,vsnake,"конец, волна",0.0
-owner_hard,A1-A0,8486,hooks,"конец, волна",-3.0
-owner_hard,A1-A0,8486,snake,"конец, волна",-18.0
-owner_hard,A1-A0,8486,stairs,"конец, волна",-19.0
+owner_hard,A1-A0,8486,hooks,"конец, волна",0.0
+owner_hard,A1-A0,8486,snake,"конец, волна",0.0
+owner_hard,A1-A0,8486,stairs,"конец, волна",-11.0
 owner_hard,A1-A0,8486,vsnake,"конец, волна",0.0
-owner_hard,A1-A0,12729,hooks,"конец, волна",-6.0
-owner_hard,A1-A0,12729,snake,"конец, волна",-3.0
-owner_hard,A1-A0,12729,stairs,"конец, волна",-1.0
+owner_hard,A1-A0,12729,hooks,"конец, волна",0.0
+owner_hard,A1-A0,12729,snake,"конец, волна",0.0
+owner_hard,A1-A0,12729,stairs,"конец, волна",0.0
 owner_hard,A1-A0,12729,vsnake,"конец, волна",0.0
-owner_hard,A1-A0,16972,hooks,"конец, волна",-3.0
-owner_hard,A1-A0,16972,snake,"конец, волна",-7.0
-owner_hard,A1-A0,16972,stairs,"конец, волна",0.0
-owner_hard,A1-A0,16972,vsnake,"конец, волна",-2.0
-owner_hard,A1-A0,21215,hooks,"конец, волна",-1.0
-owner_hard,A1-A0,21215,snake,"конец, волна",-1.0
+owner_hard,A1-A0,16972,hooks,"конец, волна",0.0
+owner_hard,A1-A0,16972,snake,"конец, волна",0.0
+owner_hard,A1-A0,16972,stairs,"конец, волна",-4.0
+owner_hard,A1-A0,16972,vsnake,"конец, волна",0.0
+owner_hard,A1-A0,21215,hooks,"конец, волна",-14.0
+owner_hard,A1-A0,21215,snake,"конец, волна",0.0
 owner_hard,A1-A0,21215,stairs,"конец, волна",-11.0
-owner_hard,A1-A0,21215,vsnake,"конец, волна",-2.0
+owner_hard,A1-A0,21215,vsnake,"конец, волна",0.0
 owner_hard,A1-A0,25458,hooks,"конец, волна",0.0
-owner_hard,A1-A0,25458,snake,"конец, волна",-6.0
-owner_hard,A1-A0,25458,stairs,"конец, волна",-8.0
+owner_hard,A1-A0,25458,snake,"конец, волна",0.0
+owner_hard,A1-A0,25458,stairs,"конец, волна",-1.0
 owner_hard,A1-A0,25458,vsnake,"конец, волна",-11.0
-owner_hard,A1-A0,29701,hooks,"конец, волна",-2.0
-owner_hard,A1-A0,29701,snake,"конец, волна",-4.0
-owner_hard,A1-A0,29701,stairs,"конец, волна",-2.0
-owner_hard,A1-A0,29701,vsnake,"конец, волна",-4.0
+owner_hard,A1-A0,29701,hooks,"конец, волна",0.0
+owner_hard,A1-A0,29701,snake,"конец, волна",0.0
+owner_hard,A1-A0,29701,stairs,"конец, волна",0.0
+owner_hard,A1-A0,29701,vsnake,"конец, волна",0.0
 owner_hard,A1-A0,33944,hooks,"конец, волна",-8.0
 owner_hard,A1-A0,33944,snake,"конец, волна",0.0
-owner_hard,A1-A0,33944,stairs,"конец, волна",-16.0
-owner_hard,A1-A0,33944,vsnake,"конец, волна",-3.0
+owner_hard,A1-A0,33944,stairs,"конец, волна",-1.0
+owner_hard,A1-A0,33944,vsnake,"конец, волна",-11.0
 owner_hard,A1-A0,38187,hooks,"конец, волна",0.0
-owner_hard,A1-A0,38187,snake,"конец, волна",-5.0
+owner_hard,A1-A0,38187,snake,"конец, волна",0.0
 owner_hard,A1-A0,38187,stairs,"конец, волна",-11.0
-owner_hard,A1-A0,38187,vsnake,"конец, волна",-5.0
-owner_hard,A1-A0,42430,hooks,"конец, волна",-7.0
-owner_hard,A1-A0,42430,snake,"конец, волна",-2.0
+owner_hard,A1-A0,38187,vsnake,"конец, волна",0.0
+owner_hard,A1-A0,42430,hooks,"конец, волна",0.0
+owner_hard,A1-A0,42430,snake,"конец, волна",0.0
 owner_hard,A1-A0,42430,stairs,"конец, волна",0.0
 owner_hard,A1-A0,42430,vsnake,"конец, волна",-11.0
-owner_hard,A1-A0,4243,hooks,жизни к 30,-7.0
+owner_hard,A1-A0,4243,hooks,жизни к 30,0.0
 owner_hard,A1-A0,4243,snake,жизни к 30,0.0
 owner_hard,A1-A0,4243,stairs,жизни к 30,-2.0
 owner_hard,A1-A0,4243,vsnake,жизни к 30,-7.0
-owner_hard,A1-A0,8486,hooks,жизни к 30,-7.0
-owner_hard,A1-A0,8486,snake,жизни к 30,-2.0
+owner_hard,A1-A0,8486,hooks,жизни к 30,0.0
+owner_hard,A1-A0,8486,snake,жизни к 30,0.0
 owner_hard,A1-A0,8486,stairs,жизни к 30,-2.0
 owner_hard,A1-A0,8486,vsnake,жизни к 30,0.0
-owner_hard,A1-A0,12729,hooks,жизни к 30,-7.0
-owner_hard,A1-A0,12729,snake,жизни к 30,-7.0
-owner_hard,A1-A0,12729,stairs,жизни к 30,-7.0
-owner_hard,A1-A0,12729,vsnake,жизни к 30,5.0
-owner_hard,A1-A0,16972,hooks,жизни к 30,-4.0
-owner_hard,A1-A0,16972,snake,жизни к 30,-7.0
+owner_hard,A1-A0,12729,hooks,жизни к 30,-2.0
+owner_hard,A1-A0,12729,snake,жизни к 30,0.0
+owner_hard,A1-A0,12729,stairs,жизни к 30,0.0
+owner_hard,A1-A0,12729,vsnake,жизни к 30,0.0
+owner_hard,A1-A0,16972,hooks,жизни к 30,0.0
+owner_hard,A1-A0,16972,snake,жизни к 30,0.0
 owner_hard,A1-A0,16972,stairs,жизни к 30,0.0
-owner_hard,A1-A0,16972,vsnake,жизни к 30,-6.0
+owner_hard,A1-A0,16972,vsnake,жизни к 30,0.0
 owner_hard,A1-A0,21215,hooks,жизни к 30,0.0
-owner_hard,A1-A0,21215,snake,жизни к 30,-7.0
+owner_hard,A1-A0,21215,snake,жизни к 30,0.0
 owner_hard,A1-A0,21215,stairs,жизни к 30,-2.0
-owner_hard,A1-A0,21215,vsnake,жизни к 30,-7.0
+owner_hard,A1-A0,21215,vsnake,жизни к 30,0.0
 owner_hard,A1-A0,25458,hooks,жизни к 30,5.0
-owner_hard,A1-A0,25458,snake,жизни к 30,-7.0
+owner_hard,A1-A0,25458,snake,жизни к 30,0.0
 owner_hard,A1-A0,25458,stairs,жизни к 30,-7.0
 owner_hard,A1-A0,25458,vsnake,жизни к 30,-2.0
-owner_hard,A1-A0,29701,hooks,жизни к 30,-7.0
-owner_hard,A1-A0,29701,snake,жизни к 30,-7.0
-owner_hard,A1-A0,29701,stairs,жизни к 30,-7.0
-owner_hard,A1-A0,29701,vsnake,жизни к 30,-7.0
+owner_hard,A1-A0,29701,hooks,жизни к 30,0.0
+owner_hard,A1-A0,29701,snake,жизни к 30,0.0
+owner_hard,A1-A0,29701,stairs,жизни к 30,0.0
+owner_hard,A1-A0,29701,vsnake,жизни к 30,0.0
 owner_hard,A1-A0,33944,hooks,жизни к 30,0.0
 owner_hard,A1-A0,33944,snake,жизни к 30,0.0
 owner_hard,A1-A0,33944,stairs,жизни к 30,-2.0
 owner_hard,A1-A0,33944,vsnake,жизни к 30,-1.0
 owner_hard,A1-A0,38187,hooks,жизни к 30,0.0
-owner_hard,A1-A0,38187,snake,жизни к 30,-6.0
+owner_hard,A1-A0,38187,snake,жизни к 30,0.0
 owner_hard,A1-A0,38187,stairs,жизни к 30,-2.0
-owner_hard,A1-A0,38187,vsnake,жизни к 30,-7.0
-owner_hard,A1-A0,42430,hooks,жизни к 30,-7.0
-owner_hard,A1-A0,42430,snake,жизни к 30,-7.0
+owner_hard,A1-A0,38187,vsnake,жизни к 30,0.0
+owner_hard,A1-A0,42430,hooks,жизни к 30,-6.0
+owner_hard,A1-A0,42430,snake,жизни к 30,0.0
 owner_hard,A1-A0,42430,stairs,жизни к 30,0.0
 owner_hard,A1-A0,42430,vsnake,жизни к 30,-5.0
 owner_hard,F1-F0,4243,hooks,"жизни −, окно",0
 owner_hard,F1-F0,4243,snake,"жизни −, окно",0
-owner_hard,F1-F0,4243,stairs,"жизни −, окно",1
+owner_hard,F1-F0,4243,stairs,"жизни −, окно",0
 owner_hard,F1-F0,4243,vsnake,"жизни −, окно",2
 owner_hard,F1-F0,8486,hooks,"жизни −, окно",0
-owner_hard,F1-F0,8486,snake,"жизни −, окно",7
-owner_hard,F1-F0,8486,stairs,"жизни −, окно",7
+owner_hard,F1-F0,8486,snake,"жизни −, окно",0
+owner_hard,F1-F0,8486,stairs,"жизни −, окно",0
 owner_hard,F1-F0,8486,vsnake,"жизни −, окно",0
-owner_hard,F1-F0,12729,hooks,"жизни −, окно",1
+owner_hard,F1-F0,12729,hooks,"жизни −, окно",0
 owner_hard,F1-F0,12729,snake,"жизни −, окно",0
 owner_hard,F1-F0,12729,stairs,"жизни −, окно",0
 owner_hard,F1-F0,12729,vsnake,"жизни −, окно",0
@@ -1215,198 +1415,198 @@ owner_hard,F1-F0,16972,hooks,"жизни −, окно",0
 owner_hard,F1-F0,16972,snake,"жизни −, окно",0
 owner_hard,F1-F0,16972,stairs,"жизни −, окно",-1
 owner_hard,F1-F0,16972,vsnake,"жизни −, окно",0
-owner_hard,F1-F0,21215,hooks,"жизни −, окно",0
+owner_hard,F1-F0,21215,hooks,"жизни −, окно",1
 owner_hard,F1-F0,21215,snake,"жизни −, окно",0
-owner_hard,F1-F0,21215,stairs,"жизни −, окно",4
+owner_hard,F1-F0,21215,stairs,"жизни −, окно",1
 owner_hard,F1-F0,21215,vsnake,"жизни −, окно",0
 owner_hard,F1-F0,25458,hooks,"жизни −, окно",0
 owner_hard,F1-F0,25458,snake,"жизни −, окно",0
 owner_hard,F1-F0,25458,stairs,"жизни −, окно",4
 owner_hard,F1-F0,25458,vsnake,"жизни −, окно",7
-owner_hard,F1-F0,29701,hooks,"жизни −, окно",1
+owner_hard,F1-F0,29701,hooks,"жизни −, окно",0
 owner_hard,F1-F0,29701,snake,"жизни −, окно",0
-owner_hard,F1-F0,29701,stairs,"жизни −, окно",3
+owner_hard,F1-F0,29701,stairs,"жизни −, окно",0
 owner_hard,F1-F0,29701,vsnake,"жизни −, окно",0
-owner_hard,F1-F0,33944,hooks,"жизни −, окно",6
+owner_hard,F1-F0,33944,hooks,"жизни −, окно",2
 owner_hard,F1-F0,33944,snake,"жизни −, окно",0
-owner_hard,F1-F0,33944,stairs,"жизни −, окно",7
+owner_hard,F1-F0,33944,stairs,"жизни −, окно",0
 owner_hard,F1-F0,33944,vsnake,"жизни −, окно",4
 owner_hard,F1-F0,38187,hooks,"жизни −, окно",0
 owner_hard,F1-F0,38187,snake,"жизни −, окно",0
 owner_hard,F1-F0,38187,stairs,"жизни −, окно",0
 owner_hard,F1-F0,38187,vsnake,"жизни −, окно",0
-owner_hard,F1-F0,42430,hooks,"жизни −, окно",0
+owner_hard,F1-F0,42430,hooks,"жизни −, окно",1
 owner_hard,F1-F0,42430,snake,"жизни −, окно",0
 owner_hard,F1-F0,42430,stairs,"жизни −, окно",0
 owner_hard,F1-F0,42430,vsnake,"жизни −, окно",0
-owner_hard,F1-F0,4243,hooks,"p90 гибели, окно",0.0446
+owner_hard,F1-F0,4243,hooks,"p90 гибели, окно",0.0549
 owner_hard,F1-F0,4243,snake,"p90 гибели, окно",-0.0008
-owner_hard,F1-F0,4243,stairs,"p90 гибели, окно",-0.0327
-owner_hard,F1-F0,4243,vsnake,"p90 гибели, окно",0.0444
-owner_hard,F1-F0,8486,hooks,"p90 гибели, окно",0.0468
-owner_hard,F1-F0,8486,snake,"p90 гибели, окно",0.3747
-owner_hard,F1-F0,8486,stairs,"p90 гибели, окно",0.385
-owner_hard,F1-F0,8486,vsnake,"p90 гибели, окно",0.0022
-owner_hard,F1-F0,12729,hooks,"p90 гибели, окно",0.1619
-owner_hard,F1-F0,12729,snake,"p90 гибели, окно",0.0017
-owner_hard,F1-F0,12729,stairs,"p90 гибели, окно",0.0041
-owner_hard,F1-F0,12729,vsnake,"p90 гибели, окно",0.0226
-owner_hard,F1-F0,16972,hooks,"p90 гибели, окно",0.017
+owner_hard,F1-F0,4243,stairs,"p90 гибели, окно",0.061
+owner_hard,F1-F0,4243,vsnake,"p90 гибели, окно",0.0488
+owner_hard,F1-F0,8486,hooks,"p90 гибели, окно",0.0492
+owner_hard,F1-F0,8486,snake,"p90 гибели, окно",0.0036
+owner_hard,F1-F0,8486,stairs,"p90 гибели, окно",-0.0271
+owner_hard,F1-F0,8486,vsnake,"p90 гибели, окно",0.0017
+owner_hard,F1-F0,12729,hooks,"p90 гибели, окно",0.0541
+owner_hard,F1-F0,12729,snake,"p90 гибели, окно",-0.0063
+owner_hard,F1-F0,12729,stairs,"p90 гибели, окно",0.001
+owner_hard,F1-F0,12729,vsnake,"p90 гибели, окно",0.0098
+owner_hard,F1-F0,16972,hooks,"p90 гибели, окно",0.0166
 owner_hard,F1-F0,16972,snake,"p90 гибели, окно",0.0047
-owner_hard,F1-F0,16972,stairs,"p90 гибели, окно",0.0282
-owner_hard,F1-F0,16972,vsnake,"p90 гибели, окно",0.0127
-owner_hard,F1-F0,21215,hooks,"p90 гибели, окно",0.0073
-owner_hard,F1-F0,21215,snake,"p90 гибели, окно",0.0051
+owner_hard,F1-F0,16972,stairs,"p90 гибели, окно",0.0237
+owner_hard,F1-F0,16972,vsnake,"p90 гибели, окно",0.009
+owner_hard,F1-F0,21215,hooks,"p90 гибели, окно",0.0508
+owner_hard,F1-F0,21215,snake,"p90 гибели, окно",0.0017
 owner_hard,F1-F0,21215,stairs,"p90 гибели, окно",0.034
-owner_hard,F1-F0,21215,vsnake,"p90 гибели, окно",0.0189
+owner_hard,F1-F0,21215,vsnake,"p90 гибели, окно",0.0168
 owner_hard,F1-F0,25458,hooks,"p90 гибели, окно",0.0161
-owner_hard,F1-F0,25458,snake,"p90 гибели, окно",0.0077
+owner_hard,F1-F0,25458,snake,"p90 гибели, окно",0.0429
 owner_hard,F1-F0,25458,stairs,"p90 гибели, окно",0.0622
-owner_hard,F1-F0,25458,vsnake,"p90 гибели, окно",0.1402
-owner_hard,F1-F0,29701,hooks,"p90 гибели, окно",0.0269
-owner_hard,F1-F0,29701,snake,"p90 гибели, окно",0.099
-owner_hard,F1-F0,29701,stairs,"p90 гибели, окно",0.0349
+owner_hard,F1-F0,25458,vsnake,"p90 гибели, окно",0.1397
+owner_hard,F1-F0,29701,hooks,"p90 гибели, окно",0.0137
+owner_hard,F1-F0,29701,snake,"p90 гибели, окно",0.0396
+owner_hard,F1-F0,29701,stairs,"p90 гибели, окно",-0.0036
 owner_hard,F1-F0,29701,vsnake,"p90 гибели, окно",0.0032
-owner_hard,F1-F0,33944,hooks,"p90 гибели, окно",0.4667
-owner_hard,F1-F0,33944,snake,"p90 гибели, окно",0.0023
-owner_hard,F1-F0,33944,stairs,"p90 гибели, окно",0.1964
+owner_hard,F1-F0,33944,hooks,"p90 гибели, окно",-0.0053
+owner_hard,F1-F0,33944,snake,"p90 гибели, окно",0.003
+owner_hard,F1-F0,33944,stairs,"p90 гибели, окно",0.0
 owner_hard,F1-F0,33944,vsnake,"p90 гибели, окно",0.0839
 owner_hard,F1-F0,38187,hooks,"p90 гибели, окно",0.0
-owner_hard,F1-F0,38187,snake,"p90 гибели, окно",0.0604
+owner_hard,F1-F0,38187,snake,"p90 гибели, окно",0.0351
 owner_hard,F1-F0,38187,stairs,"p90 гибели, окно",0.0
-owner_hard,F1-F0,38187,vsnake,"p90 гибели, окно",0.002
-owner_hard,F1-F0,42430,hooks,"p90 гибели, окно",0.0574
-owner_hard,F1-F0,42430,snake,"p90 гибели, окно",0.0117
+owner_hard,F1-F0,38187,vsnake,"p90 гибели, окно",0.0042
+owner_hard,F1-F0,42430,hooks,"p90 гибели, окно",0.0827
+owner_hard,F1-F0,42430,snake,"p90 гибели, окно",0.0034
 owner_hard,F1-F0,42430,stairs,"p90 гибели, окно",0.0
-owner_hard,F1-F0,42430,vsnake,"p90 гибели, окно",0.0121
+owner_hard,F1-F0,42430,vsnake,"p90 гибели, окно",-0.001
 owner_hard,F1-F0,4243,hooks,побед 30,0.0
 owner_hard,F1-F0,4243,snake,побед 30,0.0
-owner_hard,F1-F0,4243,stairs,побед 30,-1.0
-owner_hard,F1-F0,4243,vsnake,побед 30,-1.0
-owner_hard,F1-F0,8486,hooks,побед 30,-1.0
-owner_hard,F1-F0,8486,snake,побед 30,-1.0
+owner_hard,F1-F0,4243,stairs,побед 30,0.0
+owner_hard,F1-F0,4243,vsnake,побед 30,0.0
+owner_hard,F1-F0,8486,hooks,побед 30,0.0
+owner_hard,F1-F0,8486,snake,побед 30,0.0
 owner_hard,F1-F0,8486,stairs,побед 30,-1.0
 owner_hard,F1-F0,8486,vsnake,побед 30,0.0
-owner_hard,F1-F0,12729,hooks,побед 30,-1.0
-owner_hard,F1-F0,12729,snake,побед 30,-1.0
-owner_hard,F1-F0,12729,stairs,побед 30,-1.0
+owner_hard,F1-F0,12729,hooks,побед 30,0.0
+owner_hard,F1-F0,12729,snake,побед 30,0.0
+owner_hard,F1-F0,12729,stairs,побед 30,0.0
 owner_hard,F1-F0,12729,vsnake,побед 30,0.0
 owner_hard,F1-F0,16972,hooks,побед 30,0.0
-owner_hard,F1-F0,16972,snake,побед 30,-1.0
-owner_hard,F1-F0,16972,stairs,побед 30,1.0
-owner_hard,F1-F0,16972,vsnake,побед 30,-1.0
+owner_hard,F1-F0,16972,snake,побед 30,0.0
+owner_hard,F1-F0,16972,stairs,побед 30,0.0
+owner_hard,F1-F0,16972,vsnake,побед 30,0.0
 owner_hard,F1-F0,21215,hooks,побед 30,0.0
-owner_hard,F1-F0,21215,snake,побед 30,-1.0
+owner_hard,F1-F0,21215,snake,побед 30,0.0
 owner_hard,F1-F0,21215,stairs,побед 30,-1.0
-owner_hard,F1-F0,21215,vsnake,побед 30,-1.0
-owner_hard,F1-F0,25458,hooks,побед 30,-1.0
-owner_hard,F1-F0,25458,snake,побед 30,-1.0
+owner_hard,F1-F0,21215,vsnake,побед 30,0.0
+owner_hard,F1-F0,25458,hooks,побед 30,0.0
+owner_hard,F1-F0,25458,snake,побед 30,0.0
 owner_hard,F1-F0,25458,stairs,побед 30,-1.0
 owner_hard,F1-F0,25458,vsnake,побед 30,-1.0
-owner_hard,F1-F0,29701,hooks,побед 30,-1.0
-owner_hard,F1-F0,29701,snake,побед 30,-1.0
-owner_hard,F1-F0,29701,stairs,побед 30,-1.0
-owner_hard,F1-F0,29701,vsnake,побед 30,-1.0
+owner_hard,F1-F0,29701,hooks,побед 30,0.0
+owner_hard,F1-F0,29701,snake,побед 30,0.0
+owner_hard,F1-F0,29701,stairs,побед 30,0.0
+owner_hard,F1-F0,29701,vsnake,побед 30,0.0
 owner_hard,F1-F0,33944,hooks,побед 30,0.0
 owner_hard,F1-F0,33944,snake,побед 30,0.0
 owner_hard,F1-F0,33944,stairs,побед 30,-1.0
 owner_hard,F1-F0,33944,vsnake,побед 30,-1.0
 owner_hard,F1-F0,38187,hooks,побед 30,0.0
-owner_hard,F1-F0,38187,snake,побед 30,-1.0
+owner_hard,F1-F0,38187,snake,побед 30,0.0
 owner_hard,F1-F0,38187,stairs,побед 30,-1.0
-owner_hard,F1-F0,38187,vsnake,побед 30,-1.0
-owner_hard,F1-F0,42430,hooks,побед 30,-1.0
-owner_hard,F1-F0,42430,snake,побед 30,-1.0
+owner_hard,F1-F0,38187,vsnake,побед 30,0.0
+owner_hard,F1-F0,42430,hooks,побед 30,0.0
+owner_hard,F1-F0,42430,snake,побед 30,0.0
 owner_hard,F1-F0,42430,stairs,побед 30,0.0
 owner_hard,F1-F0,42430,vsnake,побед 30,-1.0
 owner_hard,F1-F0,4243,hooks,"конец, волна",0.0
 owner_hard,F1-F0,4243,snake,"конец, волна",-14.0
-owner_hard,F1-F0,4243,stairs,"конец, волна",-1.0
-owner_hard,F1-F0,4243,vsnake,"конец, волна",-2.0
-owner_hard,F1-F0,8486,hooks,"конец, волна",-5.0
-owner_hard,F1-F0,8486,snake,"конец, волна",-18.0
-owner_hard,F1-F0,8486,stairs,"конец, волна",-19.0
+owner_hard,F1-F0,4243,stairs,"конец, волна",0.0
+owner_hard,F1-F0,4243,vsnake,"конец, волна",0.0
+owner_hard,F1-F0,8486,hooks,"конец, волна",0.0
+owner_hard,F1-F0,8486,snake,"конец, волна",0.0
+owner_hard,F1-F0,8486,stairs,"конец, волна",-11.0
 owner_hard,F1-F0,8486,vsnake,"конец, волна",0.0
-owner_hard,F1-F0,12729,hooks,"конец, волна",-4.0
-owner_hard,F1-F0,12729,snake,"конец, волна",-1.0
-owner_hard,F1-F0,12729,stairs,"конец, волна",-1.0
+owner_hard,F1-F0,12729,hooks,"конец, волна",0.0
+owner_hard,F1-F0,12729,snake,"конец, волна",0.0
+owner_hard,F1-F0,12729,stairs,"конец, волна",0.0
 owner_hard,F1-F0,12729,vsnake,"конец, волна",0.0
 owner_hard,F1-F0,16972,hooks,"конец, волна",0.0
-owner_hard,F1-F0,16972,snake,"конец, волна",-7.0
-owner_hard,F1-F0,16972,stairs,"конец, волна",1.0
-owner_hard,F1-F0,16972,vsnake,"конец, волна",-2.0
-owner_hard,F1-F0,21215,hooks,"конец, волна",-1.0
-owner_hard,F1-F0,21215,snake,"конец, волна",-2.0
-owner_hard,F1-F0,21215,stairs,"конец, волна",-14.0
-owner_hard,F1-F0,21215,vsnake,"конец, волна",-6.0
-owner_hard,F1-F0,25458,hooks,"конец, волна",-5.0
-owner_hard,F1-F0,25458,snake,"конец, волна",-5.0
-owner_hard,F1-F0,25458,stairs,"конец, волна",-11.0
+owner_hard,F1-F0,16972,snake,"конец, волна",0.0
+owner_hard,F1-F0,16972,stairs,"конец, волна",-2.0
+owner_hard,F1-F0,16972,vsnake,"конец, волна",0.0
+owner_hard,F1-F0,21215,hooks,"конец, волна",-14.0
+owner_hard,F1-F0,21215,snake,"конец, волна",0.0
+owner_hard,F1-F0,21215,stairs,"конец, волна",-11.0
+owner_hard,F1-F0,21215,vsnake,"конец, волна",0.0
+owner_hard,F1-F0,25458,hooks,"конец, волна",0.0
+owner_hard,F1-F0,25458,snake,"конец, волна",0.0
+owner_hard,F1-F0,25458,stairs,"конец, волна",-1.0
 owner_hard,F1-F0,25458,vsnake,"конец, волна",-16.0
-owner_hard,F1-F0,29701,hooks,"конец, волна",-1.0
-owner_hard,F1-F0,29701,snake,"конец, волна",-11.0
-owner_hard,F1-F0,29701,stairs,"конец, волна",-1.0
-owner_hard,F1-F0,29701,vsnake,"конец, волна",-5.0
-owner_hard,F1-F0,33944,hooks,"конец, волна",-8.0
+owner_hard,F1-F0,29701,hooks,"конец, волна",0.0
+owner_hard,F1-F0,29701,snake,"конец, волна",0.0
+owner_hard,F1-F0,29701,stairs,"конец, волна",0.0
+owner_hard,F1-F0,29701,vsnake,"конец, волна",0.0
+owner_hard,F1-F0,33944,hooks,"конец, волна",0.0
 owner_hard,F1-F0,33944,snake,"конец, волна",0.0
-owner_hard,F1-F0,33944,stairs,"конец, волна",-16.0
-owner_hard,F1-F0,33944,vsnake,"конец, волна",-8.0
+owner_hard,F1-F0,33944,stairs,"конец, волна",-11.0
+owner_hard,F1-F0,33944,vsnake,"конец, волна",-11.0
 owner_hard,F1-F0,38187,hooks,"конец, волна",0.0
-owner_hard,F1-F0,38187,snake,"конец, волна",-5.0
-owner_hard,F1-F0,38187,stairs,"конец, волна",-11.0
-owner_hard,F1-F0,38187,vsnake,"конец, волна",-3.0
-owner_hard,F1-F0,42430,hooks,"конец, волна",-6.0
-owner_hard,F1-F0,42430,snake,"конец, волна",-3.0
+owner_hard,F1-F0,38187,snake,"конец, волна",0.0
+owner_hard,F1-F0,38187,stairs,"конец, волна",-13.0
+owner_hard,F1-F0,38187,vsnake,"конец, волна",0.0
+owner_hard,F1-F0,42430,hooks,"конец, волна",0.0
+owner_hard,F1-F0,42430,snake,"конец, волна",0.0
 owner_hard,F1-F0,42430,stairs,"конец, волна",0.0
-owner_hard,F1-F0,42430,vsnake,"конец, волна",-11.0
+owner_hard,F1-F0,42430,vsnake,"конец, волна",-1.0
 owner_hard,F1-F0,4243,hooks,жизни к 30,0.0
 owner_hard,F1-F0,4243,snake,жизни к 30,0.0
-owner_hard,F1-F0,4243,stairs,жизни к 30,-2.0
-owner_hard,F1-F0,4243,vsnake,жизни к 30,-12.0
-owner_hard,F1-F0,8486,hooks,жизни к 30,-7.0
-owner_hard,F1-F0,8486,snake,жизни к 30,-2.0
+owner_hard,F1-F0,4243,stairs,жизни к 30,0.0
+owner_hard,F1-F0,4243,vsnake,жизни к 30,-7.0
+owner_hard,F1-F0,8486,hooks,жизни к 30,0.0
+owner_hard,F1-F0,8486,snake,жизни к 30,0.0
 owner_hard,F1-F0,8486,stairs,жизни к 30,-2.0
 owner_hard,F1-F0,8486,vsnake,жизни к 30,0.0
-owner_hard,F1-F0,12729,hooks,жизни к 30,-7.0
-owner_hard,F1-F0,12729,snake,жизни к 30,-7.0
-owner_hard,F1-F0,12729,stairs,жизни к 30,-7.0
+owner_hard,F1-F0,12729,hooks,жизни к 30,-1.0
+owner_hard,F1-F0,12729,snake,жизни к 30,0.0
+owner_hard,F1-F0,12729,stairs,жизни к 30,0.0
 owner_hard,F1-F0,12729,vsnake,жизни к 30,0.0
 owner_hard,F1-F0,16972,hooks,жизни к 30,0.0
-owner_hard,F1-F0,16972,snake,жизни к 30,-7.0
-owner_hard,F1-F0,16972,stairs,жизни к 30,6.0
-owner_hard,F1-F0,16972,vsnake,жизни к 30,-6.0
+owner_hard,F1-F0,16972,snake,жизни к 30,0.0
+owner_hard,F1-F0,16972,stairs,жизни к 30,0.0
+owner_hard,F1-F0,16972,vsnake,жизни к 30,0.0
 owner_hard,F1-F0,21215,hooks,жизни к 30,0.0
-owner_hard,F1-F0,21215,snake,жизни к 30,-7.0
+owner_hard,F1-F0,21215,snake,жизни к 30,0.0
 owner_hard,F1-F0,21215,stairs,жизни к 30,-2.0
-owner_hard,F1-F0,21215,vsnake,жизни к 30,-7.0
-owner_hard,F1-F0,25458,hooks,жизни к 30,-1.0
-owner_hard,F1-F0,25458,snake,жизни к 30,-7.0
+owner_hard,F1-F0,21215,vsnake,жизни к 30,0.0
+owner_hard,F1-F0,25458,hooks,жизни к 30,0.0
+owner_hard,F1-F0,25458,snake,жизни к 30,0.0
 owner_hard,F1-F0,25458,stairs,жизни к 30,-7.0
 owner_hard,F1-F0,25458,vsnake,жизни к 30,-2.0
-owner_hard,F1-F0,29701,hooks,жизни к 30,-7.0
-owner_hard,F1-F0,29701,snake,жизни к 30,-7.0
-owner_hard,F1-F0,29701,stairs,жизни к 30,-7.0
-owner_hard,F1-F0,29701,vsnake,жизни к 30,-7.0
+owner_hard,F1-F0,29701,hooks,жизни к 30,0.0
+owner_hard,F1-F0,29701,snake,жизни к 30,-5.0
+owner_hard,F1-F0,29701,stairs,жизни к 30,0.0
+owner_hard,F1-F0,29701,vsnake,жизни к 30,0.0
 owner_hard,F1-F0,33944,hooks,жизни к 30,0.0
 owner_hard,F1-F0,33944,snake,жизни к 30,0.0
 owner_hard,F1-F0,33944,stairs,жизни к 30,-2.0
 owner_hard,F1-F0,33944,vsnake,жизни к 30,-1.0
 owner_hard,F1-F0,38187,hooks,жизни к 30,0.0
-owner_hard,F1-F0,38187,snake,жизни к 30,-6.0
+owner_hard,F1-F0,38187,snake,жизни к 30,0.0
 owner_hard,F1-F0,38187,stairs,жизни к 30,-2.0
-owner_hard,F1-F0,38187,vsnake,жизни к 30,-7.0
-owner_hard,F1-F0,42430,hooks,жизни к 30,-7.0
-owner_hard,F1-F0,42430,snake,жизни к 30,-7.0
+owner_hard,F1-F0,38187,vsnake,жизни к 30,0.0
+owner_hard,F1-F0,42430,hooks,жизни к 30,-6.0
+owner_hard,F1-F0,42430,snake,жизни к 30,-1.0
 owner_hard,F1-F0,42430,stairs,жизни к 30,0.0
 owner_hard,F1-F0,42430,vsnake,жизни к 30,-5.0
 owner_normal,A1-A0,4243,hooks,"жизни −, окно",0
-owner_normal,A1-A0,4243,snake,"жизни −, окно",4
+owner_normal,A1-A0,4243,snake,"жизни −, окно",0
 owner_normal,A1-A0,4243,stairs,"жизни −, окно",0
-owner_normal,A1-A0,4243,vsnake,"жизни −, окно",3
+owner_normal,A1-A0,4243,vsnake,"жизни −, окно",0
 owner_normal,A1-A0,8486,hooks,"жизни −, окно",0
 owner_normal,A1-A0,8486,snake,"жизни −, окно",0
 owner_normal,A1-A0,8486,stairs,"жизни −, окно",0
-owner_normal,A1-A0,8486,vsnake,"жизни −, окно",1
+owner_normal,A1-A0,8486,vsnake,"жизни −, окно",0
 owner_normal,A1-A0,12729,hooks,"жизни −, окно",0
 owner_normal,A1-A0,12729,snake,"жизни −, окно",0
 owner_normal,A1-A0,12729,stairs,"жизни −, окно",0
@@ -1414,8 +1614,8 @@ owner_normal,A1-A0,12729,vsnake,"жизни −, окно",0
 owner_normal,A1-A0,16972,hooks,"жизни −, окно",0
 owner_normal,A1-A0,16972,snake,"жизни −, окно",0
 owner_normal,A1-A0,16972,stairs,"жизни −, окно",0
-owner_normal,A1-A0,16972,vsnake,"жизни −, окно",5
-owner_normal,A1-A0,21215,hooks,"жизни −, окно",6
+owner_normal,A1-A0,16972,vsnake,"жизни −, окно",0
+owner_normal,A1-A0,21215,hooks,"жизни −, окно",0
 owner_normal,A1-A0,21215,snake,"жизни −, окно",0
 owner_normal,A1-A0,21215,stairs,"жизни −, окно",0
 owner_normal,A1-A0,21215,vsnake,"жизни −, окно",0
@@ -1425,7 +1625,7 @@ owner_normal,A1-A0,25458,stairs,"жизни −, окно",0
 owner_normal,A1-A0,25458,vsnake,"жизни −, окно",8
 owner_normal,A1-A0,29701,hooks,"жизни −, окно",0
 owner_normal,A1-A0,29701,snake,"жизни −, окно",0
-owner_normal,A1-A0,29701,stairs,"жизни −, окно",1
+owner_normal,A1-A0,29701,stairs,"жизни −, окно",0
 owner_normal,A1-A0,29701,vsnake,"жизни −, окно",0
 owner_normal,A1-A0,33944,hooks,"жизни −, окно",0
 owner_normal,A1-A0,33944,snake,"жизни −, окно",0
@@ -1434,51 +1634,51 @@ owner_normal,A1-A0,33944,vsnake,"жизни −, окно",0
 owner_normal,A1-A0,38187,hooks,"жизни −, окно",0
 owner_normal,A1-A0,38187,snake,"жизни −, окно",0
 owner_normal,A1-A0,38187,stairs,"жизни −, окно",0
-owner_normal,A1-A0,38187,vsnake,"жизни −, окно",10
+owner_normal,A1-A0,38187,vsnake,"жизни −, окно",0
 owner_normal,A1-A0,42430,hooks,"жизни −, окно",0
 owner_normal,A1-A0,42430,snake,"жизни −, окно",0
 owner_normal,A1-A0,42430,stairs,"жизни −, окно",0
 owner_normal,A1-A0,42430,vsnake,"жизни −, окно",0
-owner_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.0266
-owner_normal,A1-A0,4243,snake,"p90 гибели, окно",0.0594
-owner_normal,A1-A0,4243,stairs,"p90 гибели, окно",0.0124
-owner_normal,A1-A0,4243,vsnake,"p90 гибели, окно",0.04
-owner_normal,A1-A0,8486,hooks,"p90 гибели, окно",0.07
-owner_normal,A1-A0,8486,snake,"p90 гибели, окно",0.097
+owner_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.0256
+owner_normal,A1-A0,4243,snake,"p90 гибели, окно",0.0119
+owner_normal,A1-A0,4243,stairs,"p90 гибели, окно",0.0117
+owner_normal,A1-A0,4243,vsnake,"p90 гибели, окно",0.0037
+owner_normal,A1-A0,8486,hooks,"p90 гибели, окно",0.0198
+owner_normal,A1-A0,8486,snake,"p90 гибели, окно",0.0947
 owner_normal,A1-A0,8486,stairs,"p90 гибели, окно",0.0006
-owner_normal,A1-A0,8486,vsnake,"p90 гибели, окно",0.0221
-owner_normal,A1-A0,12729,hooks,"p90 гибели, окно",0.0031
-owner_normal,A1-A0,12729,snake,"p90 гибели, окно",0.0026
-owner_normal,A1-A0,12729,stairs,"p90 гибели, окно",0.0939
-owner_normal,A1-A0,12729,vsnake,"p90 гибели, окно",0.0223
-owner_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.1167
-owner_normal,A1-A0,16972,snake,"p90 гибели, окно",-0.0042
-owner_normal,A1-A0,16972,stairs,"p90 гибели, окно",0.0326
-owner_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.0308
-owner_normal,A1-A0,21215,hooks,"p90 гибели, окно",0.1648
-owner_normal,A1-A0,21215,snake,"p90 гибели, окно",0.0146
+owner_normal,A1-A0,8486,vsnake,"p90 гибели, окно",-0.0117
+owner_normal,A1-A0,12729,hooks,"p90 гибели, окно",-0.0218
+owner_normal,A1-A0,12729,snake,"p90 гибели, окно",0.0013
+owner_normal,A1-A0,12729,stairs,"p90 гибели, окно",0.0898
+owner_normal,A1-A0,12729,vsnake,"p90 гибели, окно",-0.0024
+owner_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.0389
+owner_normal,A1-A0,16972,snake,"p90 гибели, окно",0.0014
+owner_normal,A1-A0,16972,stairs,"p90 гибели, окно",0.0251
+owner_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.0007
+owner_normal,A1-A0,21215,hooks,"p90 гибели, окно",0.0088
+owner_normal,A1-A0,21215,snake,"p90 гибели, окно",0.0024
 owner_normal,A1-A0,21215,stairs,"p90 гибели, окно",0.0104
-owner_normal,A1-A0,21215,vsnake,"p90 гибели, окно",0.046
-owner_normal,A1-A0,25458,hooks,"p90 гибели, окно",0.0169
-owner_normal,A1-A0,25458,snake,"p90 гибели, окно",0.0073
+owner_normal,A1-A0,21215,vsnake,"p90 гибели, окно",0.0441
+owner_normal,A1-A0,25458,hooks,"p90 гибели, окно",0.0117
+owner_normal,A1-A0,25458,snake,"p90 гибели, окно",0.0107
 owner_normal,A1-A0,25458,stairs,"p90 гибели, окно",-0.0011
 owner_normal,A1-A0,25458,vsnake,"p90 гибели, окно",0.1619
-owner_normal,A1-A0,29701,hooks,"p90 гибели, окно",0.0206
-owner_normal,A1-A0,29701,snake,"p90 гибели, окно",0.0877
-owner_normal,A1-A0,29701,stairs,"p90 гибели, окно",0.0427
-owner_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.0
-owner_normal,A1-A0,33944,hooks,"p90 гибели, окно",0.0442
-owner_normal,A1-A0,33944,snake,"p90 гибели, окно",0.0206
-owner_normal,A1-A0,33944,stairs,"p90 гибели, окно",0.0251
-owner_normal,A1-A0,33944,vsnake,"p90 гибели, окно",0.0043
-owner_normal,A1-A0,38187,hooks,"p90 гибели, окно",0.0331
-owner_normal,A1-A0,38187,snake,"p90 гибели, окно",0.0004
-owner_normal,A1-A0,38187,stairs,"p90 гибели, окно",0.0
-owner_normal,A1-A0,38187,vsnake,"p90 гибели, окно",0.1312
-owner_normal,A1-A0,42430,hooks,"p90 гибели, окно",0.0353
-owner_normal,A1-A0,42430,snake,"p90 гибели, окно",0.0086
+owner_normal,A1-A0,29701,hooks,"p90 гибели, окно",0.0127
+owner_normal,A1-A0,29701,snake,"p90 гибели, окно",0.0006
+owner_normal,A1-A0,29701,stairs,"p90 гибели, окно",0.0054
+owner_normal,A1-A0,29701,vsnake,"p90 гибели, окно",-0.0094
+owner_normal,A1-A0,33944,hooks,"p90 гибели, окно",0.0103
+owner_normal,A1-A0,33944,snake,"p90 гибели, окно",-0.0209
+owner_normal,A1-A0,33944,stairs,"p90 гибели, окно",0.0216
+owner_normal,A1-A0,33944,vsnake,"p90 гибели, окно",0.0033
+owner_normal,A1-A0,38187,hooks,"p90 гибели, окно",0.0327
+owner_normal,A1-A0,38187,snake,"p90 гибели, окно",0.0009
+owner_normal,A1-A0,38187,stairs,"p90 гибели, окно",0.0058
+owner_normal,A1-A0,38187,vsnake,"p90 гибели, окно",0.0012
+owner_normal,A1-A0,42430,hooks,"p90 гибели, окно",0.0301
+owner_normal,A1-A0,42430,snake,"p90 гибели, окно",0.005
 owner_normal,A1-A0,42430,stairs,"p90 гибели, окно",0.0
-owner_normal,A1-A0,42430,vsnake,"p90 гибели, окно",0.0187
+owner_normal,A1-A0,42430,vsnake,"p90 гибели, окно",0.0237
 owner_normal,A1-A0,4243,hooks,побед 30,0.0
 owner_normal,A1-A0,4243,snake,побед 30,0.0
 owner_normal,A1-A0,4243,stairs,побед 30,0.0
@@ -1486,23 +1686,23 @@ owner_normal,A1-A0,4243,vsnake,побед 30,0.0
 owner_normal,A1-A0,8486,hooks,побед 30,0.0
 owner_normal,A1-A0,8486,snake,побед 30,0.0
 owner_normal,A1-A0,8486,stairs,побед 30,0.0
-owner_normal,A1-A0,8486,vsnake,побед 30,-1.0
+owner_normal,A1-A0,8486,vsnake,побед 30,0.0
 owner_normal,A1-A0,12729,hooks,побед 30,0.0
 owner_normal,A1-A0,12729,snake,побед 30,0.0
 owner_normal,A1-A0,12729,stairs,побед 30,0.0
 owner_normal,A1-A0,12729,vsnake,побед 30,0.0
 owner_normal,A1-A0,16972,hooks,побед 30,0.0
-owner_normal,A1-A0,16972,snake,побед 30,-1.0
+owner_normal,A1-A0,16972,snake,побед 30,0.0
 owner_normal,A1-A0,16972,stairs,побед 30,0.0
 owner_normal,A1-A0,16972,vsnake,побед 30,0.0
 owner_normal,A1-A0,21215,hooks,побед 30,0.0
 owner_normal,A1-A0,21215,snake,побед 30,0.0
-owner_normal,A1-A0,21215,stairs,побед 30,-1.0
+owner_normal,A1-A0,21215,stairs,побед 30,0.0
 owner_normal,A1-A0,21215,vsnake,побед 30,0.0
-owner_normal,A1-A0,25458,hooks,побед 30,-1.0
-owner_normal,A1-A0,25458,snake,побед 30,-1.0
-owner_normal,A1-A0,25458,stairs,побед 30,-1.0
-owner_normal,A1-A0,25458,vsnake,побед 30,-1.0
+owner_normal,A1-A0,25458,hooks,побед 30,0.0
+owner_normal,A1-A0,25458,snake,побед 30,0.0
+owner_normal,A1-A0,25458,stairs,побед 30,0.0
+owner_normal,A1-A0,25458,vsnake,побед 30,0.0
 owner_normal,A1-A0,29701,hooks,побед 30,0.0
 owner_normal,A1-A0,29701,snake,побед 30,0.0
 owner_normal,A1-A0,29701,stairs,побед 30,0.0
@@ -1514,9 +1714,9 @@ owner_normal,A1-A0,33944,vsnake,побед 30,0.0
 owner_normal,A1-A0,38187,hooks,побед 30,0.0
 owner_normal,A1-A0,38187,snake,побед 30,0.0
 owner_normal,A1-A0,38187,stairs,побед 30,-1.0
-owner_normal,A1-A0,38187,vsnake,побед 30,-1.0
-owner_normal,A1-A0,42430,hooks,побед 30,-1.0
-owner_normal,A1-A0,42430,snake,побед 30,-1.0
+owner_normal,A1-A0,38187,vsnake,побед 30,0.0
+owner_normal,A1-A0,42430,hooks,побед 30,0.0
+owner_normal,A1-A0,42430,snake,побед 30,0.0
 owner_normal,A1-A0,42430,stairs,побед 30,0.0
 owner_normal,A1-A0,42430,vsnake,побед 30,0.0
 owner_normal,A1-A0,4243,hooks,"конец, волна",0.0
@@ -1526,23 +1726,23 @@ owner_normal,A1-A0,4243,vsnake,"конец, волна",0.0
 owner_normal,A1-A0,8486,hooks,"конец, волна",0.0
 owner_normal,A1-A0,8486,snake,"конец, волна",0.0
 owner_normal,A1-A0,8486,stairs,"конец, волна",0.0
-owner_normal,A1-A0,8486,vsnake,"конец, волна",-1.0
+owner_normal,A1-A0,8486,vsnake,"конец, волна",0.0
 owner_normal,A1-A0,12729,hooks,"конец, волна",0.0
 owner_normal,A1-A0,12729,snake,"конец, волна",0.0
 owner_normal,A1-A0,12729,stairs,"конец, волна",0.0
 owner_normal,A1-A0,12729,vsnake,"конец, волна",0.0
 owner_normal,A1-A0,16972,hooks,"конец, волна",0.0
-owner_normal,A1-A0,16972,snake,"конец, волна",-2.0
+owner_normal,A1-A0,16972,snake,"конец, волна",0.0
 owner_normal,A1-A0,16972,stairs,"конец, волна",0.0
 owner_normal,A1-A0,16972,vsnake,"конец, волна",0.0
 owner_normal,A1-A0,21215,hooks,"конец, волна",0.0
 owner_normal,A1-A0,21215,snake,"конец, волна",0.0
-owner_normal,A1-A0,21215,stairs,"конец, волна",-1.0
+owner_normal,A1-A0,21215,stairs,"конец, волна",0.0
 owner_normal,A1-A0,21215,vsnake,"конец, волна",0.0
-owner_normal,A1-A0,25458,hooks,"конец, волна",-3.0
-owner_normal,A1-A0,25458,snake,"конец, волна",-1.0
-owner_normal,A1-A0,25458,stairs,"конец, волна",-1.0
-owner_normal,A1-A0,25458,vsnake,"конец, волна",-8.0
+owner_normal,A1-A0,25458,hooks,"конец, волна",0.0
+owner_normal,A1-A0,25458,snake,"конец, волна",0.0
+owner_normal,A1-A0,25458,stairs,"конец, волна",0.0
+owner_normal,A1-A0,25458,vsnake,"конец, волна",0.0
 owner_normal,A1-A0,29701,hooks,"конец, волна",0.0
 owner_normal,A1-A0,29701,snake,"конец, волна",0.0
 owner_normal,A1-A0,29701,stairs,"конец, волна",0.0
@@ -1553,69 +1753,69 @@ owner_normal,A1-A0,33944,stairs,"конец, волна",-11.0
 owner_normal,A1-A0,33944,vsnake,"конец, волна",0.0
 owner_normal,A1-A0,38187,hooks,"конец, волна",0.0
 owner_normal,A1-A0,38187,snake,"конец, волна",0.0
-owner_normal,A1-A0,38187,stairs,"конец, волна",-1.0
-owner_normal,A1-A0,38187,vsnake,"конец, волна",-1.0
-owner_normal,A1-A0,42430,hooks,"конец, волна",-2.0
-owner_normal,A1-A0,42430,snake,"конец, волна",-4.0
+owner_normal,A1-A0,38187,stairs,"конец, волна",-11.0
+owner_normal,A1-A0,38187,vsnake,"конец, волна",0.0
+owner_normal,A1-A0,42430,hooks,"конец, волна",0.0
+owner_normal,A1-A0,42430,snake,"конец, волна",0.0
 owner_normal,A1-A0,42430,stairs,"конец, волна",0.0
 owner_normal,A1-A0,42430,vsnake,"конец, волна",0.0
-owner_normal,A1-A0,4243,hooks,жизни к 30,0.0
-owner_normal,A1-A0,4243,snake,жизни к 30,-4.0
-owner_normal,A1-A0,4243,stairs,жизни к 30,-4.0
-owner_normal,A1-A0,4243,vsnake,жизни к 30,-3.0
+owner_normal,A1-A0,4243,hooks,жизни к 30,-5.0
+owner_normal,A1-A0,4243,snake,жизни к 30,0.0
+owner_normal,A1-A0,4243,stairs,жизни к 30,0.0
+owner_normal,A1-A0,4243,vsnake,жизни к 30,0.0
 owner_normal,A1-A0,8486,hooks,жизни к 30,0.0
 owner_normal,A1-A0,8486,snake,жизни к 30,0.0
 owner_normal,A1-A0,8486,stairs,жизни к 30,0.0
-owner_normal,A1-A0,8486,vsnake,жизни к 30,-15.0
-owner_normal,A1-A0,12729,hooks,жизни к 30,-4.0
+owner_normal,A1-A0,8486,vsnake,жизни к 30,0.0
+owner_normal,A1-A0,12729,hooks,жизни к 30,0.0
 owner_normal,A1-A0,12729,snake,жизни к 30,0.0
 owner_normal,A1-A0,12729,stairs,жизни к 30,0.0
 owner_normal,A1-A0,12729,vsnake,жизни к 30,5.0
 owner_normal,A1-A0,16972,hooks,жизни к 30,-5.0
-owner_normal,A1-A0,16972,snake,жизни к 30,-15.0
+owner_normal,A1-A0,16972,snake,жизни к 30,0.0
 owner_normal,A1-A0,16972,stairs,жизни к 30,-5.0
-owner_normal,A1-A0,16972,vsnake,жизни к 30,-5.0
-owner_normal,A1-A0,21215,hooks,жизни к 30,-6.0
-owner_normal,A1-A0,21215,snake,жизни к 30,-11.0
-owner_normal,A1-A0,21215,stairs,жизни к 30,-15.0
-owner_normal,A1-A0,21215,vsnake,жизни к 30,-5.0
-owner_normal,A1-A0,25458,hooks,жизни к 30,-15.0
-owner_normal,A1-A0,25458,snake,жизни к 30,-15.0
-owner_normal,A1-A0,25458,stairs,жизни к 30,-15.0
-owner_normal,A1-A0,25458,vsnake,жизни к 30,-10.0
-owner_normal,A1-A0,29701,hooks,жизни к 30,-12.0
+owner_normal,A1-A0,16972,vsnake,жизни к 30,0.0
+owner_normal,A1-A0,21215,hooks,жизни к 30,0.0
+owner_normal,A1-A0,21215,snake,жизни к 30,-5.0
+owner_normal,A1-A0,21215,stairs,жизни к 30,-14.0
+owner_normal,A1-A0,21215,vsnake,жизни к 30,0.0
+owner_normal,A1-A0,25458,hooks,жизни к 30,0.0
+owner_normal,A1-A0,25458,snake,жизни к 30,0.0
+owner_normal,A1-A0,25458,stairs,жизни к 30,0.0
+owner_normal,A1-A0,25458,vsnake,жизни к 30,-9.0
+owner_normal,A1-A0,29701,hooks,жизни к 30,0.0
 owner_normal,A1-A0,29701,snake,жизни к 30,0.0
-owner_normal,A1-A0,29701,stairs,жизни к 30,-13.0
+owner_normal,A1-A0,29701,stairs,жизни к 30,-5.0
 owner_normal,A1-A0,29701,vsnake,жизни к 30,0.0
-owner_normal,A1-A0,33944,hooks,жизни к 30,-12.0
+owner_normal,A1-A0,33944,hooks,жизни к 30,-5.0
 owner_normal,A1-A0,33944,snake,жизни к 30,0.0
 owner_normal,A1-A0,33944,stairs,жизни к 30,-10.0
-owner_normal,A1-A0,33944,vsnake,жизни к 30,0.0
+owner_normal,A1-A0,33944,vsnake,жизни к 30,-5.0
 owner_normal,A1-A0,38187,hooks,жизни к 30,0.0
 owner_normal,A1-A0,38187,snake,жизни к 30,0.0
 owner_normal,A1-A0,38187,stairs,жизни к 30,-10.0
-owner_normal,A1-A0,38187,vsnake,жизни к 30,-20.0
-owner_normal,A1-A0,42430,hooks,жизни к 30,-15.0
-owner_normal,A1-A0,42430,snake,жизни к 30,-15.0
-owner_normal,A1-A0,42430,stairs,жизни к 30,-1.0
+owner_normal,A1-A0,38187,vsnake,жизни к 30,-5.0
+owner_normal,A1-A0,42430,hooks,жизни к 30,0.0
+owner_normal,A1-A0,42430,snake,жизни к 30,0.0
+owner_normal,A1-A0,42430,stairs,жизни к 30,-6.0
 owner_normal,A1-A0,42430,vsnake,жизни к 30,0.0
 owner_normal,F1-F0,4243,hooks,"жизни −, окно",0
-owner_normal,F1-F0,4243,snake,"жизни −, окно",4
+owner_normal,F1-F0,4243,snake,"жизни −, окно",0
 owner_normal,F1-F0,4243,stairs,"жизни −, окно",0
-owner_normal,F1-F0,4243,vsnake,"жизни −, окно",3
+owner_normal,F1-F0,4243,vsnake,"жизни −, окно",0
 owner_normal,F1-F0,8486,hooks,"жизни −, окно",0
 owner_normal,F1-F0,8486,snake,"жизни −, окно",0
 owner_normal,F1-F0,8486,stairs,"жизни −, окно",0
-owner_normal,F1-F0,8486,vsnake,"жизни −, окно",1
-owner_normal,F1-F0,12729,hooks,"жизни −, окно",1
+owner_normal,F1-F0,8486,vsnake,"жизни −, окно",0
+owner_normal,F1-F0,12729,hooks,"жизни −, окно",0
 owner_normal,F1-F0,12729,snake,"жизни −, окно",0
 owner_normal,F1-F0,12729,stairs,"жизни −, окно",0
 owner_normal,F1-F0,12729,vsnake,"жизни −, окно",0
 owner_normal,F1-F0,16972,hooks,"жизни −, окно",0
 owner_normal,F1-F0,16972,snake,"жизни −, окно",0
-owner_normal,F1-F0,16972,stairs,"жизни −, окно",3
-owner_normal,F1-F0,16972,vsnake,"жизни −, окно",17
-owner_normal,F1-F0,21215,hooks,"жизни −, окно",6
+owner_normal,F1-F0,16972,stairs,"жизни −, окно",0
+owner_normal,F1-F0,16972,vsnake,"жизни −, окно",0
+owner_normal,F1-F0,21215,hooks,"жизни −, окно",0
 owner_normal,F1-F0,21215,snake,"жизни −, окно",0
 owner_normal,F1-F0,21215,stairs,"жизни −, окно",0
 owner_normal,F1-F0,21215,vsnake,"жизни −, окно",0
@@ -1624,8 +1824,8 @@ owner_normal,F1-F0,25458,snake,"жизни −, окно",0
 owner_normal,F1-F0,25458,stairs,"жизни −, окно",0
 owner_normal,F1-F0,25458,vsnake,"жизни −, окно",9
 owner_normal,F1-F0,29701,hooks,"жизни −, окно",0
-owner_normal,F1-F0,29701,snake,"жизни −, окно",5
-owner_normal,F1-F0,29701,stairs,"жизни −, окно",9
+owner_normal,F1-F0,29701,snake,"жизни −, окно",0
+owner_normal,F1-F0,29701,stairs,"жизни −, окно",0
 owner_normal,F1-F0,29701,vsnake,"жизни −, окно",0
 owner_normal,F1-F0,33944,hooks,"жизни −, окно",0
 owner_normal,F1-F0,33944,snake,"жизни −, окно",0
@@ -1634,51 +1834,51 @@ owner_normal,F1-F0,33944,vsnake,"жизни −, окно",0
 owner_normal,F1-F0,38187,hooks,"жизни −, окно",0
 owner_normal,F1-F0,38187,snake,"жизни −, окно",0
 owner_normal,F1-F0,38187,stairs,"жизни −, окно",0
-owner_normal,F1-F0,38187,vsnake,"жизни −, окно",10
+owner_normal,F1-F0,38187,vsnake,"жизни −, окно",0
 owner_normal,F1-F0,42430,hooks,"жизни −, окно",0
 owner_normal,F1-F0,42430,snake,"жизни −, окно",0
 owner_normal,F1-F0,42430,stairs,"жизни −, окно",0
 owner_normal,F1-F0,42430,vsnake,"жизни −, окно",0
-owner_normal,F1-F0,4243,hooks,"p90 гибели, окно",0.0266
-owner_normal,F1-F0,4243,snake,"p90 гибели, окно",0.0627
-owner_normal,F1-F0,4243,stairs,"p90 гибели, окно",0.0124
-owner_normal,F1-F0,4243,vsnake,"p90 гибели, окно",0.04
-owner_normal,F1-F0,8486,hooks,"p90 гибели, окно",0.0819
-owner_normal,F1-F0,8486,snake,"p90 гибели, окно",0.0959
+owner_normal,F1-F0,4243,hooks,"p90 гибели, окно",0.0256
+owner_normal,F1-F0,4243,snake,"p90 гибели, окно",0.0128
+owner_normal,F1-F0,4243,stairs,"p90 гибели, окно",0.0117
+owner_normal,F1-F0,4243,vsnake,"p90 гибели, окно",0.0037
+owner_normal,F1-F0,8486,hooks,"p90 гибели, окно",0.0198
+owner_normal,F1-F0,8486,snake,"p90 гибели, окно",0.0946
 owner_normal,F1-F0,8486,stairs,"p90 гибели, окно",0.0006
-owner_normal,F1-F0,8486,vsnake,"p90 гибели, окно",0.0221
-owner_normal,F1-F0,12729,hooks,"p90 гибели, окно",0.0042
-owner_normal,F1-F0,12729,snake,"p90 гибели, окно",0.0026
-owner_normal,F1-F0,12729,stairs,"p90 гибели, окно",0.1292
-owner_normal,F1-F0,12729,vsnake,"p90 гибели, окно",0.0223
-owner_normal,F1-F0,16972,hooks,"p90 гибели, окно",0.0957
-owner_normal,F1-F0,16972,snake,"p90 гибели, окно",-0.0039
-owner_normal,F1-F0,16972,stairs,"p90 гибели, окно",0.0852
-owner_normal,F1-F0,16972,vsnake,"p90 гибели, окно",0.1439
-owner_normal,F1-F0,21215,hooks,"p90 гибели, окно",0.1648
-owner_normal,F1-F0,21215,snake,"p90 гибели, окно",0.0146
+owner_normal,F1-F0,8486,vsnake,"p90 гибели, окно",-0.0117
+owner_normal,F1-F0,12729,hooks,"p90 гибели, окно",-0.0224
+owner_normal,F1-F0,12729,snake,"p90 гибели, окно",0.0013
+owner_normal,F1-F0,12729,stairs,"p90 гибели, окно",0.1089
+owner_normal,F1-F0,12729,vsnake,"p90 гибели, окно",0.0033
+owner_normal,F1-F0,16972,hooks,"p90 гибели, окно",0.0347
+owner_normal,F1-F0,16972,snake,"p90 гибели, окно",0.0063
+owner_normal,F1-F0,16972,stairs,"p90 гибели, окно",0.0166
+owner_normal,F1-F0,16972,vsnake,"p90 гибели, окно",0.0068
+owner_normal,F1-F0,21215,hooks,"p90 гибели, окно",0.0088
+owner_normal,F1-F0,21215,snake,"p90 гибели, окно",0.0024
 owner_normal,F1-F0,21215,stairs,"p90 гибели, окно",0.0104
-owner_normal,F1-F0,21215,vsnake,"p90 гибели, окно",0.046
-owner_normal,F1-F0,25458,hooks,"p90 гибели, окно",0.0169
-owner_normal,F1-F0,25458,snake,"p90 гибели, окно",0.0073
+owner_normal,F1-F0,21215,vsnake,"p90 гибели, окно",0.0441
+owner_normal,F1-F0,25458,hooks,"p90 гибели, окно",0.0117
+owner_normal,F1-F0,25458,snake,"p90 гибели, окно",0.0002
 owner_normal,F1-F0,25458,stairs,"p90 гибели, окно",-0.0011
 owner_normal,F1-F0,25458,vsnake,"p90 гибели, окно",0.1619
-owner_normal,F1-F0,29701,hooks,"p90 гибели, окно",0.0206
-owner_normal,F1-F0,29701,snake,"p90 гибели, окно",0.099
-owner_normal,F1-F0,29701,stairs,"p90 гибели, окно",0.1488
-owner_normal,F1-F0,29701,vsnake,"p90 гибели, окно",0.0
-owner_normal,F1-F0,33944,hooks,"p90 гибели, окно",0.0442
-owner_normal,F1-F0,33944,snake,"p90 гибели, окно",0.0206
-owner_normal,F1-F0,33944,stairs,"p90 гибели, окно",0.0251
-owner_normal,F1-F0,33944,vsnake,"p90 гибели, окно",0.0043
-owner_normal,F1-F0,38187,hooks,"p90 гибели, окно",0.0331
-owner_normal,F1-F0,38187,snake,"p90 гибели, окно",0.0004
-owner_normal,F1-F0,38187,stairs,"p90 гибели, окно",0.0
-owner_normal,F1-F0,38187,vsnake,"p90 гибели, окно",0.1312
-owner_normal,F1-F0,42430,hooks,"p90 гибели, окно",0.0353
-owner_normal,F1-F0,42430,snake,"p90 гибели, окно",0.0086
+owner_normal,F1-F0,29701,hooks,"p90 гибели, окно",0.0127
+owner_normal,F1-F0,29701,snake,"p90 гибели, окно",0.0006
+owner_normal,F1-F0,29701,stairs,"p90 гибели, окно",0.0002
+owner_normal,F1-F0,29701,vsnake,"p90 гибели, окно",-0.0056
+owner_normal,F1-F0,33944,hooks,"p90 гибели, окно",0.0103
+owner_normal,F1-F0,33944,snake,"p90 гибели, окно",-0.0024
+owner_normal,F1-F0,33944,stairs,"p90 гибели, окно",0.0216
+owner_normal,F1-F0,33944,vsnake,"p90 гибели, окно",0.0033
+owner_normal,F1-F0,38187,hooks,"p90 гибели, окно",0.0327
+owner_normal,F1-F0,38187,snake,"p90 гибели, окно",-0.0007
+owner_normal,F1-F0,38187,stairs,"p90 гибели, окно",0.0058
+owner_normal,F1-F0,38187,vsnake,"p90 гибели, окно",0.0012
+owner_normal,F1-F0,42430,hooks,"p90 гибели, окно",0.0301
+owner_normal,F1-F0,42430,snake,"p90 гибели, окно",0.005
 owner_normal,F1-F0,42430,stairs,"p90 гибели, окно",0.0
-owner_normal,F1-F0,42430,vsnake,"p90 гибели, окно",0.0187
+owner_normal,F1-F0,42430,vsnake,"p90 гибели, окно",0.0228
 owner_normal,F1-F0,4243,hooks,побед 30,0.0
 owner_normal,F1-F0,4243,snake,побед 30,0.0
 owner_normal,F1-F0,4243,stairs,побед 30,0.0
@@ -1686,37 +1886,37 @@ owner_normal,F1-F0,4243,vsnake,побед 30,0.0
 owner_normal,F1-F0,8486,hooks,побед 30,0.0
 owner_normal,F1-F0,8486,snake,побед 30,0.0
 owner_normal,F1-F0,8486,stairs,побед 30,0.0
-owner_normal,F1-F0,8486,vsnake,побед 30,-1.0
+owner_normal,F1-F0,8486,vsnake,побед 30,0.0
 owner_normal,F1-F0,12729,hooks,побед 30,0.0
 owner_normal,F1-F0,12729,snake,побед 30,0.0
-owner_normal,F1-F0,12729,stairs,побед 30,-1.0
+owner_normal,F1-F0,12729,stairs,побед 30,0.0
 owner_normal,F1-F0,12729,vsnake,побед 30,0.0
 owner_normal,F1-F0,16972,hooks,побед 30,0.0
 owner_normal,F1-F0,16972,snake,побед 30,0.0
 owner_normal,F1-F0,16972,stairs,побед 30,0.0
-owner_normal,F1-F0,16972,vsnake,побед 30,-1.0
+owner_normal,F1-F0,16972,vsnake,побед 30,0.0
 owner_normal,F1-F0,21215,hooks,побед 30,0.0
-owner_normal,F1-F0,21215,snake,побед 30,-1.0
-owner_normal,F1-F0,21215,stairs,побед 30,-1.0
-owner_normal,F1-F0,21215,vsnake,побед 30,-1.0
+owner_normal,F1-F0,21215,snake,побед 30,0.0
+owner_normal,F1-F0,21215,stairs,побед 30,0.0
+owner_normal,F1-F0,21215,vsnake,побед 30,0.0
 owner_normal,F1-F0,25458,hooks,побед 30,0.0
-owner_normal,F1-F0,25458,snake,побед 30,-1.0
+owner_normal,F1-F0,25458,snake,побед 30,0.0
 owner_normal,F1-F0,25458,stairs,побед 30,0.0
 owner_normal,F1-F0,25458,vsnake,побед 30,-1.0
-owner_normal,F1-F0,29701,hooks,побед 30,-1.0
+owner_normal,F1-F0,29701,hooks,побед 30,0.0
 owner_normal,F1-F0,29701,snake,побед 30,0.0
 owner_normal,F1-F0,29701,stairs,побед 30,0.0
 owner_normal,F1-F0,29701,vsnake,побед 30,0.0
-owner_normal,F1-F0,33944,hooks,побед 30,-1.0
+owner_normal,F1-F0,33944,hooks,побед 30,0.0
 owner_normal,F1-F0,33944,snake,побед 30,0.0
 owner_normal,F1-F0,33944,stairs,побед 30,-1.0
 owner_normal,F1-F0,33944,vsnake,побед 30,0.0
 owner_normal,F1-F0,38187,hooks,побед 30,0.0
 owner_normal,F1-F0,38187,snake,побед 30,0.0
-owner_normal,F1-F0,38187,stairs,побед 30,-1.0
-owner_normal,F1-F0,38187,vsnake,побед 30,-1.0
-owner_normal,F1-F0,42430,hooks,побед 30,-1.0
-owner_normal,F1-F0,42430,snake,побед 30,-1.0
+owner_normal,F1-F0,38187,stairs,побед 30,0.0
+owner_normal,F1-F0,38187,vsnake,побед 30,0.0
+owner_normal,F1-F0,42430,hooks,побед 30,0.0
+owner_normal,F1-F0,42430,snake,побед 30,0.0
 owner_normal,F1-F0,42430,stairs,побед 30,0.0
 owner_normal,F1-F0,42430,vsnake,побед 30,0.0
 owner_normal,F1-F0,4243,hooks,"конец, волна",0.0
@@ -1726,170 +1926,170 @@ owner_normal,F1-F0,4243,vsnake,"конец, волна",0.0
 owner_normal,F1-F0,8486,hooks,"конец, волна",0.0
 owner_normal,F1-F0,8486,snake,"конец, волна",0.0
 owner_normal,F1-F0,8486,stairs,"конец, волна",0.0
-owner_normal,F1-F0,8486,vsnake,"конец, волна",-1.0
+owner_normal,F1-F0,8486,vsnake,"конец, волна",0.0
 owner_normal,F1-F0,12729,hooks,"конец, волна",0.0
 owner_normal,F1-F0,12729,snake,"конец, волна",0.0
-owner_normal,F1-F0,12729,stairs,"конец, волна",-1.0
+owner_normal,F1-F0,12729,stairs,"конец, волна",0.0
 owner_normal,F1-F0,12729,vsnake,"конец, волна",0.0
 owner_normal,F1-F0,16972,hooks,"конец, волна",0.0
 owner_normal,F1-F0,16972,snake,"конец, волна",0.0
 owner_normal,F1-F0,16972,stairs,"конец, волна",0.0
-owner_normal,F1-F0,16972,vsnake,"конец, волна",-1.0
+owner_normal,F1-F0,16972,vsnake,"конец, волна",0.0
 owner_normal,F1-F0,21215,hooks,"конец, волна",0.0
-owner_normal,F1-F0,21215,snake,"конец, волна",-1.0
-owner_normal,F1-F0,21215,stairs,"конец, волна",-1.0
-owner_normal,F1-F0,21215,vsnake,"конец, волна",-2.0
+owner_normal,F1-F0,21215,snake,"конец, волна",0.0
+owner_normal,F1-F0,21215,stairs,"конец, волна",0.0
+owner_normal,F1-F0,21215,vsnake,"конец, волна",0.0
 owner_normal,F1-F0,25458,hooks,"конец, волна",0.0
-owner_normal,F1-F0,25458,snake,"конец, волна",-2.0
+owner_normal,F1-F0,25458,snake,"конец, волна",0.0
 owner_normal,F1-F0,25458,stairs,"конец, волна",0.0
 owner_normal,F1-F0,25458,vsnake,"конец, волна",-11.0
-owner_normal,F1-F0,29701,hooks,"конец, волна",-1.0
+owner_normal,F1-F0,29701,hooks,"конец, волна",0.0
 owner_normal,F1-F0,29701,snake,"конец, волна",0.0
 owner_normal,F1-F0,29701,stairs,"конец, волна",0.0
 owner_normal,F1-F0,29701,vsnake,"конец, волна",0.0
-owner_normal,F1-F0,33944,hooks,"конец, волна",-1.0
+owner_normal,F1-F0,33944,hooks,"конец, волна",0.0
 owner_normal,F1-F0,33944,snake,"конец, волна",0.0
 owner_normal,F1-F0,33944,stairs,"конец, волна",-11.0
 owner_normal,F1-F0,33944,vsnake,"конец, волна",0.0
 owner_normal,F1-F0,38187,hooks,"конец, волна",0.0
 owner_normal,F1-F0,38187,snake,"конец, волна",0.0
-owner_normal,F1-F0,38187,stairs,"конец, волна",-1.0
-owner_normal,F1-F0,38187,vsnake,"конец, волна",-1.0
-owner_normal,F1-F0,42430,hooks,"конец, волна",-3.0
-owner_normal,F1-F0,42430,snake,"конец, волна",-2.0
+owner_normal,F1-F0,38187,stairs,"конец, волна",0.0
+owner_normal,F1-F0,38187,vsnake,"конец, волна",0.0
+owner_normal,F1-F0,42430,hooks,"конец, волна",0.0
+owner_normal,F1-F0,42430,snake,"конец, волна",0.0
 owner_normal,F1-F0,42430,stairs,"конец, волна",0.0
 owner_normal,F1-F0,42430,vsnake,"конец, волна",0.0
 owner_normal,F1-F0,4243,hooks,жизни к 30,-5.0
-owner_normal,F1-F0,4243,snake,жизни к 30,-4.0
+owner_normal,F1-F0,4243,snake,жизни к 30,0.0
 owner_normal,F1-F0,4243,stairs,жизни к 30,0.0
-owner_normal,F1-F0,4243,vsnake,жизни к 30,-5.0
-owner_normal,F1-F0,8486,hooks,жизни к 30,5.0
+owner_normal,F1-F0,4243,vsnake,жизни к 30,0.0
+owner_normal,F1-F0,8486,hooks,жизни к 30,0.0
 owner_normal,F1-F0,8486,snake,жизни к 30,0.0
 owner_normal,F1-F0,8486,stairs,жизни к 30,0.0
-owner_normal,F1-F0,8486,vsnake,жизни к 30,-15.0
-owner_normal,F1-F0,12729,hooks,жизни к 30,-1.0
+owner_normal,F1-F0,8486,vsnake,жизни к 30,0.0
+owner_normal,F1-F0,12729,hooks,жизни к 30,0.0
 owner_normal,F1-F0,12729,snake,жизни к 30,0.0
-owner_normal,F1-F0,12729,stairs,жизни к 30,-15.0
+owner_normal,F1-F0,12729,stairs,жизни к 30,0.0
 owner_normal,F1-F0,12729,vsnake,жизни к 30,0.0
-owner_normal,F1-F0,16972,hooks,жизни к 30,-5.0
+owner_normal,F1-F0,16972,hooks,жизни к 30,0.0
 owner_normal,F1-F0,16972,snake,жизни к 30,0.0
-owner_normal,F1-F0,16972,stairs,жизни к 30,-8.0
-owner_normal,F1-F0,16972,vsnake,жизни к 30,-15.0
-owner_normal,F1-F0,21215,hooks,жизни к 30,-6.0
-owner_normal,F1-F0,21215,snake,жизни к 30,-20.0
-owner_normal,F1-F0,21215,stairs,жизни к 30,-15.0
-owner_normal,F1-F0,21215,vsnake,жизни к 30,-15.0
+owner_normal,F1-F0,16972,stairs,жизни к 30,-12.0
+owner_normal,F1-F0,16972,vsnake,жизни к 30,0.0
+owner_normal,F1-F0,21215,hooks,жизни к 30,0.0
+owner_normal,F1-F0,21215,snake,жизни к 30,-5.0
+owner_normal,F1-F0,21215,stairs,жизни к 30,-14.0
+owner_normal,F1-F0,21215,vsnake,жизни к 30,0.0
 owner_normal,F1-F0,25458,hooks,жизни к 30,0.0
-owner_normal,F1-F0,25458,snake,жизни к 30,-15.0
-owner_normal,F1-F0,25458,stairs,жизни к 30,-8.0
+owner_normal,F1-F0,25458,snake,жизни к 30,0.0
+owner_normal,F1-F0,25458,stairs,жизни к 30,0.0
 owner_normal,F1-F0,25458,vsnake,жизни к 30,-10.0
-owner_normal,F1-F0,29701,hooks,жизни к 30,-15.0
-owner_normal,F1-F0,29701,snake,жизни к 30,-5.0
-owner_normal,F1-F0,29701,stairs,жизни к 30,-14.0
-owner_normal,F1-F0,29701,vsnake,жизни к 30,-7.0
-owner_normal,F1-F0,33944,hooks,жизни к 30,-19.0
+owner_normal,F1-F0,29701,hooks,жизни к 30,0.0
+owner_normal,F1-F0,29701,snake,жизни к 30,0.0
+owner_normal,F1-F0,29701,stairs,жизни к 30,-5.0
+owner_normal,F1-F0,29701,vsnake,жизни к 30,0.0
+owner_normal,F1-F0,33944,hooks,жизни к 30,-5.0
 owner_normal,F1-F0,33944,snake,жизни к 30,0.0
 owner_normal,F1-F0,33944,stairs,жизни к 30,-10.0
 owner_normal,F1-F0,33944,vsnake,жизни к 30,0.0
 owner_normal,F1-F0,38187,hooks,жизни к 30,0.0
 owner_normal,F1-F0,38187,snake,жизни к 30,0.0
-owner_normal,F1-F0,38187,stairs,жизни к 30,-10.0
-owner_normal,F1-F0,38187,vsnake,жизни к 30,-20.0
-owner_normal,F1-F0,42430,hooks,жизни к 30,-15.0
-owner_normal,F1-F0,42430,snake,жизни к 30,-15.0
-owner_normal,F1-F0,42430,stairs,жизни к 30,-1.0
-owner_normal,F1-F0,42430,vsnake,жизни к 30,-13.0
+owner_normal,F1-F0,38187,stairs,жизни к 30,-5.0
+owner_normal,F1-F0,38187,vsnake,жизни к 30,-5.0
+owner_normal,F1-F0,42430,hooks,жизни к 30,0.0
+owner_normal,F1-F0,42430,snake,жизни к 30,0.0
+owner_normal,F1-F0,42430,stairs,жизни к 30,-6.0
+owner_normal,F1-F0,42430,vsnake,жизни к 30,0.0
 switch_normal,A1-A0,4243,hooks,"жизни −, окно",0
 switch_normal,A1-A0,4243,snake,"жизни −, окно",0
-switch_normal,A1-A0,4243,stairs,"жизни −, окно",1
+switch_normal,A1-A0,4243,stairs,"жизни −, окно",0
 switch_normal,A1-A0,4243,vsnake,"жизни −, окно",0
-switch_normal,A1-A0,8486,hooks,"жизни −, окно",26
+switch_normal,A1-A0,8486,hooks,"жизни −, окно",0
 switch_normal,A1-A0,8486,snake,"жизни −, окно",0
-switch_normal,A1-A0,8486,stairs,"жизни −, окно",5
-switch_normal,A1-A0,8486,vsnake,"жизни −, окно",6
-switch_normal,A1-A0,12729,hooks,"жизни −, окно",26
-switch_normal,A1-A0,12729,snake,"жизни −, окно",4
-switch_normal,A1-A0,12729,stairs,"жизни −, окно",24
+switch_normal,A1-A0,8486,stairs,"жизни −, окно",0
+switch_normal,A1-A0,8486,vsnake,"жизни −, окно",0
+switch_normal,A1-A0,12729,hooks,"жизни −, окно",0
+switch_normal,A1-A0,12729,snake,"жизни −, окно",0
+switch_normal,A1-A0,12729,stairs,"жизни −, окно",0
 switch_normal,A1-A0,12729,vsnake,"жизни −, окно",0
 switch_normal,A1-A0,16972,hooks,"жизни −, окно",0
 switch_normal,A1-A0,16972,snake,"жизни −, окно",0
-switch_normal,A1-A0,16972,stairs,"жизни −, окно",11
-switch_normal,A1-A0,16972,vsnake,"жизни −, окно",14
+switch_normal,A1-A0,16972,stairs,"жизни −, окно",19
+switch_normal,A1-A0,16972,vsnake,"жизни −, окно",0
 switch_normal,A1-A0,21215,hooks,"жизни −, окно",0
 switch_normal,A1-A0,21215,snake,"жизни −, окно",0
-switch_normal,A1-A0,21215,stairs,"жизни −, окно",5
+switch_normal,A1-A0,21215,stairs,"жизни −, окно",0
 switch_normal,A1-A0,21215,vsnake,"жизни −, окно",0
 switch_normal,A1-A0,25458,hooks,"жизни −, окно",0
 switch_normal,A1-A0,25458,snake,"жизни −, окно",0
 switch_normal,A1-A0,25458,stairs,"жизни −, окно",0
-switch_normal,A1-A0,25458,vsnake,"жизни −, окно",3
+switch_normal,A1-A0,25458,vsnake,"жизни −, окно",0
 switch_normal,A1-A0,29701,hooks,"жизни −, окно",0
-switch_normal,A1-A0,29701,snake,"жизни −, окно",10
-switch_normal,A1-A0,29701,stairs,"жизни −, окно",25
+switch_normal,A1-A0,29701,snake,"жизни −, окно",0
+switch_normal,A1-A0,29701,stairs,"жизни −, окно",0
 switch_normal,A1-A0,29701,vsnake,"жизни −, окно",0
-switch_normal,A1-A0,33944,hooks,"жизни −, окно",17
-switch_normal,A1-A0,33944,snake,"жизни −, окно",1
-switch_normal,A1-A0,33944,stairs,"жизни −, окно",-1
-switch_normal,A1-A0,33944,vsnake,"жизни −, окно",2
+switch_normal,A1-A0,33944,hooks,"жизни −, окно",2
+switch_normal,A1-A0,33944,snake,"жизни −, окно",0
+switch_normal,A1-A0,33944,stairs,"жизни −, окно",-3
+switch_normal,A1-A0,33944,vsnake,"жизни −, окно",0
 switch_normal,A1-A0,38187,hooks,"жизни −, окно",0
 switch_normal,A1-A0,38187,snake,"жизни −, окно",0
-switch_normal,A1-A0,38187,stairs,"жизни −, окно",26
-switch_normal,A1-A0,38187,vsnake,"жизни −, окно",2
+switch_normal,A1-A0,38187,stairs,"жизни −, окно",0
+switch_normal,A1-A0,38187,vsnake,"жизни −, окно",0
 switch_normal,A1-A0,42430,hooks,"жизни −, окно",0
-switch_normal,A1-A0,42430,snake,"жизни −, окно",2
+switch_normal,A1-A0,42430,snake,"жизни −, окно",0
 switch_normal,A1-A0,42430,stairs,"жизни −, окно",0
 switch_normal,A1-A0,42430,vsnake,"жизни −, окно",0
-switch_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.0312
-switch_normal,A1-A0,4243,snake,"p90 гибели, окно",0.0026
-switch_normal,A1-A0,4243,stairs,"p90 гибели, окно",0.1451
-switch_normal,A1-A0,4243,vsnake,"p90 гибели, окно",0.0141
-switch_normal,A1-A0,8486,hooks,"p90 гибели, окно",0.9666
-switch_normal,A1-A0,8486,snake,"p90 гибели, окно",0.0131
-switch_normal,A1-A0,8486,stairs,"p90 гибели, окно",0.1536
-switch_normal,A1-A0,8486,vsnake,"p90 гибели, окно",0.1708
-switch_normal,A1-A0,12729,hooks,"p90 гибели, окно",0.9271
-switch_normal,A1-A0,12729,snake,"p90 гибели, окно",0.0903
-switch_normal,A1-A0,12729,stairs,"p90 гибели, окно",0.7979
-switch_normal,A1-A0,12729,vsnake,"p90 гибели, окно",0.0621
-switch_normal,A1-A0,16972,hooks,"p90 гибели, окно",-0.0054
-switch_normal,A1-A0,16972,snake,"p90 гибели, окно",-0.0014
-switch_normal,A1-A0,16972,stairs,"p90 гибели, окно",-0.0754
-switch_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.2308
-switch_normal,A1-A0,21215,hooks,"p90 гибели, окно",0.0484
-switch_normal,A1-A0,21215,snake,"p90 гибели, окно",0.0162
-switch_normal,A1-A0,21215,stairs,"p90 гибели, окно",0.3259
-switch_normal,A1-A0,21215,vsnake,"p90 гибели, окно",0.1534
-switch_normal,A1-A0,25458,hooks,"p90 гибели, окно",-0.0124
-switch_normal,A1-A0,25458,snake,"p90 гибели, окно",-0.0276
+switch_normal,A1-A0,4243,hooks,"p90 гибели, окно",0.0096
+switch_normal,A1-A0,4243,snake,"p90 гибели, окно",-0.004
+switch_normal,A1-A0,4243,stairs,"p90 гибели, окно",0.0389
+switch_normal,A1-A0,4243,vsnake,"p90 гибели, окно",-0.001
+switch_normal,A1-A0,8486,hooks,"p90 гибели, окно",0.0471
+switch_normal,A1-A0,8486,snake,"p90 гибели, окно",0.0086
+switch_normal,A1-A0,8486,stairs,"p90 гибели, окно",0.033
+switch_normal,A1-A0,8486,vsnake,"p90 гибели, окно",0.0066
+switch_normal,A1-A0,12729,hooks,"p90 гибели, окно",0.0481
+switch_normal,A1-A0,12729,snake,"p90 гибели, окно",0.0008
+switch_normal,A1-A0,12729,stairs,"p90 гибели, окно",0.0364
+switch_normal,A1-A0,12729,vsnake,"p90 гибели, окно",0.0012
+switch_normal,A1-A0,16972,hooks,"p90 гибели, окно",0.0148
+switch_normal,A1-A0,16972,snake,"p90 гибели, окно",0.0069
+switch_normal,A1-A0,16972,stairs,"p90 гибели, окно",0.1061
+switch_normal,A1-A0,16972,vsnake,"p90 гибели, окно",0.0337
+switch_normal,A1-A0,21215,hooks,"p90 гибели, окно",-0.0112
+switch_normal,A1-A0,21215,snake,"p90 гибели, окно",0.0023
+switch_normal,A1-A0,21215,stairs,"p90 гибели, окно",0.0751
+switch_normal,A1-A0,21215,vsnake,"p90 гибели, окно",0.0961
+switch_normal,A1-A0,25458,hooks,"p90 гибели, окно",-0.0059
+switch_normal,A1-A0,25458,snake,"p90 гибели, окно",-0.0114
 switch_normal,A1-A0,25458,stairs,"p90 гибели, окно",-0.0014
-switch_normal,A1-A0,25458,vsnake,"p90 гибели, окно",0.0487
-switch_normal,A1-A0,29701,hooks,"p90 гибели, окно",-0.002
-switch_normal,A1-A0,29701,snake,"p90 гибели, окно",0.1578
-switch_normal,A1-A0,29701,stairs,"p90 гибели, окно",0.8511
-switch_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.0816
-switch_normal,A1-A0,33944,hooks,"p90 гибели, окно",0.2098
-switch_normal,A1-A0,33944,snake,"p90 гибели, окно",-0.0956
-switch_normal,A1-A0,33944,stairs,"p90 гибели, окно",-0.0636
-switch_normal,A1-A0,33944,vsnake,"p90 гибели, окно",0.0456
-switch_normal,A1-A0,38187,hooks,"p90 гибели, окно",0.1062
-switch_normal,A1-A0,38187,snake,"p90 гибели, окно",0.0022
-switch_normal,A1-A0,38187,stairs,"p90 гибели, окно",0.9221
-switch_normal,A1-A0,38187,vsnake,"p90 гибели, окно",0.0224
-switch_normal,A1-A0,42430,hooks,"p90 гибели, окно",0.0899
-switch_normal,A1-A0,42430,snake,"p90 гибели, окно",0.0972
-switch_normal,A1-A0,42430,stairs,"p90 гибели, окно",0.0821
-switch_normal,A1-A0,42430,vsnake,"p90 гибели, окно",-0.0087
+switch_normal,A1-A0,25458,vsnake,"p90 гибели, окно",0.0049
+switch_normal,A1-A0,29701,hooks,"p90 гибели, окно",-0.0109
+switch_normal,A1-A0,29701,snake,"p90 гибели, окно",0.0077
+switch_normal,A1-A0,29701,stairs,"p90 гибели, окно",-0.02
+switch_normal,A1-A0,29701,vsnake,"p90 гибели, окно",0.0258
+switch_normal,A1-A0,33944,hooks,"p90 гибели, окно",0.1098
+switch_normal,A1-A0,33944,snake,"p90 гибели, окно",-0.0036
+switch_normal,A1-A0,33944,stairs,"p90 гибели, окно",-0.1332
+switch_normal,A1-A0,33944,vsnake,"p90 гибели, окно",-0.0052
+switch_normal,A1-A0,38187,hooks,"p90 гибели, окно",0.1031
+switch_normal,A1-A0,38187,snake,"p90 гибели, окно",-0.0021
+switch_normal,A1-A0,38187,stairs,"p90 гибели, окно",0.114
+switch_normal,A1-A0,38187,vsnake,"p90 гибели, окно",-0.004
+switch_normal,A1-A0,42430,hooks,"p90 гибели, окно",-0.0002
+switch_normal,A1-A0,42430,snake,"p90 гибели, окно",0.0116
+switch_normal,A1-A0,42430,stairs,"p90 гибели, окно",0.0867
+switch_normal,A1-A0,42430,vsnake,"p90 гибели, окно",-0.0183
 switch_normal,A1-A0,4243,hooks,побед 30,0.0
 switch_normal,A1-A0,4243,snake,побед 30,0.0
 switch_normal,A1-A0,4243,stairs,побед 30,0.0
 switch_normal,A1-A0,4243,vsnake,побед 30,0.0
-switch_normal,A1-A0,8486,hooks,побед 30,-1.0
+switch_normal,A1-A0,8486,hooks,побед 30,0.0
 switch_normal,A1-A0,8486,snake,побед 30,0.0
-switch_normal,A1-A0,8486,stairs,побед 30,-1.0
+switch_normal,A1-A0,8486,stairs,побед 30,0.0
 switch_normal,A1-A0,8486,vsnake,побед 30,0.0
-switch_normal,A1-A0,12729,hooks,побед 30,-1.0
+switch_normal,A1-A0,12729,hooks,побед 30,0.0
 switch_normal,A1-A0,12729,snake,побед 30,0.0
-switch_normal,A1-A0,12729,stairs,побед 30,-1.0
+switch_normal,A1-A0,12729,stairs,побед 30,0.0
 switch_normal,A1-A0,12729,vsnake,побед 30,0.0
 switch_normal,A1-A0,16972,hooks,побед 30,0.0
 switch_normal,A1-A0,16972,snake,побед 30,0.0
@@ -1905,35 +2105,35 @@ switch_normal,A1-A0,25458,stairs,побед 30,0.0
 switch_normal,A1-A0,25458,vsnake,побед 30,1.0
 switch_normal,A1-A0,29701,hooks,побед 30,0.0
 switch_normal,A1-A0,29701,snake,побед 30,0.0
-switch_normal,A1-A0,29701,stairs,побед 30,-1.0
+switch_normal,A1-A0,29701,stairs,побед 30,0.0
 switch_normal,A1-A0,29701,vsnake,побед 30,0.0
-switch_normal,A1-A0,33944,hooks,побед 30,-1.0
+switch_normal,A1-A0,33944,hooks,побед 30,0.0
 switch_normal,A1-A0,33944,snake,побед 30,0.0
 switch_normal,A1-A0,33944,stairs,побед 30,0.0
 switch_normal,A1-A0,33944,vsnake,побед 30,0.0
 switch_normal,A1-A0,38187,hooks,побед 30,-1.0
 switch_normal,A1-A0,38187,snake,побед 30,0.0
-switch_normal,A1-A0,38187,stairs,побед 30,-1.0
+switch_normal,A1-A0,38187,stairs,побед 30,0.0
 switch_normal,A1-A0,38187,vsnake,побед 30,1.0
-switch_normal,A1-A0,42430,hooks,побед 30,-1.0
+switch_normal,A1-A0,42430,hooks,побед 30,0.0
 switch_normal,A1-A0,42430,snake,побед 30,0.0
-switch_normal,A1-A0,42430,stairs,побед 30,0.0
+switch_normal,A1-A0,42430,stairs,побед 30,-1.0
 switch_normal,A1-A0,42430,vsnake,побед 30,0.0
 switch_normal,A1-A0,4243,hooks,"конец, волна",0.0
 switch_normal,A1-A0,4243,snake,"конец, волна",0.0
 switch_normal,A1-A0,4243,stairs,"конец, волна",0.0
 switch_normal,A1-A0,4243,vsnake,"конец, волна",0.0
-switch_normal,A1-A0,8486,hooks,"конец, волна",-22.0
+switch_normal,A1-A0,8486,hooks,"конец, волна",0.0
 switch_normal,A1-A0,8486,snake,"конец, волна",0.0
-switch_normal,A1-A0,8486,stairs,"конец, волна",-1.0
-switch_normal,A1-A0,8486,vsnake,"конец, волна",-3.0
-switch_normal,A1-A0,12729,hooks,"конец, волна",-22.0
+switch_normal,A1-A0,8486,stairs,"конец, волна",0.0
+switch_normal,A1-A0,8486,vsnake,"конец, волна",-1.0
+switch_normal,A1-A0,12729,hooks,"конец, волна",0.0
 switch_normal,A1-A0,12729,snake,"конец, волна",0.0
-switch_normal,A1-A0,12729,stairs,"конец, волна",-21.0
+switch_normal,A1-A0,12729,stairs,"конец, волна",0.0
 switch_normal,A1-A0,12729,vsnake,"конец, волна",0.0
 switch_normal,A1-A0,16972,hooks,"конец, волна",0.0
 switch_normal,A1-A0,16972,snake,"конец, волна",0.0
-switch_normal,A1-A0,16972,stairs,"конец, волна",0.0
+switch_normal,A1-A0,16972,stairs,"конец, волна",-5.0
 switch_normal,A1-A0,16972,vsnake,"конец, волна",0.0
 switch_normal,A1-A0,21215,hooks,"конец, волна",0.0
 switch_normal,A1-A0,21215,snake,"конец, волна",0.0
@@ -1945,57 +2145,57 @@ switch_normal,A1-A0,25458,stairs,"конец, волна",0.0
 switch_normal,A1-A0,25458,vsnake,"конец, волна",1.0
 switch_normal,A1-A0,29701,hooks,"конец, волна",0.0
 switch_normal,A1-A0,29701,snake,"конец, волна",0.0
-switch_normal,A1-A0,29701,stairs,"конец, волна",-21.0
+switch_normal,A1-A0,29701,stairs,"конец, волна",0.0
 switch_normal,A1-A0,29701,vsnake,"конец, волна",0.0
-switch_normal,A1-A0,33944,hooks,"конец, волна",-1.0
+switch_normal,A1-A0,33944,hooks,"конец, волна",0.0
 switch_normal,A1-A0,33944,snake,"конец, волна",0.0
-switch_normal,A1-A0,33944,stairs,"конец, волна",-1.0
+switch_normal,A1-A0,33944,stairs,"конец, волна",0.0
 switch_normal,A1-A0,33944,vsnake,"конец, волна",0.0
-switch_normal,A1-A0,38187,hooks,"конец, волна",-4.0
+switch_normal,A1-A0,38187,hooks,"конец, волна",-1.0
 switch_normal,A1-A0,38187,snake,"конец, волна",0.0
-switch_normal,A1-A0,38187,stairs,"конец, волна",-22.0
+switch_normal,A1-A0,38187,stairs,"конец, волна",0.0
 switch_normal,A1-A0,38187,vsnake,"конец, волна",1.0
-switch_normal,A1-A0,42430,hooks,"конец, волна",-6.0
+switch_normal,A1-A0,42430,hooks,"конец, волна",0.0
 switch_normal,A1-A0,42430,snake,"конец, волна",0.0
-switch_normal,A1-A0,42430,stairs,"конец, волна",0.0
+switch_normal,A1-A0,42430,stairs,"конец, волна",-1.0
 switch_normal,A1-A0,42430,vsnake,"конец, волна",0.0
 switch_normal,A1-A0,4243,hooks,жизни к 30,0.0
 switch_normal,A1-A0,4243,snake,жизни к 30,0.0
-switch_normal,A1-A0,4243,stairs,жизни к 30,1.0
-switch_normal,A1-A0,4243,vsnake,жизни к 30,-5.0
-switch_normal,A1-A0,8486,hooks,жизни к 30,-11.0
+switch_normal,A1-A0,4243,stairs,жизни к 30,2.0
+switch_normal,A1-A0,4243,vsnake,жизни к 30,0.0
+switch_normal,A1-A0,8486,hooks,жизни к 30,4.0
 switch_normal,A1-A0,8486,snake,жизни к 30,0.0
-switch_normal,A1-A0,8486,stairs,жизни к 30,-16.0
+switch_normal,A1-A0,8486,stairs,жизни к 30,-1.0
 switch_normal,A1-A0,8486,vsnake,жизни к 30,0.0
-switch_normal,A1-A0,12729,hooks,жизни к 30,-16.0
-switch_normal,A1-A0,12729,snake,жизни к 30,-4.0
-switch_normal,A1-A0,12729,stairs,жизни к 30,-16.0
-switch_normal,A1-A0,12729,vsnake,жизни к 30,-13.0
-switch_normal,A1-A0,16972,hooks,жизни к 30,-8.0
-switch_normal,A1-A0,16972,snake,жизни к 30,5.0
+switch_normal,A1-A0,12729,hooks,жизни к 30,0.0
+switch_normal,A1-A0,12729,snake,жизни к 30,0.0
+switch_normal,A1-A0,12729,stairs,жизни к 30,-1.0
+switch_normal,A1-A0,12729,vsnake,жизни к 30,0.0
+switch_normal,A1-A0,16972,hooks,жизни к 30,0.0
+switch_normal,A1-A0,16972,snake,жизни к 30,3.0
 switch_normal,A1-A0,16972,stairs,жизни к 30,0.0
-switch_normal,A1-A0,16972,vsnake,жизни к 30,-15.0
+switch_normal,A1-A0,16972,vsnake,жизни к 30,0.0
 switch_normal,A1-A0,21215,hooks,жизни к 30,0.0
 switch_normal,A1-A0,21215,snake,жизни к 30,-5.0
-switch_normal,A1-A0,21215,stairs,жизни к 30,-15.0
+switch_normal,A1-A0,21215,stairs,жизни к 30,-3.0
 switch_normal,A1-A0,21215,vsnake,жизни к 30,0.0
 switch_normal,A1-A0,25458,hooks,жизни к 30,0.0
 switch_normal,A1-A0,25458,snake,жизни к 30,0.0
 switch_normal,A1-A0,25458,stairs,жизни к 30,0.0
-switch_normal,A1-A0,25458,vsnake,жизни к 30,10.0
+switch_normal,A1-A0,25458,vsnake,жизни к 30,6.0
 switch_normal,A1-A0,29701,hooks,жизни к 30,0.0
-switch_normal,A1-A0,29701,snake,жизни к 30,-10.0
-switch_normal,A1-A0,29701,stairs,жизни к 30,-16.0
-switch_normal,A1-A0,29701,vsnake,жизни к 30,-6.0
-switch_normal,A1-A0,33944,hooks,жизни к 30,-16.0
-switch_normal,A1-A0,33944,snake,жизни к 30,-2.0
+switch_normal,A1-A0,29701,snake,жизни к 30,0.0
+switch_normal,A1-A0,29701,stairs,жизни к 30,-5.0
+switch_normal,A1-A0,29701,vsnake,жизни к 30,0.0
+switch_normal,A1-A0,33944,hooks,жизни к 30,-11.0
+switch_normal,A1-A0,33944,snake,жизни к 30,-1.0
 switch_normal,A1-A0,33944,stairs,жизни к 30,0.0
-switch_normal,A1-A0,33944,vsnake,жизни к 30,-3.0
+switch_normal,A1-A0,33944,vsnake,жизни к 30,-1.0
 switch_normal,A1-A0,38187,hooks,жизни к 30,-7.0
-switch_normal,A1-A0,38187,snake,жизни к 30,-1.0
-switch_normal,A1-A0,38187,stairs,жизни к 30,-12.0
+switch_normal,A1-A0,38187,snake,жизни к 30,0.0
+switch_normal,A1-A0,38187,stairs,жизни к 30,-6.0
 switch_normal,A1-A0,38187,vsnake,жизни к 30,1.0
-switch_normal,A1-A0,42430,hooks,жизни к 30,-8.0
-switch_normal,A1-A0,42430,snake,жизни к 30,-1.0
-switch_normal,A1-A0,42430,stairs,жизни к 30,-9.0
-switch_normal,A1-A0,42430,vsnake,жизни к 30,-1.0
+switch_normal,A1-A0,42430,hooks,жизни к 30,3.0
+switch_normal,A1-A0,42430,snake,жизни к 30,-4.0
+switch_normal,A1-A0,42430,stairs,жизни к 30,-16.0
+switch_normal,A1-A0,42430,vsnake,жизни к 30,2.0

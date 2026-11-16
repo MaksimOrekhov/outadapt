@@ -333,6 +333,9 @@ static func enemy_tip(g: TDGame, e: TDGame.Enemy) -> VBoxContainer:
 		var dmg := TDGame.effective_damage(g.damage_of(k), d["type"], e.ph, TDGame.status_of(e), m, d.get("pierce", 0.0))
 		if e.boss and e.ability == "immune" and d["type"] == e.immune_type:
 			dmg *= TDConfig.IMMUNE_MULT
+		# PRO-152: панцирь пакета гасит удары своего класса (по башне 1-го уровня, как и остальные строки)
+		if e.shell > 0 and TDStrains.deflects(e.strain, TDStrains.del_class(TDConfig.tower_def(k, 1, ""))):
+			dmg = 0.0
 		rows.append([k, dmg])
 	rows.sort_custom(func(a, b): return a[1] / TDConfig.TOWERS[a[0]]["damage"] > b[1] / TDConfig.TOWERS[b[0]]["damage"])
 	v.add_child(TDUI.label("УРОН ЗА УДАР", 10, TDUI.MUTED, true))
