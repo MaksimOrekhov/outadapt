@@ -40,6 +40,11 @@ const STRATEGIES := {
 	"switch": {"core": {"arrow": 1.0, "sniper": 1.0}, "react": "stealth", "support": [
 		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["frost", 7, 2, 1]],
 		"switch_at": 13, "after": {"core": {"ember": 1.0, "poison": 1.0, "tesla": 1.0}, "react": "stealth", "support": [["frost", 0, 3, 1], ["beacon", 0, 1, 1]]}},
+	## PRO-192: поздняя сборка владельца из победы на Hard 17.11.2026: основа снайперы + пушки (ветка «Мортира»),
+	## немного лучников, огонь, яд, лёд и Маяк. Ветки: пушка — a («Мортира»), остальные — по умолчанию.
+	"owner2": {"core": {"sniper": 1.0, "cannon": 1.0, "arrow": 0.4}, "react": "stealth", "branches": {"cannon": "a"}, "support": [
+		["ember", 2, 1, 1], ["frost", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["ember", 8, 2, 1],
+		["poison", 9, 2, 1], ["flak", 10, 1, 8], ["frost", 12, 2, 1]]},
 	## PRO-152: оборона без ПВО (только пушки + Маяк по невидимкам) — проверка «Стаи», которую остальные стратегии не вызывают.
 	"cannon": {"core": {"cannon": 1.0}, "react": "stealth"},
 	## Владелец + реакция на состав следующей волны (невидимки, летающие, броня, лечение, деление, стойкости).
@@ -73,6 +78,8 @@ var record_path := ""
 var replay_path := ""
 var _record := {}
 var _replay := {}
+## PRO-192: фазовые метрики поздней игры (--late=1). Без ключа вывод побайтово прежний.
+var late_metrics := false
 ## Ответы бота на пакеты роя: что строить (сколько держать), когда пакет объявлен или уже в волне.
 const COUNTER_PLAN := {"brood": [["cannon", 2], ["tesla", 1]], "hulk": [["cannon", 2], ["poison", 3]], "flock": [["flak", 2]]}
 
@@ -123,6 +130,8 @@ func _init() -> void:
 			counter_at = int(a.substr(13))
 		elif a.begins_with("--record="):
 			record_path = a.substr(9)
+		elif a.begins_with("--late="):
+			late_metrics = a.substr(7) == "1"
 		elif a.begins_with("--replay="):
 			replay_path = a.substr(9)
 		elif a.begins_with("--lab-strain="):
@@ -137,6 +146,7 @@ func _init() -> void:
 		return
 	strat = _ablated(STRATEGIES[strategy_id].duplicate(true))
 	branches = DEFAULT_BRANCH.duplicate()
+	branches.merge(strat.get("branches", {}), true)
 	if branch_override in ["a", "b"]:
 		for k in branches:
 			branches[k] = branch_override
@@ -785,8 +795,66 @@ func _close_wave(g: TDGame, wr: Dictionary, life_g: Array, life_a: Array, expo_g
 		counts[t.kind] = int(counts.get(t.kind, 0)) + 1
 	wr["invested"] = invested
 	wr["towers"] = counts
+	if late_metrics:
+		_close_wave_late(g, wr)
 	if g.strains_on():
 		_close_wave_strains(g, wr, r)
+
+
+## PRO-192: где гибнет волна и насколько оборона превосходит угрозу.
+## kill_g/kill_a — [доля убитых в первых 10% пути, в первых 20%, число] (обычные враги волны, без малышей и босса);
+## wave_hp — суммарное здоровье волны (сложность, особая волна, пакеты; без босса);
+## dps_all — оценка урона в секунду всей обороны по средней цели волны; dps_gate — то же для башен, достающих первые 20% дороги;
+## ttk_gate — за сколько секунд «ворота» снимают всё здоровье волны; spawn_s — сколько секунд волна выходит из портала.
+func _close_wave_late(g: TDGame, wr: Dictionary) -> void:
+	var w: int = int(wr["w"])
+	var kg := [0, 0, 0]
+	var ka := [0, 0, 0]
+	for f in g.finished:
+		var p: float = f["fitness"]
+		var is_fly: bool = float(f["genome"].get("wings", 0.0)) > TDGenome.TRAIT_THRESHOLD
+		var k: Array = ka if is_fly else kg
+		k[2] += 1
+		if p < 0.1:
+			k[0] += 1
+		if p < 0.2:
+			k[1] += 1
+	wr["kill_g"] = [_r(float(kg[0]) / maxf(1.0, kg[2])), _r(float(kg[1]) / maxf(1.0, kg[2])), kg[2]]
+	wr["kill_a"] = [_r(float(ka[0]) / maxf(1.0, ka[2])), _r(float(ka[1]) / maxf(1.0, ka[2])), ka[2]]
+	var hp_mult: float = float(TDConfig.difficulty(g.meta)["hp"])
+	var sp: Dictionary = TDConfig.SPECIAL_WAVES.get(String(wr.get("special", "")), {})
+	var hp := 0.0
+	var phs: Array = []
+	for ge in g.wave_genomes:
+		var strain := String(ge.get("strain", ""))
+		var ph := TDStrains.apply_ph(TDGenome.phenotype(ge, w), strain)
+		phs.append(ph)
+		hp += float(ph["hp"]) * (TDStrains.BROOD_N if strain == "brood" else 1) * hp_mult * float(sp.get("hp", 1.0))
+	var avg := {"armor": 0.0, "fireRes": 0.0, "frostRes": 0.0, "regen": 0.0, "fly": false, "stealth": false}
+	for ph in phs:
+		for k2 in ["armor", "fireRes", "frostRes", "regen"]:
+			avg[k2] += float(ph[k2]) / maxf(1.0, phs.size())
+	var gate: Array = []
+	for i in 12:
+		gate.append(g.map.pos_at((i + 0.5) / 12.0 * 0.2 * g.map.length))
+	var dps_all := 0.0
+	var dps_gate := 0.0
+	for t in g.towers:
+		var d := _est_dps(g, t.def, avg) * g.beacon_buff(t.x, t.y) if not t.def.has("aura") else 0.0
+		if t.def.has("aura") or not t.def["ground"]:
+			continue
+		dps_all += d
+		var c := Vector2(t.x + 0.5, t.y + 0.5)
+		for p2 in gate:
+			if p2.distance_to(c) <= g.t_range(t):
+				dps_gate += d
+				break
+	wr["wave_hp"] = int(hp)
+	wr["dps_all"] = int(dps_all)
+	wr["dps_gate"] = int(dps_gate)
+	wr["ttk_gate"] = _r(hp / maxf(1.0, dps_gate), 1)
+	wr["spawn_s"] = _r(g.wave_genomes.size() * TDConfig.SPAWN_INTERVAL, 1)
+	wr["gold_bank"] = g.gold
 
 
 ## PRO-152: сигнатура, инкубация и состав пакетов этой волны; суммарное здоровье волны (бюджет угрозы).
