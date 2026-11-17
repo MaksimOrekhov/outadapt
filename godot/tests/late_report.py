@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PRO-192: сводка матрицы поздней игры (tests/late_matrix.sh).
 
-python tests/late_report.py <папка прогона> [<папка сравнения>] [--csv=out.csv] [--waves=out_waves.csv]
+python tests/late_report.py <папка прогона> [<папка сравнения>] [--csv=ячейка×волна.csv] [--games=партии.csv] [--md=сводка.md --title=...] [--wavekeys=s,d,m,ws;...]
 
 Ячейки группируются по стратегия × сложность × модель × Мастерская (семейства карт объединяются, 4 × 10 сидов).
 Фазы: 1–10, 11–20, 21–29 (обычные волны), отдельно особые и боссовые. Метрики:
@@ -150,6 +150,8 @@ def _main():
             print(wave_table(games, key))
     if opts.get("csv"):
         write_csv(games, opts["csv"])
+    if opts.get("games"):
+        write_games(games, opts["games"])
     if opts.get("md"):
         write_summary(games, opts["md"], load(args[1]) if len(args) > 1 else None, opts.get("title", ""))
 
@@ -166,6 +168,30 @@ def write_csv(games, path):
             for wave in sorted(by):
                 b = by[wave]
                 w.writerow([*key, wave, len(b["leaks"])] + [round(mean(b[c]), 3) if b.get(c) else "" for c in cols])
+
+
+def write_games(games, path):
+    """Сырые итоги по партиям (строка = партия) и её поздняя фаза: из них пересчитываются все пороги §5."""
+    import csv
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["strategy", "difficulty", "model", "workshop", "family", "seed", "end_wave", "won30", "lives_at_30",
+                    "gate20_21_29", "p90_21_29", "ttk_21_29", "leaks_21_29", "leaks_w20", "leaks_w30", "invested_w29"])
+        for key in sorted(games):
+            for g in games[key]:
+                late = [wr for wr in g["waves"] if 21 <= wr["w"] <= 29 and kind_of(wr) == "normal" and wr.get("done") and not wr.get("lost")]
+                def lk(n):
+                    r = [wr.get("leaked", 0) for wr in g["waves"] if wr["w"] == n]
+                    return r[0] if r else ""
+                inv = [wr.get("invested", "") for wr in g["waves"] if wr["w"] == 29]
+                gate = [wr["kill_g"][1] for wr in late if wr.get("kill_g") and wr["kill_g"][2] > 0]
+                p90 = [wr["prog_g"][1] for wr in late if wr.get("prog_g") and wr["prog_g"][1] >= 0]
+                ttk = [wr["ttk_gate"] / wr["spawn_s"] for wr in late if wr.get("spawn_s")]
+                s = g["summary"]
+                w.writerow([*key, g.get("family", ""), g.get("seed", ""), s["end_wave"], int(bool(s["won30"])), s["lives_at_30"],
+                            round(mean(gate), 4) if gate else "", round(mean(p90), 4) if p90 else "",
+                            round(mean(ttk), 4) if ttk else "", sum(wr.get("leaked", 0) for wr in late),
+                            lk(20), lk(30), inv[0] if inv else ""])
 
 
 def write_summary(games, path, other=None, title=""):
