@@ -252,10 +252,16 @@ func update(g: TDGame, info: Dictionary, threat: Dictionary, coverage: Dictionar
 	for c in TDAdvisor.wave_chips(info):
 		if c["icon"] != "boss":
 			chips.append(c)
+	# PRO-191: подсказки пакетов роя — текстом карточки угрозы (те же слова и башни, что в отчёте и панели «Рой»)
+	var card_by_id := {}
+	if not strain_fc.is_empty():
+		for tc in TDThreats.cards(g, info):
+			card_by_id[tc["id"]] = tc
 	var wide := chips.size() <= 4
 	for c in chips:
 		var txt: String = c["text"] if wide else (c["short"] if c["short"] != "" else c["text"])
-		next_box.add_child(TDUI.mini_chip(c["icon"], Color(c["color"]), txt, "%s: %s" % [c["text"], c["title"]]))
+		var tip: String = TDThreats.tip_text(card_by_id[c["id"]]) if card_by_id.has(c.get("id", "")) else "%s: %s" % [c["text"], c["title"]]
+		next_box.add_child(TDUI.mini_chip(c["icon"], Color(c["color"]), txt, tip))
 	if not threat.is_empty():
 		var w: int = threat["inWaves"]
 		var tp := TDUI.mini_chip(threat["icon"], Color("#ffb347"), "через %d" % w, "Через %d %s: %s" % [w, "волну" if w == 1 else "волны", threat["label"]])
@@ -263,7 +269,8 @@ func update(g: TDGame, info: Dictionary, threat: Dictionary, coverage: Dictionar
 	# PRO-152: объявленный пакет роя — заранее, с номером волны появления
 	for e in strain_fc:
 		if e["phase"] == "announced":
-			next_box.add_child(TDUI.mini_chip(e["icon"], Color(e["color"]), "в волне %d" % e["appear"], TDStrains.line(e)))
+			var ac: Dictionary = card_by_id.get("strain:" + String(e["id"]), {})
+			next_box.add_child(TDUI.mini_chip(e["icon"], Color(e["color"]), "в волне %d" % e["appear"], TDThreats.tip_text(ac) if not ac.is_empty() else TDStrains.line(e)))
 	if not g.vaccine.is_empty():
 		var vg: String = g.vaccine["gene"]
 		next_box.add_child(TDUI.mini_chip("gene-" + vg, TDUI.OK, "вакцина %d" % g.vaccine["left"], "Вакцина: «%s» не растёт выше %d%%. Осталось волн: %d" % [TDGenome.GENE_LABELS[vg], round(float(g.vaccine["cap"]) * 100), g.vaccine["left"]]))

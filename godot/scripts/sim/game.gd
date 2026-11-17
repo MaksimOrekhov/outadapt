@@ -130,6 +130,10 @@ var events: Array[Dictionary] = []
 ## Пустые и не используются, если флаг забега meta["swarm_model"] не задан.
 var strains: Dictionary = {}
 var strain_acc: Dictionary = {}
+## PRO-191, только для интерфейса (экран поражения): кто прорвался в текущей волне — TDThreats.new_leaks().
+## Не сохраняется, не трогает rng и бой. После загрузки посреди волны счёт неполный: leak_known = false до следующей волны.
+var wave_leaks: Dictionary = {}
+var leak_known: bool = true
 
 
 func _init(seed_v: int, map_: TDMap = null, meta_: Dictionary = {}) -> void:
@@ -644,6 +648,8 @@ func start_wave() -> bool:
 	killed = 0
 	leaked = 0
 	damage_by = _zero_damage()
+	wave_leaks = TDThreats.new_leaks()
+	leak_known = true
 	for t in towers:
 		t.dealt = 0.0
 		t.hits = 0
@@ -925,6 +931,7 @@ func step(dt: float) -> void:
 	for e in enemies:
 		if e.dist >= path_len_of(e) and e.hp > 0.0:
 			lives -= TDConfig.BOSS_LEAK if e.boss else 1
+			note_leak(e)
 			leaked += 1
 			run_leaked += 1
 			_ev({"type": "leak", "pos": map.points[map.points.size() - 1], "boss": e.boss})
@@ -1050,6 +1057,14 @@ func step(dt: float) -> void:
 		return
 	if pending.is_empty() and pending_boss.is_empty() and enemies.is_empty():
 		_end_wave()
+
+
+## PRO-191: учёт прорыва для экрана поражения (только интерфейс, на бой не влияет).
+func note_leak(e: Enemy) -> void:
+	if wave_leaks.is_empty():
+		wave_leaks = TDThreats.new_leaks()
+	TDThreats.add_leak(wave_leaks, e.boss, e.child, e.strain, bool(e.ph.get("fly", false)), bool(e.ph.get("stealth", false)),
+		TDConfig.BOSS_LEAK if e.boss else 1)
 
 
 ## PRO-152: враг пакета. Выводок — носитель и малыши кладки (малыши как дети деления: без отбора, награда SPLIT_REWARD);

@@ -97,8 +97,11 @@ static func wave_chips(info: Dictionary) -> Array:
 			var pd: Dictionary = TDStrains.PACK[p]
 			var body := "%d×%d" % [sn, TDStrains.BROOD_N] if p == "brood" else str(sn)
 			var effect: String = String(pd["effect"]) % TDStrains.BROOD_N if p == "brood" else String(pd["effect"])
-			chips.append(_chip(pd["icon"], "%s %s" % [pd["name"], body], pd["color"],
-				"Ответ роя на твою оборону: %s. Чем отвечать: %s" % [effect, pd["answer"]], body))
+			var chip := _chip(pd["icon"], "%s %s" % [pd["name"], body], pd["color"],
+				"Ответ роя на твою оборону: %s. Чем отвечать: %s" % [effect, pd["answer"]], body)
+			# PRO-191: «Следом» подменяет подсказку текстом карточки угрозы с конкретными башнями
+			chip["id"] = "strain:" + p
+			chips.append(chip)
 	if info["fliers"] > 0:
 		chips.append(_chip("gene-wings", "%d летит" % info["fliers"], "#9ad7ff", "Летающие идут напрямик, минуя дорогу", str(info["fliers"])))
 	if info.get("split", 0) > 0:
@@ -160,11 +163,12 @@ static func advice(g: TDGame, info: Dictionary) -> Array:
 			parts.append("морозостойкость %d%%" % round(b["frostRes"] * 100))
 		out.append(_tip("boss", "#ff6b7a", "danger", ["poison", "sniper", "cannon"], "Босс — зеркало твоей защиты",
 			"Копирует то, чем ты бил: %s. Яд и Снайпер идут сквозь сопротивления. Прорвётся — минус 5 жизней.%s" % [", ".join(parts), _boss_ability_tip(info)]))
-	# PRO-152: пакет роя в ближайшей волне или объявленный — с причиной и ответом
-	for e in TDStrains.forecast(g):
-		if String(e["phase"]) in ["announced", "active"]:
-			out.append(_tip(e["icon"], e["color"], "danger" if e["next_count"] > 0 else "tip", e["towers"].slice(0, 3),
-				"Рой готовит «%s»" % e["name"] if e["phase"] == "announced" else "«%s» в волне" % e["name"], TDStrains.line(e)))
+	# PRO-152/191: пакет роя в ближайшей волне или объявленный — те же слова и башни, что в отчёте о волне (TDThreats)
+	if TDStrains.enabled(g.meta):
+		for c in TDThreats.cards(g, info):
+			if c.has("strain") and String(c["status"]) in ["next", "dated", "active"]:
+				out.append(_tip(c["icon"], c["color"], "danger" if int(c["count"]) > 0 else "tip", c["towers"],
+					c["title"], "%s. %s" % [c["when"], c["effect"]]))
 	var anti := 0
 	for k in ["arrow", "ember", "frost", "sniper", "poison", "flak", "tesla"]:
 		anti += g.count_of(k)

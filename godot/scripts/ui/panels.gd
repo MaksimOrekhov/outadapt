@@ -41,10 +41,36 @@ static func advice(g: TDGame, tips: Array, on_pick: Callable) -> VBoxContainer:
 	return v
 
 
-## Сводка: итог прошлой волны, смещение роя, гены, перки.
-static func swarm(g: TDGame, on_vaccine: Callable = Callable(), on_lure: Callable = Callable()) -> VBoxContainer:
+## PRO-191: «Угрозы и ответы» — те же карточки, что в отчёте о волне, но все: сначала важные, потом то,
+## что держится без изменений.
+static func threats_section(g: TDGame, on_pick: Callable = Callable()) -> Control:
+	var sv := _section("Угрозы и ответы")
+	sv[0].name = "ThreatsSection"
+	var all := TDThreats.cards(g)
+	var main: Array = []
+	var minor: Array = []
+	for c in all:
+		if int(c["urgency"]) >= TDThreats.MAIN_MIN:
+			main.append(c)
+		else:
+			minor.append(c)
+	if main.is_empty():
+		sv[1].add_child(TDThreatView.calm(TDThreats.calm_text(g)))
+	for i in main.size():
+		sv[1].add_child(TDThreatView.card(main[i], g.gold, on_pick) if i == 0 else TDThreatView.compact(main[i], g.gold, on_pick))
+	if not minor.is_empty():
+		sv[1].add_child(TDUI.label("Без изменений", 13, TDUI.MUTED, true))
+		for c in minor:
+			sv[1].add_child(TDThreatView.compact(c, g.gold, on_pick))
+	return sv[0]
+
+
+## Сводка: угрозы и ответы, итог прошлой волны, подробности эволюции, гены, перки.
+static func swarm(g: TDGame, on_vaccine: Callable = Callable(), on_lure: Callable = Callable(), on_pick: Callable = Callable()) -> VBoxContainer:
 	var v := TDUI.vbox(12)
-	# PRO-152: ответ роя на оборону — первым, это главное, что меняет состав волн (только с флагом эксперимента)
+	# PRO-191: сначала угрозы и практические ответы, расширенная генетика — ниже
+	v.add_child(threats_section(g, on_pick))
+	# PRO-152: как рой изучает оборону — подробности (только с флагом эксперимента)
 	if TDStrains.enabled(g.meta):
 		v.add_child(strains_section(g))
 	var r := last_report(g)
@@ -70,7 +96,7 @@ static func swarm(g: TDGame, on_vaccine: Callable = Callable(), on_lure: Callabl
 		# что изменилось, почему и чем ответить (по данным эволюции, без общих обещаний)
 		var entries := TDAdvisor.adaptation(g)
 		if entries.size() > 0:
-			var sv := _section("Рой изменился")
+			var sv := _section("Подробнее: как изменились гены")
 			for e in entries.slice(0, 5):
 				sv[1].add_child(_adaptation_row(e))
 			var note := TDUI.para("Сдвиг считается по среднему роя до и после отбора. Давление — доля твоего урона данного типа; оно лишь подталкивает ген, итог зависит ещё от отбора и лимита роя.", 11, TDUI.MUTED)
@@ -215,7 +241,7 @@ static func vaccine_status(g: TDGame) -> Control:
 
 ## PRO-152: «Рой изучает твою оборону» — сигнатура и пакеты контрмер. Только с флагом эксперимента.
 static func strains_section(g: TDGame) -> Control:
-	var sv := _section("Рой изучает твою оборону · эксперимент")
+	var sv := _section("Подробнее: чем ты бьёшь · эксперимент")
 	var sig: Dictionary = g.strains.get("sig", {})
 	if not sig.has("del"):
 		sv[1].add_child(TDUI.para("После первых волн рой начнёт отмечать, чем ты бьёшь: тяжёлыми одиночными выстрелами, частым огнём, по площади, цепью или ядом; по замороженным ли врагам; закрыто ли небо.", 12, TDUI.MUTED))
@@ -255,7 +281,7 @@ static func _section(title: String) -> Array:
 	return [p, v]
 
 
-static func trait_list(e: TDGame.Enemy) -> Array:
+static func trait_list(e: TDGame.Enemy, g: TDGame = null) -> Array:
 	var list: Array = []
 	if e.boss:
 		list.append(["boss", Color("#ff6b7a"), "БОСС"])
@@ -276,12 +302,9 @@ static func trait_list(e: TDGame.Enemy) -> Array:
 	if e.lured_gene != "":
 		list.append(["coin", TDUI.GOLD, "приманка: %s" % TDGenome.GENE_LABELS[e.lured_gene]])
 	if e.strain != "":
+		# PRO-191: те же слова, что в отчёте о волне, и твои конкретные башни, которые этот враг гасит
 		var pd: Dictionary = TDStrains.PACK[e.strain]
-		var label: String = pd["name"]
-		if e.strain == "brood":
-			label += ": тяжёлые выстрелы не ранят"
-		elif e.strain == "hulk":
-			label += ": лёгкие удары не ранят"
+		var label: String = TDThreats.enemy_label(g, e.strain) if g != null else String(pd["name"])
 		list.append([pd["icon"], Color(pd["color"]), label])
 	for t in TDBoard.TRAITS:
 		if e.genome[t[0]] >= 0.3 and not (e.boss and t[0] == "tough"):
@@ -309,7 +332,7 @@ static func enemy_tip(g: TDGame, e: TDGame.Enemy) -> VBoxContainer:
 			sr.add_child(TDUI.label("щит %d" % ceili(e.shield) if e.shield > 0.0 else "щит пробит", 12, Color("#9fd2ff"), true))
 			v.add_child(sr)
 	var fl := TDUI.flow(5)
-	var traits := trait_list(e)
+	var traits := trait_list(e, g)
 	for t in traits:
 		fl.add_child(TDUI.mini_chip(t[0], t[1], t[2]))
 	if traits.is_empty():
@@ -324,6 +347,8 @@ static func enemy_tip(g: TDGame, e: TDGame.Enemy) -> VBoxContainer:
 	v.add_child(fl)
 	if e.ph["stealth"]:
 		v.add_child(TDUI.para("Невидим: бьют вплотную или рядом с Маяком.", 11, TDUI.MUTED))
+	if e.strain != "":
+		v.add_child(TDUI.para(TDThreats.enemy_answer(g, e.strain), 12, Color("#ffcf8a")))
 	var m := g.mods()
 	var rows: Array = []
 	for k in TDConfig.TOWER_KINDS:

@@ -703,7 +703,7 @@ func _build_drawer_content() -> void:
 	_drawer_scroll_revision += 1
 	_drawer_scroll_pending = true
 	TDUI.clear(drawer_box)
-	drawer_box.add_child(TDPanels.swarm(game, _on_vaccine, _on_lure))
+	drawer_box.add_child(TDPanels.swarm(game, _on_vaccine, _on_lure, _set_tool))
 	_restore_drawer_scroll(_drawer_scroll_revision)
 
 
@@ -1045,7 +1045,7 @@ func _strain_banner() -> String:
 	var parts: Array[String] = []
 	for p in TDStrains.PACKAGES:
 		if n.has(p):
-			parts.append("%s ×%d" % [TDStrains.PACK[p]["name"], n[p]])
+			parts.append("%s: %s" % [TDStrains.PACK[p]["name"], TDThreats.strain_count_text(p, n[p])])
 	return "" if parts.is_empty() else " · " + ", ".join(parts)
 
 
@@ -1067,6 +1067,30 @@ func _demo_force_strains() -> void:
 	if not game.reports.is_empty():
 		game.reports[game.reports.size() - 1]["strains"] = TDStrains.report(st)
 	game.upcoming = TDStrains.assign(game.upcoming, st, game.wave)
+
+
+## PRO-191, только демо-кадры: состояние роя из TDEvoFixtures и нужное окно.
+## `evo:<имя>` — отчёт о волне, `evo:<имя>:swarm` — панель «Рой», `evo:<имя>:over` — итоги поражения,
+## `evo:<имя>:advice` — советы, `evo:<имя>:wave` — та же волна в бою.
+func _demo_evo(spec: String) -> void:
+	var parts := spec.split(":")
+	game = TDEvoFixtures.build(parts[0])
+	board.set_game(game)
+	selected_tower = null
+	_sigs.clear()
+	var view: String = parts[1] if parts.size() > 1 else "report"
+	match view:
+		"swarm":
+			_toggle_drawer()
+		"over":
+			pass
+		"advice":
+			_toggle_advice()
+		"wave":
+			game.start_wave()
+		_:
+			_wave_report.open(TDWaveReport.snapshot(game))
+	_dirty = true
 
 
 ## PRO-152/115: журнал живого плейтеста — забеги с флагом эксперимента или любые при `--playtest` (контроль без флага).
@@ -1316,6 +1340,9 @@ func _run_demo(delta: float) -> void:
 	if _demo_t > 1.0 and _demo_ui != "":
 		var which := _demo_ui
 		_demo_ui = ""
+		if which.begins_with("evo:"):
+			_demo_evo(which.substr(4))
+			which = ""
 		match which:
 			"startscreen":
 				_run_started = false

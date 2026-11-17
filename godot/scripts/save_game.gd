@@ -281,6 +281,8 @@ static func restore(data: Variant) -> TDGame:
 				enemy.set(key, record[key])
 		enemy.poison_by = towers.get(record.get("poison_by", -1))
 		game.enemies.append(enemy)
+	# PRO-191: прорывы текущей волны не сохраняются; посреди волны их счёт неполный
+	game.leak_known = game.phase != "wave"
 	return game
 
 static func path_for(slot: int) -> String:
