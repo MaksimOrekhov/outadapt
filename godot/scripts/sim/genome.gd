@@ -64,6 +64,9 @@ static func pressure(damage_by: Dictionary) -> Dictionary:
 
 
 static func budget(wave: int) -> float:
+	# PRO-192, вариант "budget": бюджет признаков продолжает расти после 15-й волны (до 4,6 к 30-й)
+	if TDConfig.late_variant == "budget":
+		return minf(3.4, 1.5 + 0.13 * wave) + 0.08 * maxf(0.0, wave - 15.0)
 	return minf(3.4, 1.5 + 0.13 * wave)
 
 

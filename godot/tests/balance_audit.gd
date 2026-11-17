@@ -130,6 +130,8 @@ func _init() -> void:
 			counter_at = int(a.substr(13))
 		elif a.begins_with("--record="):
 			record_path = a.substr(9)
+		elif a.begins_with("--late-variant="):
+			TDConfig.late_variant = a.substr(15)
 		elif a.begins_with("--late="):
 			late_metrics = a.substr(7) == "1"
 		elif a.begins_with("--replay="):
@@ -853,7 +855,7 @@ func _close_wave_late(g: TDGame, wr: Dictionary) -> void:
 	wr["dps_all"] = int(dps_all)
 	wr["dps_gate"] = int(dps_gate)
 	wr["ttk_gate"] = _r(hp / maxf(1.0, dps_gate), 1)
-	wr["spawn_s"] = _r(g.wave_genomes.size() * TDConfig.SPAWN_INTERVAL, 1)
+	wr["spawn_s"] = _r(g.wave_genomes.size() * TDConfig.spawn_interval(w, String(wr.get("special", ""))), 1)
 	wr["gold_bank"] = g.gold
 
 

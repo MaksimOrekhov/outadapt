@@ -391,7 +391,7 @@ static func lure_saturation(gene: String, boost: float, list: Array) -> float:
 
 ## Доход волны для награды: убитые × награда за убийство + бонус за волну.
 func _lure_income(kills: int, w: int) -> int:
-	var bounty: int = TDConfig.KILL_REWARD + perk_level("bounty")
+	var bounty: int = TDConfig.kill_reward(w) + perk_level("bounty")
 	return kills * bounty + TDConfig.wave_bonus(w)
 
 
@@ -891,7 +891,7 @@ func step(dt: float) -> void:
 		enemies.append(e)
 		if strain != "":
 			_spawn_strain(e, strain)
-		spawn_t += TDConfig.SPAWN_INTERVAL
+		spawn_t += TDConfig.spawn_interval(wave, cur_special) if not is_boss else TDConfig.SPAWN_INTERVAL
 
 	# движение, лечение, яд
 	var summoned: Array[Enemy] = []
@@ -1014,7 +1014,7 @@ func step(dt: float) -> void:
 					cur = nxt
 
 	# смерти и утечки
-	var bounty: int = TDConfig.KILL_REWARD + perk_level("bounty")
+	var bounty: int = TDConfig.kill_reward(wave) + perk_level("bounty")
 	var alive: Array[Enemy] = []
 	var born: Array[Enemy] = []
 	for e in enemies:

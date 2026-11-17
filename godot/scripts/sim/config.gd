@@ -153,6 +153,25 @@ const SELL_RATIO := 0.7
 const COST_GROWTH := 0.10
 const KILL_REWARD := 3
 const SPAWN_INTERVAL := 0.6
+
+## PRO-192, только для балансных прогонов (tests/balance_audit.gd --late-variant=...): "" — игра как есть.
+static var late_variant := ""
+
+
+## Награда за обычного врага; вариант PRO-192 "econ" снижает её после 15-й волны.
+static func kill_reward(wave: int) -> int:
+	return KILL_REWARD - 1 if late_variant == "econ" and wave > 15 else KILL_REWARD
+
+
+## Интервал выхода врагов из портала в волне wave. Сейчас постоянный; варианты PRO-192 сжимают поток поздних обычных волн.
+static func spawn_interval(wave: int, special: String) -> float:
+	if late_variant == "dense" and special == "" and wave > 15 and wave % BOSS_EVERY != 0:
+		return SPAWN_INTERVAL * maxf(0.5, 1.0 - 0.04 * (wave - 15))
+	# раунд 2: та же механика, вдвое круче (0,6 × max(0,35; 1 − 0,065·(w − 15)))
+	if late_variant == "dense2" and special == "" and wave > 15 and wave % BOSS_EVERY != 0:
+		return SPAWN_INTERVAL * maxf(0.35, 1.0 - 0.065 * (wave - 15))
+	return SPAWN_INTERVAL
+
 const SLOW_DURATION := 1.5
 
 # Связки: холод делает цель хрупкой, огонь плавит броню.
