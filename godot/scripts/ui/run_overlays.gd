@@ -120,6 +120,10 @@ func _build_summary(parent: Control, won: bool) -> void:
 		nums.add_child(c)
 	v.add_child(nums)
 
+	# PRO-191: «Что тебя погубило» — только по фактическим прорывам последней волны; гены — ниже, как статистика
+	if not won:
+		v.add_child(_defeat_block(TDThreats.defeat(host.game)))
+
 	var cols = TDUI.hbox(12)
 	# урон за забег и лучшая башня
 	var left = TDUI.vbox(5)
@@ -151,7 +155,7 @@ func _build_summary(parent: Control, won: bool) -> void:
 	# как рой приспособился
 	var right = TDUI.vbox(5)
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.add_child(TDUI.section_title("Как рой приспособился"))
+	right.add_child(TDUI.section_title("Гены роя за забег"))
 	var any_shift = false
 	if host.game.reports.size() >= 1:
 		var first: Dictionary = host.game.reports[0]["avg"]
@@ -210,6 +214,35 @@ func _build_summary(parent: Control, won: bool) -> void:
 		row.add_child(mb)
 	v.add_child(row)
 
+
+
+## PRO-191: что прорвалось в последней волне и, если одна группа отняла не меньше половины жизней, чем ей ответить.
+## Без надёжных данных (загрузка посреди волны) — нейтральная сводка, причина не придумывается.
+func _defeat_block(d: Dictionary) -> Control:
+	var p := TDUI.panel(Color("#2a2224"), Color(0.95, 0.55, 0.5, 0.55), 10, 12, 1)
+	p.name = "DefeatCause"
+	var v := TDUI.vbox(6)
+	p.add_child(v)
+	v.add_child(TDUI.section_title("Что тебя погубило · волна %d" % int(d["wave"])))
+	if not d["known"]:
+		v.add_child(TDUI.para("Точных данных о прорывах этой волны нет (игра загружена посреди волны). Посмотри, кого пропускает оборона, в следующем забеге.", 14, TDUI.MUTED))
+		return p
+	var rows := TDUI.flow(8)
+	for r in d["rows"]:
+		rows.add_child(TDUI.chip(r["icon"], r["text"], Color(r["color"])))
+	v.add_child(rows)
+	var cause: Dictionary = d["cause"]
+	if cause.is_empty():
+		v.add_child(TDUI.para("Прорывались разные враги — одной главной причины нет.", 14, TDUI.MUTED))
+	else:
+		var h := TDUI.flow(6)
+		var t := TDUI.label(cause["title"], 15, TDUI.TEXT, true)
+		t.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		h.add_child(t)
+		for k in cause["towers"]:
+			h.add_child(TDThreatView.tower_button(k, 0, 0))
+		v.add_child(h)
+	return p
 
 
 ## Автопроверка вёрстки: ширина дока не должна меняться от содержимого карточки.

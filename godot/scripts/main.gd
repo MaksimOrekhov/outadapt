@@ -103,6 +103,16 @@ var _shot_path: String = ""
 var _demo_len: float = 14.0
 var _demo_ui: String = ""
 var _skip_to: int = 0
+## PRO-152: модель роя для новых забегов этой сессии (`-- --swarm=signature`, см. run_experiment.bat). Пусто — обычная игра.
+## Загруженный забег сохраняет свою модель из сохранения.
+var _swarm_model: String = ""
+var _ptlog: TDPlaytestLog = null
+## PRO-115, живые плейтесты (run_playtest.bat): журнал волн и для контрольных забегов без флага, одна карта на все
+## новые забеги сессии (A/B на одном сиде), игра без бонусов Мастерской, метка сборки для протокола.
+var _playtest: bool = false
+var _fixed_seed: int = -1
+var _no_workshop: bool = false
+var _build: String = ""
 
 
 func _ready() -> void:
@@ -163,6 +173,17 @@ func _parse_args() -> void:
 			_demo_ui = a.substr(5)
 		elif a == "--demo":
 			_demo = true
+		elif a.begins_with("--swarm="):
+			_swarm_model = a.substr(8)
+		elif a == "--playtest":
+			_playtest = true
+		elif a.begins_with("--fixed-seed="):
+			_fixed_seed = int(a.substr(13))
+			seed_v = _fixed_seed
+		elif a == "--no-workshop":
+			_no_workshop = true
+		elif a.begins_with("--build="):
+			_build = a.substr(8)
 		elif a.begins_with("--size="):
 			var wh := a.substr(7).split("x")
 			get_window().size = Vector2i(int(wh[0]), int(wh[1]))
@@ -682,7 +703,7 @@ func _build_drawer_content() -> void:
 	_drawer_scroll_revision += 1
 	_drawer_scroll_pending = true
 	TDUI.clear(drawer_box)
-	drawer_box.add_child(TDPanels.swarm(game, _on_vaccine, _on_lure))
+	drawer_box.add_child(TDPanels.swarm(game, _on_vaccine, _on_lure, _set_tool))
 	_restore_drawer_scroll(_drawer_scroll_revision)
 
 
@@ -822,6 +843,8 @@ func _pick_perk(id: String) -> void:
 
 ## Карта забега: в режиме «Карта дня» — одна на всех, иначе случайная из открытых биомов.
 func _pick_seed() -> int:
+	if _fixed_seed >= 0:
+		return _fixed_seed
 	TDMeta.load_meta()
 	if _opts.get("mode", "standard") == "daily":
 		return TDMeta.daily_seed()
@@ -842,12 +865,14 @@ func _game_meta() -> Dictionary:
 	m["mode"] = _opts.get("mode", "standard")
 	if not _demo:
 		m["locked"] = TDMeta.locked_towers()
+	if _swarm_model != "":
+		m["swarm_model"] = _swarm_model
 	return m
 
 
 ## Бонусы Мастерской; в режиме автопроверки — без них, чтобы скриншоты были одинаковыми.
 func _meta_bonus() -> Dictionary:
-	return {} if _demo else TDMeta.bonuses()
+	return {} if _demo or _no_workshop else TDMeta.bonuses()
 
 
 ## Переводит прогресс забега в очки знаний. final — забег окончен (поражение или рестарт).
@@ -992,17 +1017,97 @@ func _watch_phase() -> void:
 			var sp: Dictionary = TDConfig.SPECIAL_WAVES[game.cur_special]
 			_banner("Волна %d: %s" % [game.wave, sp["name"]], sp["desc"], Color("#ffb347"))
 		else:
-			_banner("Волна %d" % game.wave, "%d врагов" % game.wave_genomes.size(), TDUI.TEXT)
+			_banner("Волна %d" % game.wave, "%d врагов" % game.wave_genomes.size() + _strain_banner(), TDUI.TEXT)
+		_playtest_log("start")
 	elif game.phase == "build" and _last_phase == "wave":
 		# итог волны и объяснения адаптации: постоянное окно с кнопкой «ОК», а не баннер; в демо-режиме не нужно
 		if not _demo and game.phase == "build":
 			_wave_report.open(TDWaveReport.snapshot(game))
+		_playtest_log("end")
 		_check_achievements()
 	if game.phase == "over":
+		_playtest_log("over")
 		if not game.victory:
 			audio.defeat()
 		_check_achievements()
 	_last_phase = game.phase
+
+
+## PRO-152: состав пакетов роя в баннере начала волны ("" — без флага эксперимента или без пакетов).
+func _strain_banner() -> String:
+	if not game.strains_on():
+		return ""
+	var n := {}
+	for ge in game.wave_genomes:
+		var s := String(ge.get("strain", ""))
+		if s != "":
+			n[s] = int(n.get(s, 0)) + 1
+	var parts: Array[String] = []
+	for p in TDStrains.PACKAGES:
+		if n.has(p):
+			parts.append("%s: %s" % [TDStrains.PACK[p]["name"], TDThreats.strain_count_text(p, n[p])])
+	return "" if parts.is_empty() else " · " + ", ".join(parts)
+
+
+## PRO-152, только демо-кадры: включить эксперимент; выводок в ближайшей волне (оборона на снайперах),
+## панцирники отступают (раньше оборона держалась на лучниках).
+func _demo_force_strains() -> void:
+	game.meta["swarm_model"] = TDStrains.MODEL
+	var st := TDStrains.new_state()
+	st["sig"] = {"del": {"burst": 0.62, "rapid": 0.27, "area": 0.06, "chain": 0.02, "dot": 0.03},
+		"el": {"physical": 0.9, "fire": 0.04, "frost": 0.03, "poison": 0.03, "shock": 0.0},
+		"rng": {"near": 0.2, "mid": 0.3, "far": 0.5}, "tgt": {"ground": 0.9, "air": 0.1},
+		"burst": 0.62, "rapid": 0.27, "chill": 0.48, "control": 0.12, "air_gap": 0.18}
+	st["n"] = game.wave
+	st["pk"]["brood"] = {"inc": 1.4, "share": 0.3, "phase": "active", "appear": game.wave, "since": game.wave}
+	st["pk"]["hulk"] = {"inc": 0.32, "share": 0.1, "phase": "fading", "appear": game.wave - 5, "since": game.wave - 5}
+	st["last"] = {"wave": game.wave - 1, "kind_burst": {"sniper": 900.0, "net": 30.0}, "kind_rapid": {"arrow": 400.0}, "kind": {}, "had_damage": true}
+	game.strains = st
+	game.strain_acc = TDStrains.new_acc()
+	if not game.reports.is_empty():
+		game.reports[game.reports.size() - 1]["strains"] = TDStrains.report(st)
+	game.upcoming = TDStrains.assign(game.upcoming, st, game.wave)
+
+
+## PRO-191, только демо-кадры: состояние роя из TDEvoFixtures и нужное окно.
+## `evo:<имя>` — отчёт о волне, `evo:<имя>:swarm` — панель «Рой», `evo:<имя>:over` — итоги поражения,
+## `evo:<имя>:advice` — советы, `evo:<имя>:wave` — та же волна в бою.
+func _demo_evo(spec: String) -> void:
+	var parts := spec.split(":")
+	game = TDEvoFixtures.build(parts[0])
+	board.set_game(game)
+	selected_tower = null
+	_sigs.clear()
+	var view: String = parts[1] if parts.size() > 1 else "report"
+	match view:
+		"swarm":
+			_toggle_drawer()
+		"over":
+			pass
+		"advice":
+			_toggle_advice()
+		"wave":
+			game.start_wave()
+		_:
+			_wave_report.open(TDWaveReport.snapshot(game))
+	_dirty = true
+
+
+## PRO-152/115: журнал живого плейтеста — забеги с флагом эксперимента или любые при `--playtest` (контроль без флага).
+func _playtest_log(event: String) -> void:
+	if _demo or not (game.strains_on() or _playtest):
+		return
+	if _ptlog == null or not _ptlog.path.contains(_run_id.replace(":", "-")):
+		_ptlog = TDPlaytestLog.new(_run_id if _run_id != "" else "run-%d" % seed_v)
+		_ptlog.header(game, {"build": _build if _build != "" else "unknown", "fixed_seed": _fixed_seed, "workshop": not _no_workshop,
+			"window": "%dx%d" % [get_window().size.x, get_window().size.y]})
+	match event:
+		"start":
+			_ptlog.wave_started(game)
+		"end":
+			_ptlog.wave_ended(game)
+		"over":
+			_ptlog.run_over(game)
 
 
 ## Достижения проверяются в конце каждой волны и в конце забега.
@@ -1235,6 +1340,9 @@ func _run_demo(delta: float) -> void:
 	if _demo_t > 1.0 and _demo_ui != "":
 		var which := _demo_ui
 		_demo_ui = ""
+		if which.begins_with("evo:"):
+			_demo_evo(which.substr(4))
+			which = ""
 		match which:
 			"startscreen":
 				_run_started = false
@@ -1293,6 +1401,21 @@ func _run_demo(delta: float) -> void:
 				if not game.buy_lure("plated"):
 					game.buy_lure("swift")
 				game.start_wave()
+			"strains", "strainswave", "strainsreport":
+				# PRO-152: кадры эксперимента — выводок в волне, панцирники объявлены (состояние задаётся принудительно)
+				game.enemies.clear()
+				game.pending.clear()
+				game.pending_boss.clear()
+				game.phase = "build"
+				game.upcoming_boss = {}
+				game.upcoming_special = ""
+				_demo_force_strains()
+				if which == "strains":
+					_toggle_drawer()
+				elif which == "strainswave":
+					game.start_wave()
+				else:
+					_wave_report.open(TDWaveReport.snapshot(game))
 			"wavereport":
 				# отчёт о последней волне: для кадров и проверки (нужен хотя бы один сыгранный отчёт)
 				game.enemies.clear()

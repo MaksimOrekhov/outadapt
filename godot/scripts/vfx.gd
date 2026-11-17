@@ -127,6 +127,9 @@ func on_event(ev: Dictionary) -> void:
 			_upgrade(ev)
 		"split":
 			_split_fx(ev)
+		"shell":
+			# PRO-152: скорлупа малыша выводка погасила удар
+			add({"kind": "ring", "p": ev["pos"], "r0": 0.05, "r1": 0.32, "life": 0.22, "col": Color("#d7e36a"), "width": 2.0}, true)
 
 
 func _shot(ev: Dictionary) -> void:

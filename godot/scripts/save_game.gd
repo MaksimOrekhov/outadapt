@@ -9,6 +9,9 @@ const GAME_FIELDS := ["gold", "lives", "wave", "phase", "upcoming", "pending", "
 ## Появились позже версии 1: в старых сохранениях их нет, это не ошибка.
 const OPTIONAL_GAME_FIELDS := ["upcoming_special", "cur_special", "vaccine", "vaccine_cd", "vaccine_uses", "lure", "lure_cd", "lure_uses"]
 const OPTIONAL_ENEMY_FIELDS := ["ability", "shield", "shield_max", "summon_t", "immune_type", "summon_left", "lured_gene"]
+## PRO-152: пишутся только в забегах с флагом эксперимента, поэтому сохранения без флага остаются байт-в-байт прежними.
+const STRAIN_GAME_FIELDS := ["strains", "strain_acc"]
+const STRAIN_ENEMY_FIELDS := ["strain", "shell"]
 const TOWER_FIELDS := ["id", "kind", "x", "y", "cd", "level", "branch", "spent", "mode", "kills", "dealt", "hits", "boosted", "recoil", "age", "aim", "upgraded_t"]
 const ENEMY_FIELDS := ["id", "genome", "ph", "hp", "dist", "slow_t", "slow_factor", "scorch_t", "scorch_extra", "poison_t", "poison_dps", "boss", "child", "warded", "hit_flash", "last_kind"]
 
@@ -25,9 +28,10 @@ static func snapshot(game: TDGame, session: Dictionary = {}) -> Dictionary:
 	for tower in game.towers:
 		towers[tower.id] = fields(tower, TOWER_FIELDS)
 		live_ids.append(tower.id)
+	var strain_on := game.strains_on()
 	var enemies: Array = []
 	for enemy in game.enemies:
-		var data := fields(enemy, ENEMY_FIELDS + OPTIONAL_ENEMY_FIELDS)
+		var data := fields(enemy, ENEMY_FIELDS + OPTIONAL_ENEMY_FIELDS + (STRAIN_ENEMY_FIELDS if strain_on else []))
 		data["poison_by"] = enemy.poison_by.id if enemy.poison_by != null else -1
 		if enemy.poison_by != null:
 			towers[enemy.poison_by.id] = fields(enemy.poison_by, TOWER_FIELDS)
@@ -36,7 +40,7 @@ static func snapshot(game: TDGame, session: Dictionary = {}) -> Dictionary:
 		"version": VERSION, "saved_at": Time.get_datetime_string_from_system(false, true), "timestamp": Time.get_unix_time_from_system(),
 		"seed": game.seed_value, "map_name": game.map.map_name,
 		"waypoints": game.map.waypoints.duplicate(), "blocked": game.map.blocked.duplicate(),
-		"state": fields(game, GAME_FIELDS + OPTIONAL_GAME_FIELDS), "reports": game.reports.duplicate(true),
+		"state": fields(game, GAME_FIELDS + OPTIONAL_GAME_FIELDS + (STRAIN_GAME_FIELDS if strain_on else [])), "reports": game.reports.duplicate(true),
 		"towers": towers, "live_towers": live_ids, "enemies": enemies,
 		"rng": game.rng.a, "perk_rng": game.perk_rng.a, "session": session.duplicate(true),
 	}
@@ -169,6 +173,8 @@ static func valid(data: Variant) -> bool:
 			return false
 		if lg != "" and (lure.is_empty() or lure["gene"] != lg):
 			return false
+	if not _valid_strains(data):
+		return false
 	for key in ["lure_cd", "lure_uses"]:
 		if data["state"].has(key) and (not data["state"][key] is int or data["state"][key] < 0):
 			return false
@@ -192,6 +198,48 @@ static func valid(data: Variant) -> bool:
 		return false
 	return data.has("seed") and data.has("rng") and data.has("perk_rng")
 
+## PRO-152: состояние эксперимента. Без флага в забеге полей и врагов пакетов быть не должно.
+static func _valid_strains(data: Dictionary) -> bool:
+	var meta: Dictionary = data["state"]["meta"]
+	var on := TDStrains.enabled(meta)
+	for key in STRAIN_GAME_FIELDS:
+		if not data["state"].has(key):
+			continue
+		if not on or not data["state"][key] is Dictionary:
+			return false
+	var st = data["state"].get("strains", {})
+	if not st.is_empty():
+		if not st.get("sig") is Dictionary or not st.get("pk") is Dictionary or not st.get("n") is int:
+			return false
+		for p in TDStrains.PACKAGES:
+			var k = st["pk"].get(p)
+			if not k is Dictionary or not numeric(k.get("inc")) or not numeric(k.get("share")) or not k.get("appear") is int:
+				return false
+			if k.get("phase") not in ["quiet", "incubating", "announced", "active", "fading"]:
+				return false
+			if float(k["share"]) < 0.0 or float(k["share"]) > 1.0:
+				return false
+	var acc = data["state"].get("strain_acc", {})
+	if not acc.is_empty():
+		for key in ["del", "el", "rng", "tgt", "kind_burst", "kind_rapid", "kind"]:
+			if not acc.get(key) is Dictionary:
+				return false
+		for key in ["total", "chill", "life_t", "slow_t"]:
+			if not numeric(acc.get(key)):
+				return false
+	for e in data["enemies"]:
+		var strain = e.get("strain", "")
+		if not strain is String or not e.get("shell", 0) is int:
+			return false
+		if strain != "" and (not TDStrains.acts(meta) or not TDStrains.PACKAGES.has(strain)):
+			return false
+		if int(e.get("shell", 0)) < 0 or int(e.get("shell", 0)) > 1 or (int(e.get("shell", 0)) > 0 and not TDStrains.DEFLECT.has(strain)):
+			return false
+	for g in data["state"]["upcoming"] + data["state"]["pending"]:
+		if g is Dictionary and g.has("strain") and (not TDStrains.acts(meta) or not TDStrains.PACKAGES.has(g["strain"])):
+			return false
+	return true
+
 static func numeric(value: Variant) -> bool:
 	return (value is int or value is float) and is_finite(float(value))
 
@@ -205,7 +253,7 @@ static func restore(data: Variant) -> TDGame:
 	var game := TDGame.new(data["seed"], map)
 	for key in GAME_FIELDS:
 		game.set(key, data["state"][key])
-	for key in OPTIONAL_GAME_FIELDS:
+	for key in OPTIONAL_GAME_FIELDS + STRAIN_GAME_FIELDS:
 		if data["state"].has(key):
 			game.set(key, data["state"][key])
 	# башни, добавленные после создания сохранения, не должны ломать учёт урона
@@ -228,11 +276,13 @@ static func restore(data: Variant) -> TDGame:
 		var enemy := TDGame.Enemy.new()
 		for key in ENEMY_FIELDS:
 			enemy.set(key, record[key])
-		for key in OPTIONAL_ENEMY_FIELDS:
+		for key in OPTIONAL_ENEMY_FIELDS + STRAIN_ENEMY_FIELDS:
 			if record.has(key):
 				enemy.set(key, record[key])
 		enemy.poison_by = towers.get(record.get("poison_by", -1))
 		game.enemies.append(enemy)
+	# PRO-191: прорывы текущей волны не сохраняются; посреди волны их счёт неполный
+	game.leak_known = game.phase != "wave"
 	return game
 
 static func path_for(slot: int) -> String:

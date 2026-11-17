@@ -7,6 +7,11 @@ extends SceneTree
 ##     --family=snake --seeds=10 [--seed-from=0] [--workshop=1] [--waves=30] [--cap=45] [--swarm=no_press] \
 ##     [--branch=a|b] [--no-upgrades] [--ablate=frost] [--perks=random] [--out=file.jsonl]
 ## Каждая партия — одна строка JSON (summary + метрики по волнам). Без --out печатает краткую строку на партию.
+## PRO-152 (без этих ключей вывод побайтово прежний):
+##   --model=signature|observe — флаг эксперимента TDStrains (observe: сигнатура считается, состав волн не меняется — контрольное плечо);
+##   --counter=auto [--counter-at=W] — бот читает предупреждения роя и с волны W строит ответ на объявленный пакет;
+##   --record=file.json / --replay=file.json — записать журнал покупок партии / воспроизвести его с неограниченным золотом
+##   («замороженная политика»: различие между плечами — только модель роя).
 ## Сиды: (seed_from + i + 1) * 4243, как у tests/bot.gd, но карта строится с принудительным семейством.
 
 const DT := 1.0 / 30.0
@@ -35,6 +40,8 @@ const STRATEGIES := {
 	"switch": {"core": {"arrow": 1.0, "sniper": 1.0}, "react": "stealth", "support": [
 		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["frost", 7, 2, 1]],
 		"switch_at": 13, "after": {"core": {"ember": 1.0, "poison": 1.0, "tesla": 1.0}, "react": "stealth", "support": [["frost", 0, 3, 1], ["beacon", 0, 1, 1]]}},
+	## PRO-152: оборона без ПВО (только пушки + Маяк по невидимкам) — проверка «Стаи», которую остальные стратегии не вызывают.
+	"cannon": {"core": {"cannon": 1.0}, "react": "stealth"},
 	## Владелец + реакция на состав следующей волны (невидимки, летающие, броня, лечение, деление, стойкости).
 	"adaptive": {"core": {"arrow": 1.0, "sniper": 1.0}, "react": "full", "support": [
 		["frost", 2, 1, 1], ["ember", 3, 1, 1], ["poison", 5, 1, 4], ["beacon", 6, 1, 1], ["frost", 7, 2, 1],
@@ -58,6 +65,16 @@ var perk_mode := "smart"
 var out_path := ""
 ## Микроконтроль режима прицела на боссовых волнах (--micro=0 — выключить).
 var micro := true
+## PRO-152
+var model := ""
+var counter := ""
+var counter_at := 1
+var record_path := ""
+var replay_path := ""
+var _record := {}
+var _replay := {}
+## Ответы бота на пакеты роя: что строить (сколько держать), когда пакет объявлен или уже в волне.
+const COUNTER_PLAN := {"brood": [["cannon", 2], ["tesla", 1]], "hulk": [["cannon", 2], ["poison", 3]], "flock": [["flak", 2]]}
 
 var strat: Dictionary = {}
 var branches: Dictionary = {}
@@ -98,6 +115,22 @@ func _init() -> void:
 			micro = a.substr(8) != "0"
 		elif a.begins_with("--out="):
 			out_path = a.substr(6)
+		elif a.begins_with("--model="):
+			model = a.substr(8)
+		elif a.begins_with("--counter="):
+			counter = a.substr(10)
+		elif a.begins_with("--counter-at="):
+			counter_at = int(a.substr(13))
+		elif a.begins_with("--record="):
+			record_path = a.substr(9)
+		elif a.begins_with("--replay="):
+			replay_path = a.substr(9)
+		elif a.begins_with("--lab-strain="):
+			# лаборатория: --lab-strain=пакет[:доля[:с волны]] — принудительно разметить волны (только с --model=signature)
+			var lab := a.substr(13).split(":")
+			TDStrains.lab_strain = lab[0]
+			TDStrains.lab_share = float(lab[1]) if lab.size() > 1 else 1.0
+			TDStrains.lab_from = int(lab[2]) if lab.size() > 2 else 6
 	if not STRATEGIES.has(strategy_id):
 		push_error("unknown strategy " + strategy_id)
 		quit(1)
@@ -108,6 +141,8 @@ func _init() -> void:
 		for k in branches:
 			branches[k] = branch_override
 	TDGenome.diag_evolution = swarm
+	if replay_path != "":
+		_replay = JSON.parse_string(FileAccess.get_file_as_string(replay_path))
 	var f: FileAccess = null
 	if out_path != "":
 		f = FileAccess.open(out_path, FileAccess.WRITE)
@@ -121,6 +156,10 @@ func _init() -> void:
 			print("%s seed=%d fam=%s end=%d leaks30=%d lives30=%d minlives=%d" % [strategy_id, seed_v, res["family"], s["end_wave"], s["leaks_by_30"], s["lives_at_30"], s["min_lives"]])
 	if f != null:
 		f.close()
+	if record_path != "":
+		var rf := FileAccess.open(record_path, FileAccess.WRITE)
+		rf.store_string(JSON.stringify(_record))
+		rf.close()
 	quit()
 
 
@@ -143,6 +182,8 @@ func _ablated(s: Dictionary) -> Dictionary:
 
 func _meta() -> Dictionary:
 	var m := {"difficulty": difficulty, "mode": "standard"}
+	if model != "":
+		m["swarm_model"] = model
 	if workshop:
 		# Мастерская на максимуме (TDMeta.bonuses() при всех уровнях).
 		m.merge({"gold": 60, "lives": 6, "upgrade_disc": 0.24, "growth_cut": 0.4, "perk_choices": 1, "start_perk": true})
@@ -239,8 +280,24 @@ func _reactive_need(g: TDGame) -> String:
 	return ""
 
 
+## PRO-152: ответ на объявленный или идущий пакет роя по предупреждению (как сделал бы игрок, прочитавший отчёт).
+func _counter_need(g: TDGame) -> String:
+	if counter != "auto" or g.wave < counter_at:
+		return ""
+	for e in TDStrains.forecast(g):
+		if String(e["phase"]) not in ["announced", "active"]:
+			continue
+		for need in COUNTER_PLAN[e["id"]]:
+			if not g.is_locked(need[0]) and g.count_of(need[0]) < int(need[1]):
+				return need[0]
+	return ""
+
+
 ## Обязательная постройка (реакция или опорная башня по плану) — "" если нет.
 func _forced_build(g: TDGame) -> String:
+	var cn := _counter_need(g)
+	if cn != "":
+		return cn
 	var need := _reactive_need(g)
 	if need == ablate:
 		need = "" # абляция убирает тип и из реакций
@@ -547,12 +604,19 @@ func _play(seed_v: int) -> Dictionary:
 		if g.phase == "build":
 			if strat.has("switch_at") and g.wave == int(strat["switch_at"]):
 				_switch(g)
-			_pick_perk(g, perk_rng)
 			var gold0 := g.gold
 			var sb0 := spent_build
 			var su0 := spent_upgrade
-			_build_phase(g)
-			_pick_perk(g, perk_rng)
+			if not _replay.is_empty():
+				_replay_wave(g, perk_rng, seed_v)
+			else:
+				var before := _tower_state(g)
+				var perks_before := g.perks.duplicate()
+				_pick_perk(g, perk_rng)
+				_build_phase(g)
+				_pick_perk(g, perk_rng)
+				if record_path != "":
+					_record_wave(g, seed_v, before, perks_before)
 			if not g.start_wave():
 				break
 			# микро как у человека: на боссовой волне снайперы и пушки бьют самого крепкого
@@ -572,7 +636,7 @@ func _play(seed_v: int) -> Dictionary:
 		for e in g.enemies:
 			seen[e.id] = true
 			if not track.has(e.id):
-				track[e.id] = [t_sim, bool(e.ph["fly"]), 0.0, e.boss, e.child, 0.0]
+				track[e.id] = [t_sim, bool(e.ph["fly"]), 0.0, e.boss, e.child, 0.0, e.strain]
 			if e.hp > 0.0 and _exposed(g, e):
 				track[e.id][2] += DT
 			if e.dist >= 0.0:
@@ -585,6 +649,10 @@ func _play(seed_v: int) -> Dictionary:
 		for id in track.keys():
 			if not seen.has(id):
 				var rec: Array = track[id]
+				# прорыв: враг исчез у самого замка (утечка снимается с поля в тот же шаг, поэтому 1.5 харнесс не видит)
+				if model != "" and not waves.is_empty() and float(rec[5]) >= 0.99 and not rec[3]:
+					var sk := "leak_" + (String(rec[6]) if String(rec[6]) != "" else "base")
+					waves[waves.size() - 1][sk] = int(waves[waves.size() - 1].get(sk, 0)) + 1
 				if not rec[3] and not rec[4]:
 					(life_a if rec[1] else life_g).append(t_sim - rec[0])
 					(expo_a if rec[1] else expo_g).append(rec[2])
@@ -619,7 +687,7 @@ func _play(seed_v: int) -> Dictionary:
 	for k in g.run_damage:
 		if g.run_damage[k] > 0.0:
 			dmg[k] = int(g.run_damage[k])
-	return {
+	var res := {
 		"strategy": strategy_id, "seed": seed_v, "family": g.map.family, "difficulty": difficulty, "workshop": workshop,
 		"swarm": swarm, "ablate": ablate, "micro": micro, "branch": branch_override, "upgrades": upgrades, "perks": perk_mode,
 		"path_len": _r(g.map.length, 2), "fly_len": _r(g.map.fly_length, 2),
@@ -631,6 +699,12 @@ func _play(seed_v: int) -> Dictionary:
 		},
 		"waves": waves,
 	}
+	if model != "" or counter != "" or replay_path != "":
+		res["model"] = model
+		res["counter"] = counter
+		res["counter_at"] = counter_at
+		res["replay"] = replay_path != ""
+	return res
 
 
 func _close_wave(g: TDGame, wr: Dictionary, life_g: Array, life_a: Array, expo_g: Array, expo_a: Array) -> void:
@@ -711,3 +785,101 @@ func _close_wave(g: TDGame, wr: Dictionary, life_g: Array, life_a: Array, expo_g
 		counts[t.kind] = int(counts.get(t.kind, 0)) + 1
 	wr["invested"] = invested
 	wr["towers"] = counts
+	if g.strains_on():
+		_close_wave_strains(g, wr, r)
+
+
+## PRO-152: сигнатура, инкубация и состав пакетов этой волны; суммарное здоровье волны (бюджет угрозы).
+func _close_wave_strains(g: TDGame, wr: Dictionary, r: Dictionary) -> void:
+	var sx: Dictionary = r.get("strains", {})
+	var sig: Dictionary = sx.get("sig", {})
+	var out := {"C": _r(float(sx.get("C", 0.0))), "air_gap": _r(float(sig.get("air_gap", 0.0)))}
+	for k in ["burst", "rapid", "chill", "control"]:
+		out[k] = _r(float(sig.get(k, 0.0)))
+	for dist in ["del", "el"]:
+		var d := {}
+		for k in sig.get(dist, {}):
+			d[k] = _r(float(sig[dist][k]))
+		out[dist] = d
+	var pk := {}
+	for p in sx.get("pk", {}):
+		var k: Dictionary = sx["pk"][p]
+		pk[p] = [_r(float(k["inc"])), _r(float(k["share"])), String(k["phase"])]
+	out["pk"] = pk
+	# состав и здоровье сыгранной волны (без босса), с учётом пакетов, сложности и особой волны
+	var w: int = int(wr["w"])
+	var hp_mult: float = float(TDConfig.difficulty(g.meta)["hp"])
+	var sp: Dictionary = TDConfig.SPECIAL_WAVES.get(String(wr.get("special", "")), {})
+	var hp := 0.0
+	var bodies := 0
+	var by := {}
+	for ge in g.wave_genomes:
+		var strain := String(ge.get("strain", ""))
+		var ph := TDStrains.apply_ph(TDGenome.phenotype(ge, w), strain)
+		var n_b: int = TDStrains.BROOD_N if strain == "brood" else 1
+		hp += float(ph["hp"]) * n_b * hp_mult * float(sp.get("hp", 1.0))
+		bodies += n_b
+		if strain != "":
+			by[strain] = int(by.get(strain, 0)) + 1
+	out["wave_hp"] = int(hp)
+	out["bodies"] = bodies
+	out["strain_n"] = by
+	wr["sx"] = out
+
+
+# ── PRO-152: замороженная политика ──────────────────────────────
+
+func _tower_state(g: TDGame) -> Dictionary:
+	var d := {}
+	for t in g.towers:
+		d[t.id] = [t.kind, t.x, t.y, t.level, t.branch]
+	return d
+
+
+## Журнал фазы строительства: перки, продажи, постройки, улучшения — в порядке применения.
+func _record_wave(g: TDGame, seed_v: int, before: Dictionary, perks_before: Dictionary) -> void:
+	var ops: Array = []
+	for p in g.perks:
+		for _i in int(g.perks[p]) - int(perks_before.get(p, 0)):
+			ops.append(["perk", p])
+	var after := _tower_state(g)
+	for id in before:
+		if not after.has(id):
+			ops.append(["sell", before[id][1], before[id][2]])
+	for t in g.towers:
+		var lvl0: int = int(before[t.id][3]) if before.has(t.id) else 0
+		if lvl0 == 0:
+			ops.append(["place", t.kind, t.x, t.y])
+			lvl0 = 1
+		for l in range(lvl0 + 1, t.level + 1):
+			ops.append(["up", t.x, t.y, t.branch if l == 3 else ""])
+	var key := str(seed_v)
+	if not _record.has(key):
+		_record[key] = {}
+	_record[key][str(g.wave)] = ops
+
+
+## Повтор журнала: те же действия в те же волны, золото не ограничивает (одинаковый бюджет в обоих плечах).
+func _replay_wave(g: TDGame, perk_rng: TDRng, seed_v: int) -> void:
+	var ops: Array = _replay.get(str(seed_v), {}).get(str(g.wave), [])
+	for op in ops:
+		if op[0] == "perk" and g.offer.has(op[1]):
+			g.choose_perk(op[1])
+	if not g.offer.is_empty():
+		_pick_perk(g, perk_rng)
+	for op in ops:
+		g.gold = maxi(g.gold, 1000000)
+		match String(op[0]):
+			"sell":
+				g.sell_tower(int(op[1]), int(op[2]))
+			"place":
+				var c := g.tower_cost(op[1])
+				if g.place_tower(op[1], int(op[2]), int(op[3])):
+					spent_build += c
+			"up":
+				var t := g.tower_at(int(op[1]), int(op[2]))
+				if t != null:
+					var c2 := g.upgrade_cost(t)
+					if g.upgrade_tower(t, String(op[3])):
+						spent_upgrade += c2
+	g.gold = 0

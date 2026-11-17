@@ -35,6 +35,10 @@ class Enemy:
 	var summon_left: int = 0
 	## Враг волны с приманкой: какой ген усилен ("" — обычный). Геном для отбора не меняется.
 	var lured_gene: String = ""
+	## PRO-152 (только с флагом эксперимента): пакет контрмер роя ("" — обычный враг) и панцирь пакета
+	## (1 — урон ударов класса TDStrains.DEFLECT[strain] гасится целиком).
+	var strain: String = ""
+	var shell: int = 0
 
 
 class Tower:
@@ -122,6 +126,14 @@ var lure_uses: int = 0
 ## Визуальные события для эффектов (включает поле; на баланс не влияют).
 var emit_events: bool = false
 var events: Array[Dictionary] = []
+## PRO-152, эксперимент «сигнатура + инкубация» (TDStrains): состояние роя и накопитель ударов текущей волны.
+## Пустые и не используются, если флаг забега meta["swarm_model"] не задан.
+var strains: Dictionary = {}
+var strain_acc: Dictionary = {}
+## PRO-191, только для интерфейса (экран поражения): кто прорвался в текущей волне — TDThreats.new_leaks().
+## Не сохраняется, не трогает rng и бой. После загрузки посреди волны счёт неполный: leak_known = false до следующей волны.
+var wave_leaks: Dictionary = {}
+var leak_known: bool = true
 
 
 func _init(seed_v: int, map_: TDMap = null, meta_: Dictionary = {}) -> void:
@@ -139,6 +151,11 @@ func _init(seed_v: int, map_: TDMap = null, meta_: Dictionary = {}) -> void:
 		upcoming.append(TDGenome.random_genome(rng, 1))
 	if meta.get("start_perk", false):
 		offer = _draw_offer()
+
+
+## Включён ли эксперимент PRO-152 в этом забеге (флаг хранится в meta и сохраняется вместе с ним).
+func strains_on() -> bool:
+	return TDStrains.enabled(meta)
 
 
 func _ev(d: Dictionary) -> void:
@@ -631,10 +648,14 @@ func start_wave() -> bool:
 	killed = 0
 	leaked = 0
 	damage_by = _zero_damage()
+	wave_leaks = TDThreats.new_leaks()
+	leak_known = true
 	for t in towers:
 		t.dealt = 0.0
 		t.hits = 0
 		t.boosted = 0
+	if strains_on():
+		strain_acc = TDStrains.new_acc()
 	return true
 
 
@@ -677,8 +698,16 @@ func _hit(e: Enemy, t: Tower, m: Dictionary, mult: float = 1.0) -> void:
 	var def: Dictionary = t.def
 	var dmg := t_damage(t) * mult
 	var pierce: float = def.get("pierce", 0.0)
+	var chilled_before: bool = e.slow_t > 0.0
 	var base := effective_damage(dmg, def["type"], e.ph, {}, m, pierce)
 	var full := effective_damage(dmg, def["type"], e.ph, status_of(e), m, pierce)
+	# PRO-152: панцирь пакета гасит урон своего класса ударов (выводок — тяжёлые одиночные, панцирники — лёгкие одиночные);
+	# эффекты удара (замедление, яд, ожог) ложатся. Класс — TDStrains.del_class, тот же, что в сигнатуре.
+	var deflected: bool = e.shell > 0 and TDStrains.deflects(e.strain, TDStrains.del_class(def))
+	if deflected:
+		base = 0.0
+		full = 0.0
+		_ev({"type": "shell", "pos": pos_of(e), "strain": e.strain})
 	if e.warded:
 		base *= 1.0 - TDConfig.WARD_CUT
 		full *= 1.0 - TDConfig.WARD_CUT
@@ -691,7 +720,8 @@ func _hit(e: Enemy, t: Tower, m: Dictionary, mult: float = 1.0) -> void:
 	e.hp -= minf(e.hp, through)
 	# «Палач»: добивает ослабленных
 	var ex: float = def.get("execute", 0.0)
-	if ex > 0.0 and not e.boss and e.hp > 0.0 and e.hp < ex * e.ph["hp"]:
+	# погашенный панцирем удар (PRO-152) не добивает; без флага deflected всегда false
+	if ex > 0.0 and not e.boss and e.hp > 0.0 and e.hp < ex * e.ph["hp"] and not deflected:
 		dealt += e.hp
 		e.hp = 0.0
 	if e.hp <= 0.0:
@@ -702,6 +732,8 @@ func _hit(e: Enemy, t: Tower, m: Dictionary, mult: float = 1.0) -> void:
 	damage_by[t.kind] += dealt
 	t.dealt += dealt
 	t.hits += 1
+	if not strain_acc.is_empty() and TDStrains.eligible(e):
+		TDStrains.record_hit(strain_acc, def, t.kind, Vector2(t.x + 0.5, t.y + 0.5), pos_of(e), e.ph["fly"], dealt, chilled_before)
 	if full > base * 1.02:
 		t.boosted += 1
 		if fx.size() < 120:
@@ -836,6 +868,9 @@ func step(dt: float) -> void:
 		if hp_mult != 1.0:
 			ph = ph.duplicate()
 			ph["hp"] = ph["hp"] * hp_mult
+		var strain: String = "" if is_boss else String(genome.get("strain", ""))
+		if strain != "":
+			ph = TDStrains.apply_ph(ph, strain)
 		var e := Enemy.new()
 		e.id = next_id
 		next_id += 1
@@ -854,6 +889,8 @@ func step(dt: float) -> void:
 				e.shield_max = ph["hp"] * TDConfig.SHIELD_SHARE
 				e.shield = e.shield_max
 		enemies.append(e)
+		if strain != "":
+			_spawn_strain(e, strain)
 		spawn_t += TDConfig.SPAWN_INTERVAL
 
 	# движение, лечение, яд
@@ -879,6 +916,8 @@ func step(dt: float) -> void:
 			var d: float = minf(e.hp, through)
 			e.hp -= d
 			damage_by["poison"] += d + (raw - through)
+			if not strain_acc.is_empty() and TDStrains.eligible(e) and e.poison_by != null:
+				TDStrains.record_dot(strain_acc, Vector2(e.poison_by.x + 0.5, e.poison_by.y + 0.5), pos_of(e), e.ph["fly"], d, e.slow_t > 0.0)
 			if e.poison_by != null:
 				e.poison_by.dealt += d
 				if e.hp <= 0.0 and d > 0.0:
@@ -887,9 +926,12 @@ func step(dt: float) -> void:
 			e.hp = minf(e.ph["hp"], e.hp + e.ph["regen"] * e.ph["hp"] * dt)
 		var k: float = 1.0 - e.slow_factor if e.slow_t > 0.0 else 1.0
 		e.dist += e.ph["speed"] * k * dt
+		if not strain_acc.is_empty() and e.hp > 0.0 and TDStrains.eligible(e):
+			TDStrains.record_time(strain_acc, e.slow_t > 0.0 and e.slow_factor > 0.0, dt)
 	for e in enemies:
 		if e.dist >= path_len_of(e) and e.hp > 0.0:
 			lives -= TDConfig.BOSS_LEAK if e.boss else 1
+			note_leak(e)
 			leaked += 1
 			run_leaked += 1
 			_ev({"type": "leak", "pos": map.points[map.points.size() - 1], "boss": e.boss})
@@ -1003,7 +1045,8 @@ func step(dt: float) -> void:
 				var bp := pos_of(e)
 				fx.append({"x1": bp.x, "y1": bp.y - 0.4, "x2": bp.x, "y2": bp.y, "color": Color("#ffd35a"), "t": 1.2, "life": 1.2, "ring": 0.0, "text": "+%d" % TDConfig.boss_bonus(wave)})
 			else:
-				gold += bounty
+				# носитель кладки выводка: награда за кладку целиком равна награде за одного врага
+				gold += bounty if e.strain != "brood" else maxi(0, bounty - (TDStrains.BROOD_N - 1) * TDConfig.SPLIT_REWARD)
 				finished.append({"genome": e.genome, "fitness": minf(1.0, progress_of(e))})
 	alive.append_array(born)
 	enemies = alive
@@ -1014,6 +1057,38 @@ func step(dt: float) -> void:
 		return
 	if pending.is_empty() and pending_boss.is_empty() and enemies.is_empty():
 		_end_wave()
+
+
+## PRO-191: учёт прорыва для экрана поражения (только интерфейс, на бой не влияет).
+func note_leak(e: Enemy) -> void:
+	if wave_leaks.is_empty():
+		wave_leaks = TDThreats.new_leaks()
+	TDThreats.add_leak(wave_leaks, e.boss, e.child, e.strain, bool(e.ph.get("fly", false)), bool(e.ph.get("stealth", false)),
+		TDConfig.BOSS_LEAK if e.boss else 1)
+
+
+## PRO-152: враг пакета. Выводок — носитель и малыши кладки (малыши как дети деления: без отбора, награда SPLIT_REWARD);
+## у малышей и панцирников есть панцирь (shell = 1).
+func _spawn_strain(e: Enemy, strain: String) -> void:
+	e.strain = strain
+	if TDStrains.DEFLECT.has(strain):
+		e.shell = 1
+	if strain != "brood":
+		return
+	for i in TDStrains.BROOD_N - 1:
+		var c := Enemy.new()
+		c.id = next_id
+		next_id += 1
+		c.genome = e.genome
+		c.ph = e.ph.duplicate()
+		# чуть разная скорость: кладка идёт плотной кучкой и не сливается в одну точку
+		c.ph["speed"] = e.ph["speed"] * (1.0 - 0.06 * (i + 1))
+		c.hp = c.ph["hp"]
+		c.child = true
+		c.strain = strain
+		c.shell = 1
+		c.lured_gene = e.lured_gene
+		enemies.append(c)
 
 
 ## Особая волна меняет число врагов: нашествие добавляет копии, бронеколонна оставляет часть.
@@ -1155,6 +1230,8 @@ func _end_wave() -> void:
 		"interest": 0,
 		"bonus": TDConfig.wave_bonus(w),
 	})
+	if strains_on():
+		reports[reports.size() - 1]["strains"] = TDStrains.end_wave(self, w)
 	# проценты считаются с того, что накоплено к концу волны (до бонуса)
 	var lure_bonus := 0
 	if not lure.is_empty() and int(lure["wave"]) == w:

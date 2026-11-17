@@ -678,6 +678,10 @@ func _draw_enemy(e: TDGame.Enemy) -> void:
 	var fly: bool = e.ph["fly"]
 	var heading: Vector2 = game.map.heading_at(e.dist, fly)
 	var side := enemy_canvas_side(e.genome, e.ph["fly"], e.boss) * _cs
+	if e.strain == "brood":
+		side *= 0.72
+	elif e.strain == "hulk":
+		side *= 1.12
 	r = side * 0.30
 	var spawn := _pop(clampf(e.dist / 0.5, 0.0, 1.0) * 0.38)
 
@@ -712,6 +716,12 @@ func _draw_enemy(e: TDGame.Enemy) -> void:
 			# золотая кайма по силуэту: враг усилен приманкой (щит рисуется голубой каймой)
 			for offset in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
 				_draw_custom_enemy(custom_model, body + offset * maxf(1.0, _cs / 64.0), side * spawn, heading, Color(1.0, 0.82, 0.30, 0.55 * al), phase, fly, e.hit_flash, -1.0, true)
+		if e.strain != "":
+			# PRO-152: кайма цвета пакета роя; у врагов с панцирем — ярче
+			var sc := Color(TDStrains.PACK[e.strain]["color"])
+			var sa: float = 0.75 if e.shell > 0 else 0.45
+			for offset in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+				_draw_custom_enemy(custom_model, body + offset * maxf(1.0, _cs / 64.0), side * spawn, heading, Color(sc.r, sc.g, sc.b, sa * al), phase, fly, e.hit_flash, -1.0, true)
 		_draw_custom_enemy(custom_model, body, side * spawn, heading, enemy_mod, phase, fly, e.hit_flash)
 
 	if e.ph.get("ward", false):
