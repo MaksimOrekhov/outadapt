@@ -15,7 +15,9 @@ G=${GODOT:-/d/Godot/Godot_v4.7.2-stable_win64_console.exe}
 OUT=../build/range/ablate
 mkdir -p "$OUT/rec"
 FAMS="snake vsnake stairs hooks"
-ARMS="none: norange:--range-variant=abl_norange nodmg:--range-variant=abl_nodmg noperk:--range-variant=abl_noperk nobranch:--range-variant=abl_nobranch"
+# ARMS можно задать снаружи (например ARMS="nol2:--range-variant=abl_nol2" — дополнительное плечо к уже записанным
+# покупкам none; повтор берёт rec/ из прошлого запуска)
+ARMS=${ARMS:-"none: norange:--range-variant=abl_norange nodmg:--range-variant=abl_nodmg noperk:--range-variant=abl_noperk nobranch:--range-variant=abl_nobranch nol2:--range-variant=abl_nol2"}
 run() { tr '\n' '\0' < "$1" | xargs -0 -P "$JOBS" -I{} sh -c '{} > /dev/null 2>&1'; }
 
 C1="$OUT/commands_policy.txt"; : > "$C1"

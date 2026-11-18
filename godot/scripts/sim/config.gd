@@ -162,6 +162,7 @@ static var late_variant := ""
 ##   abl_nodmg    — улучшения не прибавляют урон и скорострельность (снижения остаются), дальность как есть;
 ##   abl_noperk   — только перк «Дальний прицел» не прибавляет дальности;
 ##   abl_nobranch — только ветки L3 («Дальнобой», «Мортира») не прибавляют дальности;
+##   abl_nol2     — только уровень 2 (+0.3 у всех башен) не прибавляет дальности;
 ##   r1, ...      — кандидаты ограничения сложения дальности (RANGE_VARIANTS), docs/balance/range-stacking-experiment.md.
 static var range_variant := ""
 ## Прибавка дальности ветки L3 по типу башни и максимум уровней перка «Дальний прицел» для кандидатов.
@@ -182,6 +183,9 @@ static func _variant_mods(m: Dictionary, kind: String, is_branch: bool) -> Dicti
 			o.erase("range")
 		"abl_nobranch":
 			if is_branch:
+				o.erase("range")
+		"abl_nol2":
+			if not is_branch:
 				o.erase("range")
 		"abl_nodmg":
 			if float(o.get("damage", 1.0)) > 1.0:

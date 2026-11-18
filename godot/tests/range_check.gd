@@ -72,6 +72,13 @@ func _initialize() -> void:
 	check("D · остальное как без варианта", same_except(base, d, ["range"]).is_empty() and is_equal_approx(d["arrow2"]["range"], 3.5))
 	check("D · перк как без варианта", TDConfig.perk_range_step() == 0.4)
 
+	TDConfig.range_variant = "abl_nol2"
+	d = defs()
+	check("L2 · Лучник L2 3.2, «Дальнобой» 7.2, «Мортира» 4.0 (без +0.3 уровня 2, ветки остаются)",
+		is_equal_approx(d["arrow2"]["range"], 3.2) and is_equal_approx(d["sniper3b"]["range"], 7.2) and is_equal_approx(d["cannon3a"]["range"], 4.0))
+	check("L2 · остальное как без варианта", same_except(base, d, ["range"]).is_empty())
+	check("L2 · перк как без варианта", TDConfig.perk_range_step() == 0.4)
+
 	for v in TDConfig.RANGE_VARIANTS:
 		TDConfig.range_variant = v
 		var rv: Dictionary = TDConfig.RANGE_VARIANTS[v]
