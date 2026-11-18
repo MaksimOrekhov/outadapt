@@ -18,10 +18,17 @@ G=${GODOT:-/d/Godot/Godot_v4.7.2-stable_win64_console.exe}
 OUT=../build/range/$TAG
 mkdir -p "$OUT"
 CMDS="$OUT/commands.txt"
-: > "$CMDS"
+TODO="$OUT/commands_todo.txt"
+: > "$CMDS"; : > "$TODO"
 FAMS="snake vsnake stairs hooks"
+SKIP=0
+# возобновление: commands.txt — все ячейки; ячейка с полными $SEEDS партиями пропускается,
+# неполная (прерванный прогон) считается заново целиком
 add() { local name=$1; shift
-  echo "\"$G\" --headless --path . --script res://tests/balance_audit.gd -- --seeds=$SEEDS --seed-from=$FROM --cap=35 --late=1 $* $EXTRA --out=$OUT/$name.jsonl" >> "$CMDS"; }
+  local c="\"$G\" --headless --path . --script res://tests/balance_audit.gd -- --seeds=$SEEDS --seed-from=$FROM --cap=35 --late=1 $* $EXTRA --out=$OUT/$name.jsonl"
+  echo "$c" >> "$CMDS"
+  if [ -f "$OUT/$name.jsonl" ] && [ "$(wc -l < "$OUT/$name.jsonl")" -ge "$SEEDS" ]; then SKIP=$((SKIP + 1)); return; fi
+  echo "$c" >> "$TODO"; }
 for s in owner2 mixed adaptive owner; do
   for d in normal hard; do
     for m in off signature; do
@@ -50,6 +57,6 @@ for s in owner2 mixed; do
     done
   done
 done
-echo "cells: $(wc -l < "$CMDS")  seeds: $SEEDS from $FROM  extra: '$EXTRA'  out: $OUT"
-tr '\n' '\0' < "$CMDS" | xargs -0 -P "$JOBS" -I{} sh -c '{} > /dev/null 2>&1'
+echo "cells: $(wc -l < "$CMDS"), to run: $(wc -l < "$TODO") (complete, skipped: $SKIP)  seeds: $SEEDS from $FROM  extra: '$EXTRA'  out: $OUT"
+tr '\n' '\0' < "$TODO" | xargs -0 -P "$JOBS" -I{} sh -c '{} > /dev/null 2>&1'
 echo "done: $(ls "$OUT"/*.jsonl | wc -l) files"

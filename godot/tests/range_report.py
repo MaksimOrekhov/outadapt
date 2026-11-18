@@ -3,7 +3,7 @@
 
   python tests/range_report.py ablate                      # ../build/range/ablate: плечи против none и rp-none
   python tests/range_report.py compare <база> <вариант>...  # папки ../build/range/<имя>: вариант против базы, те же ячейки
-  [--md=out.md] [--csv=out.csv] [--groups]
+  [--md=out.md] [--csv=out.csv] [--groups] [--branches]   (--branches — G8: ветки по умолчанию против br-*, доля L3)
 
 Имя ячейки: <стратегия>_<сложность>_<модель>_<семейство>_<хвост>; хвост — плечо абляции или wsN.
 
@@ -24,7 +24,7 @@ import json, os, sys, glob, random
 from collections import defaultdict
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "build", "range")
-PHASES = [("1-10", 1, 10), ("11-20", 11, 20), ("21-29", 21, 29)]
+PHASES = [("1-10", 1, 10), ("11-20", 11, 20), ("21-29", 21, 29), ("31-35", 31, 35)]
 METRICS = ["gate20", "p90", "max", "b40", "cov20", "d20", "drest", "z20", "hits20", "ttk", "leaks"]
 
 
@@ -262,7 +262,7 @@ def compare_report(base_dir, var_dirs, groups=False):
         pb, pv = pooled(base, filt_ws0), pooled(var, filt_ws0)
         rows.append("| Метрика (без Мастерской, обычные волны) | база | вариант | парная Δ [95%] |")
         rows.append("|---|---|---|---|")
-        for p in ["1-10", "11-20", "21-29"]:
+        for p in ["1-10", "11-20", "21-29", "31-35"]:
             for m in ["gate20", "p90", "max", "b40", "z20", "d20", "ttk", "leaks"]:
                 rows.append(f"| {m} {p} | {f(pb[p][m], 3)} | {f(pv[p][m], 3)} | {fd(paired(base, var, m, p, filt_ws0), 3)} |")
         rows.append(f"| win30 | {f(pb['all']['win30'])} | {f(pv['all']['win30'])} | {fd(paired(base, var, 'won30', filt=filt_ws0))} |")
@@ -276,6 +276,49 @@ def compare_report(base_dir, var_dirs, groups=False):
                 a, b = pooled(base, fk), pooled(var, fk)
                 rows.append(f"| {' · '.join(k)} | {f(a['all']['win30'])} → {f(b['all']['win30'])} | {f(a['21-29']['gate20'])} → {f(b['21-29']['gate20'])} | "
                             f"{f(a['21-29']['p90'])} → {f(b['21-29']['p90'])} | {f(a['21-29']['leaks'])} → {f(b['21-29']['leaks'])} |")
+    return "\n".join(rows)
+
+
+def l3_reach(games, filt=lambda m: True):
+    """Доля партий, у которых к волне 10/20/29 есть хоть одна башня L3 данного вида и ветки (среди доживших до волны)."""
+    out = defaultdict(lambda: defaultdict(lambda: [0, 0]))
+    for meta, g in games:
+        if not filt(meta):
+            continue
+        for wr in g["waves"]:
+            if "l3" in wr and wr.get("done") and not wr.get("lost"):
+                for kb in ["sniper_a", "sniper_b", "cannon_a", "cannon_b"]:
+                    out[wr["w"]][kb][1] += 1
+                    out[wr["w"]][kb][0] += 1 if wr["l3"].get(kb, 0) > 0 else 0
+    return out
+
+
+def branches_report(folder):
+    """G8: ячейки с ветками по умолчанию (ws0, без флага) против ячеек br-* (вторая ветка), owner2 и mixed, парно по семейству и сиду."""
+    games = load(folder)
+    rows = [f"\n### Ветки L3 · {os.path.basename(os.path.normpath(folder))}\n",
+            "| Стратегия · сложность | ветки | win30 по умолчанию | win30 br | Δ win30 (br − умолч.) | gate20 21–29 умолч. → br |",
+            "|---|---|---|---|---|---|"]
+    tails = sorted({m["tail"] for m, _ in games if m["tail"].startswith("br-")})
+    for tail in tails:
+        for st in ["owner2", "mixed"]:
+            for d in ["normal", "hard"]:
+                fd_ = lambda m, st=st, d=d: m["strategy"] == st and m["difficulty"] == d and m["model"] == "off"
+                a = [(m, g) for m, g in games if fd_(m) and m["tail"] == "ws0"]
+                b = [(m, g) for m, g in games if fd_(m) and m["tail"] == tail]
+                if not b:
+                    continue
+                bb = [(dict(m, tail="ws0"), g) for m, g in b]
+                pa, pb = pooled(a), pooled(bb)
+                rows.append(f"| {st} · {d} | {tail} | {f(pa['all']['win30'])} | {f(pb['all']['win30'])} | {fd(paired(a, bb, 'won30'))} | "
+                            f"{f(pa['21-29']['gate20'])} → {f(pb['21-29']['gate20'])} |")
+    reach = l3_reach(games, lambda m: m["tail"] == "ws0")
+    rows.append("\nДоля партий с L3 к волне (ячейки без Мастерской, без флага и с ним, среди доживших):\n")
+    rows.append("| Волна | Снайпер «Палач» | Снайпер «Дальнобой» | Пушка «Мортира» | Пушка «Осадная» |")
+    rows.append("|---|---|---|---|---|")
+    for w in sorted(reach):
+        r = reach[w]
+        rows.append(f"| {w} | " + " | ".join(f(r[k][0] / max(1, r[k][1])) for k in ["sniper_a", "sniper_b", "cannon_a", "cannon_b"]) + " |")
     return "\n".join(rows)
 
 
@@ -306,6 +349,8 @@ def _main():
     else:
         dirs = [os.path.join(ROOT, a) for a in args[1:]]
         text = compare_report(dirs[0], dirs[1:], "groups" in opts)
+        if "branches" in opts:
+            text += "\n" + "\n".join(branches_report(d) for d in dirs)
         if opts.get("csv"):
             write_csv(load(dirs[-1]), opts["csv"])
     print(text)
