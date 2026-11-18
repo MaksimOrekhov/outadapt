@@ -184,6 +184,21 @@ func progress_of(e: Enemy) -> float:
 	return e.dist / path_len_of(e)
 
 
+## PRO-212, только для балансных прогонов (TDConfig.track_zones): урон и попадания по наземным врагам
+## по доле пройденного пути: [< 20%, 20–40%, > 40%]. Харнесс читает и обнуляет их после волны.
+var zone_dmg: Array[float] = [0.0, 0.0, 0.0]
+var zone_hits: Array[int] = [0, 0, 0]
+
+
+func _zone_add(e: Enemy, dealt: float, hit: int) -> void:
+	if e.ph["fly"]:
+		return
+	var p := progress_of(e)
+	var z := 0 if p < 0.2 else (1 if p < 0.4 else 2)
+	zone_dmg[z] += dealt
+	zone_hits[z] += hit
+
+
 ## Невидимый враг виден рядом с Маяком.
 func is_revealed(e: Enemy) -> bool:
 	if not e.ph["stealth"]:
@@ -246,7 +261,7 @@ func range_of(kind: String) -> float:
 
 
 func _range_with_perks(r: float) -> float:
-	return r + 0.4 * perk_level("range") if r > 0.0 else 0.0
+	return r + TDConfig.perk_range_step() * perk_level("range") if r > 0.0 else 0.0
 
 
 func cooldown_of(kind: String) -> float:
@@ -303,7 +318,7 @@ func choose_perk(id: String) -> bool:
 func _draw_offer() -> Array:
 	var pool: Array = []
 	for p in TDConfig.PERKS:
-		if perk_level(p["id"]) < int(p["max"]):
+		if perk_level(p["id"]) < TDConfig.perk_max(p):
 			pool.append(p["id"])
 	if pool.is_empty():
 		return []
@@ -732,6 +747,8 @@ func _hit(e: Enemy, t: Tower, m: Dictionary, mult: float = 1.0) -> void:
 	damage_by[t.kind] += dealt
 	t.dealt += dealt
 	t.hits += 1
+	if TDConfig.track_zones:
+		_zone_add(e, dealt, 1)
 	if not strain_acc.is_empty() and TDStrains.eligible(e):
 		TDStrains.record_hit(strain_acc, def, t.kind, Vector2(t.x + 0.5, t.y + 0.5), pos_of(e), e.ph["fly"], dealt, chilled_before)
 	if full > base * 1.02:
@@ -916,6 +933,8 @@ func step(dt: float) -> void:
 			var d: float = minf(e.hp, through)
 			e.hp -= d
 			damage_by["poison"] += d + (raw - through)
+			if TDConfig.track_zones:
+				_zone_add(e, d, 0)
 			if not strain_acc.is_empty() and TDStrains.eligible(e) and e.poison_by != null:
 				TDStrains.record_dot(strain_acc, Vector2(e.poison_by.x + 0.5, e.poison_by.y + 0.5), pos_of(e), e.ph["fly"], d, e.slow_t > 0.0)
 			if e.poison_by != null:
