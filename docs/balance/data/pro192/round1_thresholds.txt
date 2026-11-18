@@ -1,0 +1,27 @@
+| metric | base | dense | budget | econ |
+|---|---|---|---|---|
+| P1 gate20 21-29 | 0.658 | 0.533 | 0.563 | 0.623 |
+| P2 p90 21-29 | 0.312 | 0.338 | 0.336 | 0.319 |
+| G1 gate20 1-10 | 0.168 | 0.168 | 0.168 | 0.168 |
+| G1 leaks 1-10 | 0.123 | 0.123 | 0.123 | 0.123 |
+| G2 mixed normal win30 | 0.950 | 0.900 | 0.863 | 0.875 |
+| G2 adaptive normal win30 | 0.900 | 0.875 | 0.787 | 0.900 |
+| G3 leaks 21-29 | 0.000 | 0.001 | 0.005 | 0.000 |
+| G3 mixed normal leaks 21-29 | 0.000 | 0.000 | 0.000 | 0.000 |
+| G4 mixed hard ws1 win30 | 0.975 | 0.975 | 0.938 | 0.975 |
+| G4 owner2 hard ws1 win30 | 0.787 | 0.800 | 0.637 | 0.750 |
+| G5 boss20 leaks | 1.724 | 1.874 | 2.793 | 2.353 |
+| G5 boss30 leaks | 0.971 | 1.053 | 2.091 | 1.094 |
+| G6 gate20 21-29 owner2 | 0.655 | 0.550 | 0.578 | 0.638 |
+| G6 gate20 21-29 mixed | 0.681 | 0.558 | 0.591 | 0.656 |
+| G6 gate20 21-29 adaptive | 0.679 | 0.542 | 0.560 | 0.631 |
+| G6 gate20 21-29 owner | 0.617 | 0.482 | 0.520 | 0.566 |
+| 11-20 gate20 | 0.459 | 0.447 | 0.448 | 0.450 |
+| 21-29 ttk | 0.777 | 1.339 | 0.886 | 0.846 |
+| hard ws0 win30 | 0.412 | 0.409 | 0.294 | 0.350 |
+| normal ws0 win30 | 0.900 | 0.869 | 0.778 | 0.847 |
+| special 21-29 gate20 | 0.538 | 0.547 | 0.423 | 0.491 |
+| special 21-29 leaks | 0.003 | 0.000 | 0.010 | 0.000 |
+dense P1:FAIL P2:FAIL G1:OK G2:OK G3:OK G4:OK G5:OK G6:OK => fail
+budget P1:FAIL P2:FAIL G1:OK G2:FAIL G3:OK G4:OK G5:FAIL G6:FAIL => fail
+econ P1:FAIL P2:FAIL G1:OK G2:OK G3:OK G4:OK G5:FAIL G6:FAIL => fail
