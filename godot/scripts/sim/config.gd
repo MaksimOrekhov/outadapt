@@ -157,6 +157,59 @@ const SPAWN_INTERVAL := 0.6
 ## PRO-192, только для балансных прогонов (tests/balance_audit.gd --late-variant=...): "" — игра как есть.
 static var late_variant := ""
 
+## PRO-212, только для балансных прогонов (tests/balance_audit.gd --range-variant=...): "" — игра как есть.
+##   abl_norange  — улучшения (L2, ветки L3) и перк «Дальний прицел» не прибавляют дальности, всё остальное как есть;
+##   abl_nodmg    — улучшения не прибавляют урон и скорострельность (снижения остаются), дальность как есть;
+##   abl_noperk   — только перк «Дальний прицел» не прибавляет дальности;
+##   abl_nobranch — только ветки L3 («Дальнобой», «Мортира») не прибавляют дальности;
+##   abl_nol2     — только уровень 2 (+0.3 у всех башен) не прибавляет дальности;
+##   r1, ...      — кандидаты ограничения сложения дальности (RANGE_VARIANTS), docs/balance/range-stacking-experiment.md.
+static var range_variant := ""
+## Прибавка дальности ветки L3 по типу башни и максимум уровней перка «Дальний прицел» для кандидатов.
+const RANGE_VARIANTS := {
+	"r1": {"sniper": 1.2, "cannon": 0.9, "perk_max": 1},
+}
+## PRO-212, только для балансных прогонов: копить урон по наземным врагам по зонам пути (TDGame.zone_dmg).
+static var track_zones := false
+
+
+## Моды уровня/ветки с учётом балансного варианта PRO-212; без варианта — те же самые моды.
+static func _variant_mods(m: Dictionary, kind: String, is_branch: bool) -> Dictionary:
+	if range_variant == "":
+		return m
+	var o := m.duplicate()
+	match range_variant:
+		"abl_norange":
+			o.erase("range")
+		"abl_nobranch":
+			if is_branch:
+				o.erase("range")
+		"abl_nol2":
+			if not is_branch:
+				o.erase("range")
+		"abl_nodmg":
+			if float(o.get("damage", 1.0)) > 1.0:
+				o.erase("damage")
+			if float(o.get("cooldown", 1.0)) < 1.0:
+				o.erase("cooldown")
+		_:
+			var rv: Dictionary = RANGE_VARIANTS.get(range_variant, {})
+			if is_branch and o.has("range") and rv.has(kind):
+				o["range"] = rv[kind]
+	return o
+
+
+## Дальность за уровень перка «Дальний прицел».
+static func perk_range_step() -> float:
+	return 0.0 if range_variant in ["abl_norange", "abl_noperk"] else 0.4
+
+
+## Максимум уровней перка (вариант PRO-212 может ограничить «Дальний прицел»).
+static func perk_max(p: Dictionary) -> int:
+	if p["id"] == "range" and RANGE_VARIANTS.has(range_variant):
+		return int(RANGE_VARIANTS[range_variant].get("perk_max", p["max"]))
+	return int(p["max"])
+
 
 ## Награда за обычного врага; вариант PRO-192 "econ" снижает её после 15-й волны.
 static func kill_reward(wave: int) -> int:
@@ -354,12 +407,12 @@ static func has_status_effect(def: Dictionary) -> bool:
 static func tower_def(kind: String, level: int, branch: String) -> Dictionary:
 	var d: Dictionary = TOWERS[kind].duplicate(true)
 	if level >= 2:
-		_apply_mods(d, LEVEL2)
+		_apply_mods(d, _variant_mods(LEVEL2, kind, false))
 	if level >= 3:
-		_apply_mods(d, LEVEL3)
+		_apply_mods(d, _variant_mods(LEVEL3, kind, false))
 		var b := branch_def(kind, branch)
 		if not b.is_empty():
-			_apply_mods(d, b["mods"])
+			_apply_mods(d, _variant_mods(b["mods"], kind, true))
 	d["level"] = level
 	d["branch"] = branch
 	return d

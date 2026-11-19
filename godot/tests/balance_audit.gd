@@ -85,6 +85,7 @@ const COUNTER_PLAN := {"brood": [["cannon", 2], ["tesla", 1]], "hulk": [["cannon
 
 var strat: Dictionary = {}
 var branches: Dictionary = {}
+var branch_set: Dictionary = {}
 var spent_build := 0
 var spent_upgrade := 0
 var cells_by_kind: Dictionary = {}
@@ -130,6 +131,14 @@ func _init() -> void:
 			counter_at = int(a.substr(13))
 		elif a.begins_with("--record="):
 			record_path = a.substr(9)
+		elif a.begins_with("--range-variant="):
+			TDConfig.range_variant = a.substr(16)
+		elif a.begins_with("--branch-set="):
+			# PRO-212: ветки отдельных башен, например --branch-set=sniper:a,cannon:b
+			for kv in a.substr(13).split(",", false):
+				var p := String(kv).split(":")
+				if p.size() == 2:
+					branch_set[p[0]] = p[1]
 		elif a.begins_with("--late-variant="):
 			TDConfig.late_variant = a.substr(15)
 		elif a.begins_with("--late="):
@@ -152,6 +161,8 @@ func _init() -> void:
 	if branch_override in ["a", "b"]:
 		for k in branches:
 			branches[k] = branch_override
+	branches.merge(branch_set, true)
+	TDConfig.track_zones = late_metrics
 	TDGenome.diag_evolution = swarm
 	if replay_path != "":
 		_replay = JSON.parse_string(FileAccess.get_file_as_string(replay_path))
@@ -701,7 +712,7 @@ func _play(seed_v: int) -> Dictionary:
 			dmg[k] = int(g.run_damage[k])
 	var res := {
 		"strategy": strategy_id, "seed": seed_v, "family": g.map.family, "difficulty": difficulty, "workshop": workshop,
-		"swarm": swarm, "ablate": ablate, "micro": micro, "branch": branch_override, "upgrades": upgrades, "perks": perk_mode,
+		"swarm": swarm, "ablate": ablate, "micro": micro, "branch": branch_override, "range_variant": TDConfig.range_variant, "branch_set": branch_set, "upgrades": upgrades, "perks": perk_mode,
 		"path_len": _r(g.map.length, 2), "fly_len": _r(g.map.fly_length, 2),
 		"summary": {
 			"end_wave": end_wave, "won30": end_wave > 30, "lives_at_30": lives_at_30, "leaks_by_30": leaks_by_30,
@@ -822,6 +833,24 @@ func _close_wave_late(g: TDGame, wr: Dictionary) -> void:
 		if p < 0.2:
 			k[1] += 1
 	wr["kill_g"] = [_r(float(kg[0]) / maxf(1.0, kg[2])), _r(float(kg[1]) / maxf(1.0, kg[2])), kg[2]]
+	# PRO-212: как далеко заходят наземные враги — максимум (1.5 = прорыв) и доля дальше 40% пути
+	var mx := -1.0
+	var b40 := 0
+	for f in g.finished:
+		if float(f["genome"].get("wings", 0.0)) > TDGenome.TRAIT_THRESHOLD:
+			continue
+		mx = maxf(mx, float(f["fitness"]))
+		if float(f["fitness"]) > 0.4:
+			b40 += 1
+	wr["max_g"] = _r(mx)
+	wr["beyond40"] = _r(float(b40) / maxf(1.0, kg[2]))
+	# реальный урон и попадания по наземным врагам по зонам пути: < 20%, 20–40%, > 40%
+	var zd: float = g.zone_dmg[0] + g.zone_dmg[1] + g.zone_dmg[2]
+	var zh: int = g.zone_hits[0] + g.zone_hits[1] + g.zone_hits[2]
+	wr["zone_dmg"] = [_r(g.zone_dmg[0] / maxf(1.0, zd)), _r(g.zone_dmg[1] / maxf(1.0, zd)), int(zd)]
+	wr["zone_hits"] = [_r(float(g.zone_hits[0]) / maxf(1.0, zh)), _r(float(g.zone_hits[1]) / maxf(1.0, zh)), zh]
+	g.zone_dmg = [0.0, 0.0, 0.0]
+	g.zone_hits = [0, 0, 0]
 	wr["kill_a"] = [_r(float(ka[0]) / maxf(1.0, ka[2])), _r(float(ka[1]) / maxf(1.0, ka[2])), ka[2]]
 	var hp_mult: float = float(TDConfig.difficulty(g.meta)["hp"])
 	var sp: Dictionary = TDConfig.SPECIAL_WAVES.get(String(wr.get("special", "")), {})
@@ -851,6 +880,37 @@ func _close_wave_late(g: TDGame, wr: Dictionary) -> void:
 			if p2.distance_to(c) <= g.t_range(t):
 				dps_gate += d
 				break
+	# покрытие дороги дальностью: доля точек первых 20% пути, которые достаёт хоть одна наземная башня,
+	# и сколько башен в среднем достают точку в первых 20% и на остальных 80% пути
+	var rest: Array = []
+	for i in 32:
+		rest.append(g.map.pos_at((0.2 + (i + 0.5) / 32.0 * 0.8) * g.map.length))
+	var cov := 0
+	var depth_g := 0
+	var depth_r := 0
+	for pts in [gate, rest]:
+		for p3 in pts:
+			var n := 0
+			for t in g.towers:
+				if t.def.has("aura") or not t.def["ground"]:
+					continue
+				if p3.distance_to(Vector2(t.x + 0.5, t.y + 0.5)) <= g.t_range(t):
+					n += 1
+			if pts == gate:
+				depth_g += n
+				cov += 1 if n > 0 else 0
+			else:
+				depth_r += n
+	wr["cov20"] = _r(float(cov) / gate.size())
+	wr["depth20"] = _r(float(depth_g) / gate.size())
+	wr["depth_rest"] = _r(float(depth_r) / rest.size())
+	if w in [10, 20, 29]:
+		var l3 := {}
+		for t in g.towers:
+			if t.level >= 3:
+				var k3 := "%s_%s" % [t.kind, t.branch]
+				l3[k3] = int(l3.get(k3, 0)) + 1
+		wr["l3"] = l3
 	wr["wave_hp"] = int(hp)
 	wr["dps_all"] = int(dps_all)
 	wr["dps_gate"] = int(dps_gate)
