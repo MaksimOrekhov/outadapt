@@ -319,6 +319,9 @@ static func restore(data: Variant) -> TDGame:
 		map.family = data.get("family", "")
 	else:
 		map = TDMap.build(data["seed"], data.get("map_name", "Карта"), waypoints, data["blocked"])
+		# PRO-147: в сохранениях с одним путём семейства нет (формат прежний). Оно известно, только если генератор для
+		# этого сида даёт ровно эту геометрию; иначе "" — не выдаём карту за змейку.
+		map.family = TDMap.family_of_geometry(data["seed"], map)
 	var game := TDGame.new(data["seed"], map)
 	for key in GAME_FIELDS:
 		game.set(key, data["state"][key])

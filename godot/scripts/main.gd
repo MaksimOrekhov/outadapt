@@ -892,7 +892,7 @@ func _bank(final: bool) -> void:
 	if _demo or _run_closed:
 		return
 	var survived: int = game.wave - 1
-	var award := TDMeta.claim_run(_run_id, seed_v, survived, game.bosses_killed, game.victory, final, float(TDConfig.difficulty(game.meta)["points"]))
+	var award := TDMeta.claim_run(_run_id, seed_v, survived, game.bosses_killed, game.victory, final, float(TDConfig.difficulty(game.meta)["points"]), game.map)
 	_run_points += award["total"]
 	if award["record"]:
 		_new_record = true

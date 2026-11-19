@@ -97,7 +97,7 @@ func _build_summary(parent: Control, won: bool) -> void:
 	var hv = TDUI.vbox(2)
 	var title = ("Замок выстоял %d волн!" % TDConfig.VICTORY_WAVE) if won else ("Замок пал на волне %d" % host.game.wave)
 	hv.add_child(TDUI.label(title, 24, TDUI.TEXT, true))
-	var sub = "%s · %s, %s · рекорд карты: %d" % [host.game.map.map_name, TDConfig.MODES[host.game.mode_id()]["name"], TDConfig.difficulty(host.game.meta)["name"].to_lower(), maxi(TDMeta.record_for(host.seed_v), survived)]
+	var sub = "%s · %s, %s · рекорд карты: %d" % [host.game.map.map_name, TDConfig.MODES[host.game.mode_id()]["name"], TDConfig.difficulty(host.game.meta)["name"].to_lower(), maxi(TDMeta.record_for_map(host.seed_v, host.game.map), survived)]
 	if host._new_record and not won:
 		sub = "Новый рекорд карты! " + sub
 	hv.add_child(TDUI.label(sub, 13, TDUI.GOLD if host._new_record else TDUI.MUTED))

@@ -155,15 +155,39 @@ func routes_at(c: Vector2i) -> Array[int]:
 	return out
 
 
-## Версия геометрии для рекордов и журналов (PRO-147): совпадает, только если совпадают все маршруты и скалы.
-func geometry_key() -> String:
-	var parts: Array[String] = []
+## PRO-147: версия канонической записи геометрии. Меняется только при смене формата строки ниже — тогда старые ключи
+## перестают совпадать, и рекорды переносятся миграцией TDMeta, а не теряются.
+const GEOMETRY_SCHEMA := 1
+
+
+## Каноническая запись сыгранной геометрии: размер поля, клетки каждого маршрута по порядку (вход — первая клетка,
+## замок — последняя), шаблон распределения врагов по маршрутам и скалы в отсортированном порядке.
+## Не зависит от способа записи вершин (лишняя вершина на прямой даёт ту же строку), от названия карты, семейства и
+## версии генератора: одинаковая геометрия — одно и то же испытание.
+func geometry_canonical() -> String:
+	var parts: Array[String] = ["geo%d" % GEOMETRY_SCHEMA, "grid:%dx%d" % [TDConfig.COLS, TDConfig.ROWS]]
 	for r in routes:
-		parts.append(str(r.waypoints))
-	var b: Array = blocked.keys()
-	b.sort()
-	parts.append(str(b))
-	return "%08x" % hash("|".join(parts))
+		var cells_: Array[String] = []
+		for c in r.order:
+			cells_.append("%d,%d" % [c.x, c.y])
+		parts.append("route%d:%s" % [r.id, ";".join(cells_)])
+	var plan_: Array[String] = []
+	for k in route_plan:
+		plan_.append(str(k))
+	parts.append("plan:" + ",".join(plan_))
+	var rocks: Array = blocked.keys()
+	rocks.sort()
+	var rocks_: Array[String] = []
+	for c in rocks:
+		rocks_.append("%d,%d" % [c.x, c.y])
+	parts.append("rocks:" + ";".join(rocks_))
+	return "|".join(parts)
+
+
+## Идентичность геометрии для рекордов и журналов (PRO-147): 24 hex-символа SHA-256 канонической записи (96 бит).
+## Стабильна между запусками, сборками и платформами (не использует hash() движка); совпадает после save/load.
+func geometry_key() -> String:
+	return geometry_canonical().sha256_text().substr(0, 24)
 
 
 ## Инварианты сети маршрутов (PRO-139, первый MVP). Пустой список — карта корректна.
@@ -324,7 +348,8 @@ const MAX_PATH := 90
 ## Лесенка по геометрии короче; нижняя граница ниже, баланс проверяется ботами (tests/map_check.gd, tests/bot.gd).
 const STAIRS_MIN_PATH := 36
 
-var family: String = "snake"
+## Семейство генератора; "" — неизвестно (например, карта восстановлена из старого сохранения и не совпала с генератором).
+var family: String = ""
 
 
 ## Семейство карты для сида. Отдельный генератор случайных чисел, чтобы выбор семейства не сдвигал основной поток.
@@ -351,6 +376,21 @@ static func generate(seed_v: int, forced_family: String = "") -> TDMap:
 	var snake := _generate_snake(seed_v, rng)
 	snake.family = "snake"
 	return snake
+
+
+## PRO-147: карта сида у генератора первой версии (до PRO-120 все сиды давали змейку). Код и поток rng `_generate_snake`
+## совпадают с `generate` из коммита a2aafbe. Нужна, чтобы доказуемо сопоставлять старые рекорды по сиду с нынешней картой.
+static func generate_v1(seed_v: int) -> TDMap:
+	var m := _generate_snake(seed_v, TDRng.new(seed_v ^ 0x5bd1e995))
+	m.family = "snake"
+	return m
+
+
+## PRO-147: семейство сохранённой карты, если оно доказуемо: генератор для этого сида даёт ровно эту геометрию.
+## Иначе "" — семейство неизвестно (карта старой версии генератора или изменённая).
+static func family_of_geometry(seed_v: int, map: TDMap) -> String:
+	var regen := generate(seed_v)
+	return regen.family if regen.geometry_key() == map.geometry_key() else ""
 
 
 static func _generate_family(seed_v: int, fam: String, rng: TDRng) -> TDMap:
