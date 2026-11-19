@@ -113,6 +113,9 @@ var _playtest: bool = false
 var _fixed_seed: int = -1
 var _no_workshop: bool = false
 var _build: String = ""
+## PRO-139: изолированный прототип развилки (`-- --map=fork` или `--map=fork_uneven`, см. run_fork.bat).
+## Только для ручного просмотра: в обычные забеги эти карты не попадают.
+var _map_variant: String = ""
 
 
 func _ready() -> void:
@@ -129,7 +132,7 @@ func _ready() -> void:
 				get_window().size = requested_size
 				TDDisplay.values["resolution"] = requested_size
 	TDMeta.load_meta()
-	game = TDGame.new(seed_v, null, _game_meta())
+	game = TDGame.new(seed_v, _proto_map(), _game_meta())
 	audio = TDAudio.new()
 	add_child(audio)
 	if _demo:
@@ -158,6 +161,13 @@ func _ready() -> void:
 		_run_started = true
 
 
+## Карта нового забега: null — обычная карта по сиду; с `--map=fork…` — техническая карта прототипа PRO-139.
+func _proto_map() -> TDMap:
+	if TDMap.FORK_MAPS.has(_map_variant):
+		return TDMap.fork_test(_map_variant)
+	return null
+
+
 func _parse_args() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--shot="):
@@ -184,6 +194,8 @@ func _parse_args() -> void:
 			_no_workshop = true
 		elif a.begins_with("--build="):
 			_build = a.substr(8)
+		elif a.begins_with("--map="):
+			_map_variant = a.substr(6)
 		elif a.begins_with("--size="):
 			var wh := a.substr(7).split("x")
 			get_window().size = Vector2i(int(wh[0]), int(wh[1]))
@@ -897,7 +909,7 @@ func _restart(new_map: bool) -> void:
 		_bank(true)
 	if new_map:
 		seed_v = _pick_seed()
-	game = TDGame.new(seed_v, null, _game_meta())
+	game = TDGame.new(seed_v, _proto_map(), _game_meta())
 	_run_started = true
 	_run_id = str(Time.get_unix_time_from_system()) + "-" + str(randi())
 	_victory_seen = false

@@ -12,6 +12,10 @@ const OPTIONAL_ENEMY_FIELDS := ["ability", "shield", "shield_max", "summon_t", "
 ## PRO-152: пишутся только в забегах с флагом эксперимента, поэтому сохранения без флага остаются байт-в-байт прежними.
 const STRAIN_GAME_FIELDS := ["strains", "strain_acc"]
 const STRAIN_ENEMY_FIELDS := ["strain", "shell"]
+## PRO-139: пишутся только на картах с несколькими маршрутами; сохранения карт с одним путём байт-в-байт прежние.
+const ROUTE_GAME_FIELDS := ["route_k"]
+const ROUTE_ENEMY_FIELDS := ["route"]
+const MAX_ROUTES := 8
 const TOWER_FIELDS := ["id", "kind", "x", "y", "cd", "level", "branch", "spent", "mode", "kills", "dealt", "hits", "boosted", "recoil", "age", "aim", "upgraded_t"]
 const ENEMY_FIELDS := ["id", "genome", "ph", "hp", "dist", "slow_t", "slow_factor", "scorch_t", "scorch_extra", "poison_t", "poison_dps", "boss", "child", "warded", "hit_flash", "last_kind"]
 
@@ -29,21 +33,87 @@ static func snapshot(game: TDGame, session: Dictionary = {}) -> Dictionary:
 		towers[tower.id] = fields(tower, TOWER_FIELDS)
 		live_ids.append(tower.id)
 	var strain_on := game.strains_on()
+	var multi := game.map.is_multi()
 	var enemies: Array = []
 	for enemy in game.enemies:
-		var data := fields(enemy, ENEMY_FIELDS + OPTIONAL_ENEMY_FIELDS + (STRAIN_ENEMY_FIELDS if strain_on else []))
+		var data := fields(enemy, ENEMY_FIELDS + OPTIONAL_ENEMY_FIELDS + (STRAIN_ENEMY_FIELDS if strain_on else []) + (ROUTE_ENEMY_FIELDS if multi else []))
 		data["poison_by"] = enemy.poison_by.id if enemy.poison_by != null else -1
 		if enemy.poison_by != null:
 			towers[enemy.poison_by.id] = fields(enemy.poison_by, TOWER_FIELDS)
 		enemies.append(data)
-	return {
+	var out := {
 		"version": VERSION, "saved_at": Time.get_datetime_string_from_system(false, true), "timestamp": Time.get_unix_time_from_system(),
 		"seed": game.seed_value, "map_name": game.map.map_name,
 		"waypoints": game.map.waypoints.duplicate(), "blocked": game.map.blocked.duplicate(),
-		"state": fields(game, GAME_FIELDS + OPTIONAL_GAME_FIELDS + (STRAIN_GAME_FIELDS if strain_on else [])), "reports": game.reports.duplicate(true),
+		"state": fields(game, GAME_FIELDS + OPTIONAL_GAME_FIELDS + (STRAIN_GAME_FIELDS if strain_on else []) + (ROUTE_GAME_FIELDS if multi else [])), "reports": game.reports.duplicate(true),
 		"towers": towers, "live_towers": live_ids, "enemies": enemies,
 		"rng": game.rng.a, "perk_rng": game.perk_rng.a, "session": session.duplicate(true),
 	}
+	if multi:
+		# PRO-139: все маршруты (routes[0] совпадает с waypoints), шаблон распределения и семейство карты
+		var routes: Array = []
+		for r in game.map.routes:
+			routes.append(r.waypoints.duplicate())
+		out["routes"] = routes
+		out["route_plan"] = game.map.route_plan.duplicate()
+		out["family"] = game.map.family
+	return out
+
+
+## PRO-139: вершины одного маршрута — в пределах поля, только горизонтальные и вертикальные участки, растеризуются.
+static func _valid_waypoints(wps: Variant) -> bool:
+	if not wps is Array or wps.size() < 2 or wps.size() > 64:
+		return false
+	var previous: Vector2i
+	for i in wps.size():
+		var p = wps[i]
+		if not p is Vector2i or p.x < 0 or p.y < 0 or p.x >= TDConfig.COLS or p.y >= TDConfig.ROWS:
+			return false
+		if i > 0 and p.x != previous.x and p.y != previous.y:
+			return false
+		previous = p
+	var typed: Array[Vector2i] = []
+	typed.assign(wps)
+	return not TDMap.rasterize(typed).is_empty()
+
+
+## PRO-139: маршруты карты с развилкой. Без них — карта с одним путём, и у врагов не должно быть другого маршрута.
+static func _valid_routes(data: Dictionary) -> bool:
+	if not data.has("routes"):
+		for key in ["route_plan", "family"]:
+			if data.has(key):
+				return false
+		if data["state"].has("route_k"):
+			return false
+		for e in data["enemies"]:
+			if e.has("route"):
+				return false
+		return true
+	var routes = data["routes"]
+	if not routes is Array or routes.size() < 2 or routes.size() > MAX_ROUTES:
+		return false
+	for r in routes:
+		if not _valid_waypoints(r):
+			return false
+	if routes[0] != data["waypoints"]:
+		return false
+	var plan = data.get("route_plan")
+	if not plan is Array or plan.is_empty() or plan.size() > 64:
+		return false
+	for k in plan:
+		if not k is int or k < 0 or k >= routes.size():
+			return false
+	if not data.get("family", "") is String or not data["state"].get("route_k", 0) is int or data["state"].get("route_k", 0) < 0:
+		return false
+	for e in data["enemies"]:
+		var r = e.get("route", 0)
+		if not r is int or r < 0 or r >= routes.size():
+			return false
+	# сеть маршрутов: один вход, один замок, без касаний, циклов и тупиков (длины и места под башни здесь не проверяются)
+	var typed_plan: Array[int] = []
+	typed_plan.assign(plan)
+	var map := TDMap.build_routes(0, "", routes, {}, typed_plan)
+	return map.route_problems(2, 1000, 100.0, 0.0, 0).is_empty()
 
 static func valid(data: Variant) -> bool:
 	if not data is Dictionary or data.get("version", -1) != VERSION:
@@ -62,19 +132,9 @@ static func valid(data: Variant) -> bool:
 	for p in data["blocked"]:
 		if not p is Vector2i or p.x < 0 or p.y < 0 or p.x >= TDConfig.COLS or p.y >= TDConfig.ROWS:
 			return false
-	if data["waypoints"].size() < 2 or data["waypoints"].size() > 64 or data["enemies"].size() > 10000 or data["towers"].size() > 512:
+	if data["enemies"].size() > 10000 or data["towers"].size() > 512:
 		return false
-	var previous: Vector2i
-	for i in data["waypoints"].size():
-		var p = data["waypoints"][i]
-		if not p is Vector2i or p.x < 0 or p.y < 0 or p.x >= TDConfig.COLS or p.y >= TDConfig.ROWS:
-			return false
-		if i > 0 and p.x != previous.x and p.y != previous.y:
-			return false
-		previous = p
-	var typed_waypoints: Array[Vector2i] = []
-	typed_waypoints.assign(data["waypoints"])
-	if TDMap.rasterize(typed_waypoints).is_empty():
+	if not _valid_waypoints(data["waypoints"]):
 		return false
 	for key in GAME_FIELDS:
 		if not data["state"].has(key):
@@ -175,6 +235,8 @@ static func valid(data: Variant) -> bool:
 			return false
 	if not _valid_strains(data):
 		return false
+	if not _valid_routes(data):
+		return false
 	for key in ["lure_cd", "lure_uses"]:
 		if data["state"].has(key) and (not data["state"][key] is int or data["state"][key] < 0):
 			return false
@@ -249,11 +311,18 @@ static func restore(data: Variant) -> TDGame:
 	data = data.duplicate(true)
 	var waypoints: Array[Vector2i] = []
 	waypoints.assign(data["waypoints"])
-	var map := TDMap.build(data["seed"], data.get("map_name", "Карта"), waypoints, data["blocked"])
+	var map: TDMap
+	if data.has("routes"):
+		var plan: Array[int] = []
+		plan.assign(data["route_plan"])
+		map = TDMap.build_routes(data["seed"], data.get("map_name", "Карта"), data["routes"], data["blocked"], plan)
+		map.family = data.get("family", "")
+	else:
+		map = TDMap.build(data["seed"], data.get("map_name", "Карта"), waypoints, data["blocked"])
 	var game := TDGame.new(data["seed"], map)
 	for key in GAME_FIELDS:
 		game.set(key, data["state"][key])
-	for key in OPTIONAL_GAME_FIELDS + STRAIN_GAME_FIELDS:
+	for key in OPTIONAL_GAME_FIELDS + STRAIN_GAME_FIELDS + ROUTE_GAME_FIELDS:
 		if data["state"].has(key):
 			game.set(key, data["state"][key])
 	# башни, добавленные после создания сохранения, не должны ломать учёт урона
@@ -276,7 +345,7 @@ static func restore(data: Variant) -> TDGame:
 		var enemy := TDGame.Enemy.new()
 		for key in ENEMY_FIELDS:
 			enemy.set(key, record[key])
-		for key in OPTIONAL_ENEMY_FIELDS + STRAIN_ENEMY_FIELDS:
+		for key in OPTIONAL_ENEMY_FIELDS + STRAIN_ENEMY_FIELDS + ROUTE_ENEMY_FIELDS:
 			if record.has(key):
 				enemy.set(key, record[key])
 		enemy.poison_by = towers.get(record.get("poison_by", -1))

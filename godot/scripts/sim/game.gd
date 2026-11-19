@@ -39,6 +39,8 @@ class Enemy:
 	## (1 — урон ударов класса TDStrains.DEFLECT[strain] гасится целиком).
 	var strain: String = ""
 	var shell: int = 0
+	## PRO-139: номер маршрута карты (TDMap.routes); dist отсчитывается вдоль него. На карте с одним путём всегда 0.
+	var route: int = 0
 
 
 class Tower:
@@ -134,6 +136,9 @@ var strain_acc: Dictionary = {}
 ## Не сохраняется, не трогает rng и бой. После загрузки посреди волны счёт неполный: leak_known = false до следующей волны.
 var wave_leaks: Dictionary = {}
 var leak_known: bool = true
+## PRO-139: сколько врагов волны уже выпущено — по этому счётчику карта назначает маршрут (TDMap.route_for).
+## Сохраняется только на картах с несколькими маршрутами.
+var route_k: int = 0
 
 
 func _init(seed_v: int, map_: TDMap = null, meta_: Dictionary = {}) -> void:
@@ -173,11 +178,34 @@ static func _zero_damage() -> Dictionary:
 # ── Позиции и видимость ───────────────────────────────────────
 
 func pos_of(e: Enemy) -> Vector2:
-	return map.fly_pos_at(e.dist) if e.ph["fly"] else map.pos_at(e.dist)
+	var r: TDPath = map.routes[e.route]
+	return r.fly_pos_at(e.dist) if e.ph["fly"] else r.pos_at(e.dist)
 
 
 func path_len_of(e: Enemy) -> float:
-	return map.fly_length if e.ph["fly"] else map.length
+	var r: TDPath = map.routes[e.route]
+	return r.fly_length if e.ph["fly"] else r.length
+
+
+func heading_of(e: Enemy) -> Vector2:
+	return map.routes[e.route].heading_at(e.dist, e.ph["fly"])
+
+
+## PRO-139: «кто ближе к замку» для выбора цели. На карте с одним путём — прежняя доля пути (ничего не меняется).
+## С несколькими маршрутами доля пути разных веток несравнима (враги в одной точке слияния имели бы разные доли),
+## поэтому сравнивается оставшееся расстояние до замка на общей шкале самого длинного маршрута.
+func target_progress(e: Enemy) -> float:
+	if not map.is_multi():
+		return progress_of(e)
+	return 1.0 - (path_len_of(e) - e.dist) / map.ref_length()
+
+
+## Итог врага для отбора роя. На карте с несколькими маршрутами запоминается и маршрут (для PRO-140 и телеметрии).
+func _finish(e: Enemy, fitness: float) -> void:
+	if map.is_multi():
+		finished.append({"genome": e.genome, "fitness": fitness, "route": e.route})
+	else:
+		finished.append({"genome": e.genome, "fitness": fitness})
 
 
 func progress_of(e: Enemy) -> float:
@@ -665,6 +693,7 @@ func start_wave() -> bool:
 	damage_by = _zero_damage()
 	wave_leaks = TDThreats.new_leaks()
 	leak_known = true
+	route_k = 0
 	for t in towers:
 		t.dealt = 0.0
 		t.hits = 0
@@ -818,7 +847,7 @@ func _pick_targets(t: Tower, c: Vector2, n: int) -> Array[Enemy]:
 			continue
 		if pos_of(e).distance_to(c) > r:
 			continue
-		var key := progress_of(e)
+		var key := target_progress(e)
 		match t.mode:
 			"strong":
 				key = e.hp + key * 0.001
@@ -897,6 +926,8 @@ func step(dt: float) -> void:
 		e.boss = is_boss
 		if not is_boss and not lure.is_empty():
 			e.lured_gene = String(lure["gene"])
+		e.route = map.route_for(route_k)
+		route_k += 1
 		if is_boss:
 			e.ability = TDConfig.boss_ability(wave)
 			e.immune_type = String(genome.get("immune_type", "physical"))
@@ -955,7 +986,7 @@ func step(dt: float) -> void:
 			run_leaked += 1
 			_ev({"type": "leak", "pos": map.points[map.points.size() - 1], "boss": e.boss})
 			if not e.boss and not e.child:
-				finished.append({"genome": e.genome, "fitness": 1.5})
+				_finish(e, 1.5)
 			e.hp = 0.0
 			e.dist = -1.0 # помечаем как прорвавшегося
 
@@ -1042,7 +1073,7 @@ func step(dt: float) -> void:
 		elif e.dist >= 0.0 and e.child:
 			# малыши дают меньше золота и не считаются в итогах волны
 			gold += TDConfig.SPLIT_REWARD
-			_ev({"type": "death", "pos": pos_of(e), "heading": map.heading_at(e.dist, e.ph["fly"]), "genome": e.genome, "boss": false, "size": e.ph["size"], "fly": e.ph["fly"], "kind": e.last_kind, "gold": TDConfig.SPLIT_REWARD})
+			_ev({"type": "death", "pos": pos_of(e), "heading": heading_of(e), "genome": e.genome, "boss": false, "size": e.ph["size"], "fly": e.ph["fly"], "kind": e.last_kind, "gold": TDConfig.SPLIT_REWARD})
 		elif e.dist >= 0.0:
 			killed += 1
 			if e.ph.get("split", false) and not e.boss:
@@ -1055,7 +1086,7 @@ func step(dt: float) -> void:
 					if o != e and o.hp > 0.0 and pos_of(o).distance_to(pp) <= pr:
 						_poison(o, e.poison_dps, e.poison_by)
 				fx.append({"x1": pp.x, "y1": pp.y, "x2": pp.x, "y2": pp.y, "color": Color("#7ddc5a"), "t": 0.35, "life": 0.35, "ring": pr, "text": ""})
-			_ev({"type": "death", "pos": pos_of(e), "heading": map.heading_at(e.dist, e.ph["fly"]), "genome": e.genome, "boss": e.boss, "size": e.ph["size"], "fly": e.ph["fly"], "kind": e.last_kind, "gold": TDConfig.boss_bonus(wave) if e.boss else bounty})
+			_ev({"type": "death", "pos": pos_of(e), "heading": heading_of(e), "genome": e.genome, "boss": e.boss, "size": e.ph["size"], "fly": e.ph["fly"], "kind": e.last_kind, "gold": TDConfig.boss_bonus(wave) if e.boss else bounty})
 			run_kills += 1
 			if e.boss:
 				boss_killed = true
@@ -1066,7 +1097,7 @@ func step(dt: float) -> void:
 			else:
 				# носитель кладки выводка: награда за кладку целиком равна награде за одного врага
 				gold += bounty if e.strain != "brood" else maxi(0, bounty - (TDStrains.BROOD_N - 1) * TDConfig.SPLIT_REWARD)
-				finished.append({"genome": e.genome, "fitness": minf(1.0, progress_of(e))})
+				_finish(e, minf(1.0, progress_of(e)))
 	alive.append_array(born)
 	enemies = alive
 
@@ -1107,6 +1138,7 @@ func _spawn_strain(e: Enemy, strain: String) -> void:
 		c.strain = strain
 		c.shell = 1
 		c.lured_gene = e.lured_gene
+		c.route = e.route
 		enemies.append(c)
 
 
@@ -1147,6 +1179,7 @@ func _split(e: Enemy) -> Array[Enemy]:
 		c.dist = maxf(0.0, e.dist - 0.25 * i)
 		c.child = true
 		c.lured_gene = e.lured_gene
+		c.route = e.route
 		out.append(c)
 	_ev({"type": "split", "pos": pos_of(e)})
 	return out
@@ -1171,6 +1204,7 @@ func _summon(b: Enemy) -> Array[Enemy]:
 		c.hp = c.ph["hp"]
 		c.dist = maxf(0.0, b.dist - 0.3 * i)
 		c.child = true
+		c.route = b.route
 		out.append(c)
 	_ev({"type": "split", "pos": pos_of(b)})
 	return out
