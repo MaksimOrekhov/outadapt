@@ -22,8 +22,15 @@ const UPGRADES: Array[Dictionary] = [
 
 static var points: int = 0
 static var levels: Dictionary = {}
-## seed карты -> лучшая волна.
+## Рекорды до PRO-147: str(seed) -> лучшая волна, без геометрии. История: не меняются и не удаляются, новые сюда не пишутся.
+## После PRO-120 сид может давать другую карту, поэтому на новой геометрии эти рекорды не показываются.
 static var records: Dictionary = {}
+## PRO-147: рекорды по реально сыгранной карте: "<seed>@<TDMap.geometry_key()>" -> лучшая волна.
+## Сид в ключе нужен: от него зависят волны и эволюция роя, а не только карта.
+static var map_records: Dictionary = {}
+## Схема рекордов в файле: 1 — только records (до PRO-147), 2 — map_records после миграции.
+const RECORDS_SCHEMA := 2
+static var records_schema: int = 1
 static var runs: int = 0
 static var wins: int = 0
 static var best_wave: int = 0
@@ -39,15 +46,22 @@ static func load_meta() -> void:
 	_loaded = true
 	var cf := ConfigFile.new()
 	if cf.load(PATH) != OK:
+		# новый игрок: старых рекордов нет, переносить нечего
+		records_schema = RECORDS_SCHEMA
 		return
 	points = cf.get_value("meta", "points", 0)
 	levels = cf.get_value("meta", "levels", {})
 	records = cf.get_value("meta", "records", {})
+	map_records = cf.get_value("meta", "map_records", {})
+	records_schema = cf.get_value("meta", "records_schema", 1)
 	runs = cf.get_value("meta", "runs", 0)
 	wins = cf.get_value("meta", "wins", 0)
 	best_wave = cf.get_value("meta", "best_wave", 0)
 	credited_runs = cf.get_value("meta", "credited_runs", {})
 	achievements = cf.get_value("meta", "achievements", {})
+	if records_schema < RECORDS_SCHEMA:
+		migrate_records()
+		save_meta()
 
 
 static func save_meta() -> void:
@@ -55,6 +69,8 @@ static func save_meta() -> void:
 	cf.set_value("meta", "points", points)
 	cf.set_value("meta", "levels", levels)
 	cf.set_value("meta", "records", records)
+	cf.set_value("meta", "map_records", map_records)
+	cf.set_value("meta", "records_schema", records_schema)
 	cf.set_value("meta", "runs", runs)
 	cf.set_value("meta", "wins", wins)
 	cf.set_value("meta", "best_wave", best_wave)
@@ -227,16 +243,52 @@ static func evaluate(game: TDGame) -> Array:
 	return fresh
 
 
+## PRO-147: ключ рекорда — сид и геометрия реально сыгранной карты.
+static func record_key(seed_v: int, map: TDMap) -> String:
+	return "%d@%s" % [seed_v, map.geometry_key()]
+
+
+## Рекорд на этой карте (0 — нет). Старый рекорд по сиду сюда не попадает, если не доказано, что карта та же.
+static func record_for_map(seed_v: int, map: TDMap) -> int:
+	return int(map_records.get(record_key(seed_v, map), 0))
+
+
+## Рекорд на карте, которую сид даёт сейчас (меню ежедневного забега).
 static func record_for(seed_v: int) -> int:
-	return int(records.get(str(seed_v), 0))
+	return record_for_map(seed_v, TDMap.generate(seed_v))
 
 
-## Запомнить результат: рекорд карты, лучший результат, счётчики.
-static func note_run(seed_v: int, wave: int, victory: bool, finished: bool) -> bool:
-	var key := str(seed_v)
-	var new_record := wave > int(records.get(key, 0))
+## PRO-147: перенос рекордов по сиду. Старый рекорд переносится на карту, только если геометрия доказуемо та же:
+## генератор первой версии (до PRO-120 все рекорды ставились на нём) и нынешний дают для сида одну и ту же карту —
+## тогда, когда бы ни был поставлен рекорд, он поставлен на этой карте. Иначе неизвестно, на какой карте он поставлен
+## (до PRO-120 — на змейке, после — на карте нового семейства), и запись остаётся только в истории records.
+## records не меняется. Повторный запуск ничего не меняет. -> {"moved": перенесено, "kept": осталось только в истории}
+static func migrate_records() -> Dictionary:
+	var moved := 0
+	var kept := 0
+	for k in records:
+		var s := str(k)
+		if not s.is_valid_int():
+			kept += 1
+			continue
+		var seed_v := int(s)
+		var now := TDMap.generate(seed_v)
+		if TDMap.generate_v1(seed_v).geometry_key() == now.geometry_key():
+			var key := record_key(seed_v, now)
+			map_records[key] = maxi(int(map_records.get(key, 0)), int(records[k]))
+			moved += 1
+		else:
+			kept += 1
+	records_schema = RECORDS_SCHEMA
+	return {"moved": moved, "kept": kept}
+
+
+## Запомнить результат: рекорд карты, лучший результат, счётчики. map — сыгранная карта (null — карта сида сейчас).
+static func note_run(seed_v: int, wave: int, victory: bool, finished: bool, map: TDMap = null) -> bool:
+	var key := record_key(seed_v, map if map != null else TDMap.generate(seed_v))
+	var new_record := wave > int(map_records.get(key, 0))
 	if new_record:
-		records[key] = wave
+		map_records[key] = wave
 	best_wave = maxi(best_wave, wave)
 	if finished:
 		runs += 1
@@ -246,11 +298,11 @@ static func note_run(seed_v: int, wave: int, victory: bool, finished: bool) -> b
 
 
 ## Older saves of the same run cannot award the same meta progress twice.
-static func claim_run(id: String, seed_v: int, waves: int, bosses: int, victory: bool, final: bool, mult: float = 1.0) -> Dictionary:
+static func claim_run(id: String, seed_v: int, waves: int, bosses: int, victory: bool, final: bool, mult: float = 1.0, map: TDMap = null) -> Dictionary:
 	var old: Dictionary = credited_runs.get(id, {"waves": 0, "bosses": 0, "victory": false, "final": false})
 	var award := award_for(maxi(0, waves - int(old["waves"])), maxi(0, bosses - int(old["bosses"])), victory and not old["victory"])
 	award["total"] = int(round(award["total"] * mult))
 	points += award["total"]
-	var record := note_run(seed_v, waves, victory and not old["victory"], final and not old["final"])
+	var record := note_run(seed_v, waves, victory and not old["victory"], final and not old["final"], map)
 	credited_runs[id] = {"waves": maxi(waves, old["waves"]), "bosses": maxi(bosses, old["bosses"]), "victory": victory or old["victory"], "final": final or old["final"]}
 	return {"total": award["total"], "record": record}
