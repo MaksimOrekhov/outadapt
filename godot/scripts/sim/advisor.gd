@@ -146,6 +146,57 @@ static func road_coverage(g: TDGame) -> Dictionary:
 	return {"uncovered": uncovered, "pct": 1.0 - float(uncovered.size()) / total if total > 0 else 1.0}
 
 
+## PRO-213: покрытие каждой дороги на карте с развилкой — доля её собственных клеток (без общего ствола и участка
+## у замка), которые обстреливает хоть одна наземная башня. [{id, name, share, pct}]; на карте с одним путём — [].
+static func route_coverage(g: TDGame) -> Array:
+	if not g.map.is_multi():
+		return []
+	var shooters: Array = []
+	for t in g.towers:
+		if not t.def.has("aura") and t.def["ground"]:
+			shooters.append([Vector2(t.x + 0.5, t.y + 0.5), g.t_range(t)])
+	var out: Array = []
+	for r in g.map.routes:
+		var own := 0
+		var hit := 0
+		for c in r.order:
+			if g.map.routes_at(c).size() > 1:
+				continue
+			own += 1
+			var center := Vector2(c.x + 0.5, c.y + 0.5)
+			for s in shooters:
+				if s[0].distance_to(center) <= s[1]:
+					hit += 1
+					break
+		out.append({"id": r.id, "name": route_name(g.map, r.id), "share": route_share(g.map, r.id), "pct": float(hit) / maxi(1, own)})
+	return out
+
+
+## Название дороги по положению на карте: «северная» / «южная» (по средней строке её собственных клеток).
+static func route_name(map: TDMap, rid: int) -> String:
+	var ys := []
+	for r in map.routes:
+		var sum := 0.0
+		var n := 0
+		for c in r.order:
+			if map.routes_at(c).size() == 1:
+				sum += c.y
+				n += 1
+		ys.append(sum / maxi(1, n))
+	if map.routes.size() == 2:
+		return "северная" if ys[rid] <= ys[1 - rid] else "южная"
+	return "дорога %d" % (rid + 1)
+
+
+## Доля врагов волны на дороге по шаблону карты (фиксирована, от обороны не зависит).
+static func route_share(map: TDMap, rid: int) -> float:
+	var n := 0
+	for k in map.route_plan:
+		if k == rid:
+			n += 1
+	return float(n) / maxi(1, map.route_plan.size())
+
+
 static func _tip(icon: String, color: String, level: String, towers: Array, title: String, text: String) -> Dictionary:
 	return {"icon": icon, "color": color, "level": level, "towers": towers, "title": title, "text": text}
 
@@ -173,6 +224,24 @@ static func advice(g: TDGame, info: Dictionary) -> Array:
 	for k in ["arrow", "ember", "frost", "sniper", "poison", "flak", "tesla"]:
 		anti += g.count_of(k)
 
+	# PRO-213: на карте с развилкой — две дороги; доля врагов на каждой фиксирована (рой направление не выбирает)
+	var rc := route_coverage(g)
+	if not rc.is_empty():
+		var weak: Dictionary = rc[0]
+		var strong: Dictionary = rc[0]
+		for x in rc:
+			if x["pct"] < weak["pct"]:
+				weak = x
+			if x["pct"] > strong["pct"]:
+				strong = x
+		var split_text := "Враги идут по двум дорогам по очереди: %d%% — по северной, %d%% — по южной." % [
+			round(100.0 * float(rc[0]["share"] if rc[0]["name"] == "северная" else rc[1]["share"])),
+			round(100.0 * float(rc[0]["share"] if rc[0]["name"] == "южная" else rc[1]["share"]))]
+		if g.towers.size() >= 2 and weak["pct"] < 0.35 and strong["pct"] - weak["pct"] >= 0.3:
+			out.append(_tip("target", "#ff8d8d", "danger", ["arrow", "sniper"], "Открыта %s дорога" % weak["name"],
+				"%s %s обстреливается лишь на %d%% — строй и у неё." % [split_text, String(weak["name"]).capitalize(), round(100.0 * float(weak["pct"]))]))
+		elif g.wave <= 3:
+			out.append(_tip("info", "#9fb4d4", "tip", ["arrow", "sniper"], "Две дороги", split_text + " Башня у развилки достаёт обе."))
 	var cov := road_coverage(g)
 	if g.towers.size() >= 3 and cov["pct"] < 0.65:
 		out.append(_tip("target", "#ff8d8d", "danger", ["arrow", "sniper"], "Дыры в обороне",

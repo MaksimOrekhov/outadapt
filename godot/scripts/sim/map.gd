@@ -365,6 +365,9 @@ static func family_for(seed_v: int) -> String:
 
 ## Случайная карта по сиду с валидацией (`rasterize`) и скалами. Семейство выбирается по сиду.
 static func generate(seed_v: int, forced_family: String = "") -> TDMap:
+	# PRO-213: развилки — только по явному запросу (dev-режим), в обычную ротацию FAMILIES не входят
+	if FORK_FAMILIES.has(forced_family):
+		return generate_fork(seed_v, forced_family)
 	var fam := forced_family if forced_family != "" else family_for(seed_v)
 	var rng := TDRng.new(seed_v ^ 0x5bd1e995)
 	if fam != "snake":
@@ -434,6 +437,170 @@ static func _generate_family(seed_v: int, fam: String, rng: TDRng) -> TDMap:
 
 
 ## Скалы: 7–13 клеток вне дороги.
+# ── PRO-213: генератор статических развилок ──────────────────────
+
+## Семейства развилок: один портал, общий ствол 1–3 клетки, две наземные дороги-змейки (север и юг), слияние перед замком.
+## В обычную ротацию (FAMILIES) не входят: только `generate(seed, "fork_even" | "fork_skew")` в dev-режиме (`--forks`).
+##   fork_even — дороги почти равной длины (отношение ≤ 1,15);
+##   fork_skew — длинная и короткая дорога (отношение 1,2–1,5).
+const FORK_FAMILIES := {
+	"fork_even": {"name": "развилка", "ratio": [1.0, 1.15]},
+	"fork_skew": {"name": "развилка, длинная и короткая", "ratio": [1.2, 1.5]},
+}
+const FORK_ATTEMPTS := 400
+## Минимальная длина маршрута развилки в клетках (у обычных карт MIN_PATH = 36; почему ниже — docs/architecture/static-forks.md).
+const FORK_MIN_PATH := 30
+## Пороги проверки развилки: те же длины, что у обычных карт, отношение длин, вход не у замка, места под башни.
+const FORK_MAX_RATIO := 1.5
+const FORK_MIN_FLY := 8.0
+const FORK_MIN_BUILD := 40
+## true — для сида не нашлось корректной развилки, и выдана обычная карта сида (видно в журналах и отчётах).
+var fork_fallback: bool = false
+
+
+static func is_fork_family(fam: String) -> bool:
+	return FORK_FAMILIES.has(fam)
+
+
+## Вариант развилки для сида в dev-режиме. Свой генератор случайных чисел: потоки карты, волн, генов и перков не сдвигаются.
+static func fork_family_for(seed_v: int) -> String:
+	return "fork_even" if TDRng.new(seed_v ^ 0x6a09e667).next() < 0.5 else "fork_skew"
+
+
+## Развилка по сиду. Нет корректной за FORK_ATTEMPTS попыток — детерминированно обычная карта сида (fork_fallback = true).
+static func generate_fork(seed_v: int, fam: String) -> TDMap:
+	var m := _generate_fork(seed_v, fam)
+	if m != null:
+		return m
+	var fb := generate(seed_v)
+	fb.fork_fallback = true
+	return fb
+
+
+static func _generate_fork(seed_v: int, fam: String) -> TDMap:
+	var cols := TDConfig.COLS
+	var rows := TDConfig.ROWS
+	var spec: Dictionary = FORK_FAMILIES[fam]
+	var rng := TDRng.new(seed_v ^ 0x3c6ef372)
+	for _attempt in FORK_ATTEMPTS:
+		var y0 := _ri(rng, 3, rows - 4)
+		var yc := clampi(y0 + _ri(rng, -1, 1), 2, rows - 3)
+		var t := _ri(rng, 1, 3)
+		var xm := _ri(rng, cols - 6, cols - 4)
+		# полосы веток: север — строки [0; n_lo], юг — [s_hi; rows-1]; между ними строки входа и замка свободны
+		var n_lo := mini(y0, yc) - 1
+		var s_hi := maxi(y0, yc) + 1
+		if n_lo < 1 or s_hi > rows - 2:
+			continue
+		var long_north := rng.next() < 0.5
+		var gaps_n: Array = [2, 2, 2, 3]
+		var gaps_s: Array = [2, 2, 2, 3]
+		if fam == "fork_skew":
+			gaps_n = [2] if long_north else [3, 4, 5]
+			gaps_s = [3, 4, 5] if long_north else [2]
+		var xs_n := _fork_lanes(rng, t, xm, gaps_n)
+		var xs_s := _fork_lanes(rng, t, xm, gaps_s)
+		var north := _fork_side(rng, xs_n, y0, yc, 0, n_lo, true)
+		var south := _fork_side(rng, xs_s, y0, yc, s_hi, rows - 1, false)
+		var routes_: Array = []
+		for side in [north, south]:
+			var wps: Array[Vector2i] = [Vector2i(0, y0)]
+			wps.append_array(side)
+			wps.append(Vector2i(cols - 1, yc))
+			routes_.append(_compact(wps))
+		var m := build_routes(seed_v, "", routes_)
+		if m.routes[0].order.is_empty() or m.routes[1].order.is_empty():
+			continue
+		if mini(m.routes[0].order.size(), m.routes[1].order.size()) < FORK_MIN_PATH:
+			continue
+		var ratio := maxf(m.routes[0].length, m.routes[1].length) / minf(m.routes[0].length, m.routes[1].length)
+		if ratio < float(spec["ratio"][0]) - 1e-6 or ratio > float(spec["ratio"][1]) + 1e-6:
+			continue
+		if not m.route_problems(FORK_MIN_PATH, MAX_PATH, FORK_MAX_RATIO, FORK_MIN_FLY, FORK_MIN_BUILD).is_empty():
+			continue
+		var road := {}
+		for c in m.cells:
+			road[c] = true
+		m = build_routes(seed_v, "Карта %03d · %s" % [seed_v % 1000, spec["name"]], routes_, _rocks(rng, road, cols, rows))
+		if not m.route_problems(FORK_MIN_PATH, MAX_PATH, FORK_MAX_RATIO, FORK_MIN_FLY, FORK_MIN_BUILD).is_empty():
+			continue
+		m.family = fam
+		return m
+	return null
+
+
+## Столбцы проходов ветки: от развилки t до слияния xm с шагом из gaps (≥ 2 — между проходами место под башню).
+static func _fork_lanes(rng: TDRng, t: int, xm: int, gaps: Array) -> Array[int]:
+	var xs: Array[int] = [t]
+	while true:
+		var g: int = gaps[int(floor(rng.next() * gaps.size())) % gaps.size()]
+		if xs.back() + g > xm - 2:
+			break
+		xs.append(xs.back() + g)
+	xs.append(xm)
+	return xs
+
+
+## Вершины одной ветки от развилки (xs[0], y0) до слияния (xs.back(), yc): змейка в полосе [band_lo; band_hi],
+## проходы по очереди у края поля и у середины.
+static func _fork_side(rng: TDRng, xs: Array[int], y0: int, yc: int, band_lo: int, band_hi: int, north: bool) -> Array[Vector2i]:
+	var far := band_lo if north else band_hi
+	var near := band_hi if north else band_lo
+	var inward := 1 if north else -1
+	var w: Array[Vector2i] = [Vector2i(xs[0], y0)]
+	var at_far := rng.next() < 0.75
+	for i in xs.size() - 1:
+		var jitter := 1 if rng.next() < 0.2 else 0
+		var r: int = far + inward * jitter if at_far else near - inward * jitter
+		r = clampi(r, band_lo, band_hi)
+		w.append(Vector2i(xs[i], r))
+		w.append(Vector2i(xs[i + 1], r))
+		at_far = not at_far
+	w.append(Vector2i(xs.back(), yc))
+	return w
+
+
+## Убирает повторы и вершины посреди прямой.
+static func _compact(wps: Array[Vector2i]) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for p in wps:
+		if not out.is_empty() and out.back() == p:
+			continue
+		if out.size() >= 2:
+			var a: Vector2i = out[out.size() - 2]
+			var b: Vector2i = out.back()
+			if (a.x == b.x and b.x == p.x) or (a.y == b.y and b.y == p.y):
+				out[out.size() - 1] = p
+				continue
+		out.append(p)
+	return out
+
+
+## Клеток общего ствола у входа до развилки (сама клетка развилки не считается) и общего участка от слияния до замка.
+func shared_in() -> int:
+	if routes.size() < 2:
+		return 0
+	var k := 0
+	while true:
+		for r in routes:
+			if k + 1 >= r.order.size() or r.order[k + 1] != routes[0].order[k + 1]:
+				return k
+		k += 1
+	return k
+
+
+func shared_out() -> int:
+	if routes.size() < 2:
+		return 0
+	var k := 0
+	while true:
+		for r in routes:
+			if k + 1 >= r.order.size() or r.order[r.order.size() - 1 - k] != routes[0].order[routes[0].order.size() - 1 - k]:
+				return k
+		k += 1
+	return k
+
+
 static func _rocks(rng: TDRng, path: Dictionary, cols: int, rows: int) -> Dictionary:
 	var blocked_ := {}
 	var want := _ri(rng, 7, 13)

@@ -114,7 +114,8 @@ var _fixed_seed: int = -1
 var _no_workshop: bool = false
 var _build: String = ""
 ## PRO-139: изолированный прототип развилки (`-- --map=fork` или `--map=fork_uneven`, см. run_fork.bat).
-## Только для ручного просмотра: в обычные забеги эти карты не попадают.
+## PRO-213, dev-режим генератора развилок: `--map=fork_even` / `--map=fork_skew` (вариант задан) или `--map=forks`
+## (вариант по сиду). Только по явному флагу: в обычные забеги эти карты не попадают.
 var _map_variant: String = ""
 
 
@@ -161,10 +162,15 @@ func _ready() -> void:
 		_run_started = true
 
 
-## Карта нового забега: null — обычная карта по сиду; с `--map=fork…` — техническая карта прототипа PRO-139.
+## Карта нового забега: null — обычная карта по сиду; с `--map=fork…` — техническая карта прототипа PRO-139,
+## с `--map=fork_even|fork_skew|forks` — сгенерированная развилка PRO-213 (волны, гены и перки по сиду не меняются).
 func _proto_map() -> TDMap:
 	if TDMap.FORK_MAPS.has(_map_variant):
 		return TDMap.fork_test(_map_variant)
+	if TDMap.is_fork_family(_map_variant):
+		return TDMap.generate(seed_v, _map_variant)
+	if _map_variant == "forks":
+		return TDMap.generate(seed_v, TDMap.fork_family_for(seed_v))
 	return null
 
 

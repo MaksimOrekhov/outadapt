@@ -128,11 +128,14 @@ func _coverage_cells(g: TDGame, r: float = 3.0) -> Array:
 		for y in TDConfig.ROWS:
 			if g.map.is_path(x, y) or g.map.is_blocked(x, y):
 				continue
-			var score := 0
-			for s in 80:
-				var p := g.map.pos_at(s / 80.0 * g.map.length)
-				if p.distance_to(Vector2(x + 0.5, y + 0.5)) <= r:
-					score += 1
+			var score := 0.0
+			# PRO-213: на развилке — все дороги с весом доли врагов; на одном пути — прежний счёт
+			for rt in g.map.routes:
+				var w := TDAdvisor.route_share(g.map, rt.id) if g.map.is_multi() else 1.0
+				for s in 80:
+					var p := rt.pos_at(s / 80.0 * rt.length)
+					if p.distance_to(Vector2(x + 0.5, y + 0.5)) <= r:
+						score += w
 			cells.append({"x": x, "y": y, "score": score})
 	cells.sort_custom(func(a, b): return a["score"] > b["score"])
 	return cells
