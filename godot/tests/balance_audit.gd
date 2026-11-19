@@ -86,6 +86,8 @@ const COUNTER_PLAN := {"brood": [["cannon", 2], ["tesla", 1]], "hulk": [["cannon
 var strat: Dictionary = {}
 var branches: Dictionary = {}
 var branch_set: Dictionary = {}
+## PRO-213, только для диагностики: заменить шаблон распределения врагов по дорогам развилки (например 0 — все по одной).
+var route_plan_override: Array[int] = []
 var spent_build := 0
 var spent_upgrade := 0
 var cells_by_kind: Dictionary = {}
@@ -131,6 +133,9 @@ func _init() -> void:
 			counter_at = int(a.substr(13))
 		elif a.begins_with("--record="):
 			record_path = a.substr(9)
+		elif a.begins_with("--route-plan="):
+			for k in a.substr(13).split(",", false):
+				route_plan_override.append(int(k))
 		elif a.begins_with("--range-variant="):
 			TDConfig.range_variant = a.substr(16)
 		elif a.begins_with("--branch-set="):
@@ -215,6 +220,23 @@ func _meta() -> Dictionary:
 
 # ── Расстановка ──────────────────────────────────────────────────
 
+## PRO-213: длина наземной дороги в радиусе r от точки c. На карте с развилкой — по всем дорогам с весом их доли врагов
+## (а не только по основной); на карте с одним путём — прежний расчёт, те же числа.
+func _ground_len(g: TDGame, c: Vector2, r: float) -> float:
+	var v := 0.0
+	if not g.map.is_multi():
+		for s in 120:
+			if g.map.pos_at((s + 0.5) / 120.0 * g.map.length).distance_to(c) <= r:
+				v += g.map.length / 120.0
+		return v
+	for rt in g.map.routes:
+		var w := TDAdvisor.route_share(g.map, rt.id)
+		for s in 120:
+			if rt.pos_at((s + 0.5) / 120.0 * rt.length).distance_to(c) <= r:
+				v += w * rt.length / 120.0
+	return v
+
+
 ## Клетки для типа башни по убыванию длины дороги в радиусе (воздух — по прямой вход→выход).
 func _cells_for(g: TDGame, kind: String) -> Array:
 	if cells_by_kind.has(kind):
@@ -229,9 +251,7 @@ func _cells_for(g: TDGame, kind: String) -> Array:
 			var c := Vector2(x + 0.5, y + 0.5)
 			var score := 0.0
 			if def["ground"]:
-				for s in 120:
-					if g.map.pos_at((s + 0.5) / 120.0 * g.map.length).distance_to(c) <= r:
-						score += g.map.length / 120.0
+				score += _ground_len(g, c, r)
 			if def["air"]:
 				var w: float = 1.0 if not def["ground"] else 0.35
 				for s in 60:
@@ -362,11 +382,8 @@ func _cover(g: TDGame, x: int, y: int, def: Dictionary, fly_frac: float) -> floa
 		gc = _cover_cache[key]
 	else:
 		var c := Vector2(x + 0.5, y + 0.5)
-		var gl := 0.0
+		var gl := _ground_len(g, c, r)
 		var al := 0.0
-		for s in 120:
-			if g.map.pos_at((s + 0.5) / 120.0 * g.map.length).distance_to(c) <= r:
-				gl += g.map.length / 120.0
 		for s in 60:
 			if g.map.fly_pos_at((s + 0.5) / 60.0 * g.map.fly_length).distance_to(c) <= r:
 				al += g.map.fly_length / 60.0
@@ -609,7 +626,10 @@ func _play(seed_v: int) -> Dictionary:
 	strat = _ablated(STRATEGIES[strategy_id].duplicate(true)) # сценарий switch меняет стратегию по ходу партии
 	spent_build = 0
 	spent_upgrade = 0
-	var g := TDGame.new(seed_v, TDMap.generate(seed_v, family), _meta())
+	var map_ := TDMap.generate(seed_v, family)
+	if not route_plan_override.is_empty() and map_.is_multi():
+		map_.route_plan = route_plan_override.duplicate()
+	var g := TDGame.new(seed_v, map_, _meta())
 	var perk_rng := TDRng.new(seed_v * 7919)
 	var last := maxi(max_wave, cap)
 	var waves: Array = []
@@ -722,6 +742,14 @@ func _play(seed_v: int) -> Dictionary:
 		},
 		"waves": waves,
 	}
+	# PRO-213: карта с развилкой — длины дорог, общие участки, геометрия; откат развилки на обычную карту отмечается
+	if g.map.is_multi():
+		var lens: Array = []
+		for rt in g.map.routes:
+			lens.append(_r(rt.length, 2))
+		res["routes"] = {"len": lens, "plan": g.map.route_plan, "shared_in": g.map.shared_in(), "shared_out": g.map.shared_out(), "geometry": g.map.geometry_key()}
+	if g.map.fork_fallback:
+		res["fork_fallback"] = true
 	if model != "" or counter != "" or replay_path != "":
 		res["model"] = model
 		res["counter"] = counter
@@ -799,6 +827,31 @@ func _close_wave(g: TDGame, wr: Dictionary, life_g: Array, life_a: Array, expo_g
 		(prog_a if is_fly else prog_g).append(p)
 	wr["prog_g"] = [_r(_pct(prog_g, 0.5)), _r(_pct(prog_g, 0.9)), prog_g.size()]
 	wr["prog_a"] = [_r(_pct(prog_a, 0.5)), _r(_pct(prog_a, 0.9)), prog_a.size()]
+	# PRO-213: по дорогам развилки — доля врагов, погибших в первых 20% своей дороги, p90 и максимум пройденной доли,
+	# доля дальше 40%, прорывы (обычные враги волны, наземные; доля пути — своей дороги)
+	if g.map.is_multi():
+		var per := {}
+		for rt in g.map.routes:
+			per[rt.id] = []
+		for f in g.finished:
+			if float(f["genome"].get("wings", 0.0)) > TDGenome.TRAIT_THRESHOLD:
+				continue
+			per[int(f.get("route", 0))].append(float(f["fitness"]))
+		var routes_out := {}
+		for rid in per:
+			var ps: Array = per[rid]
+			var g20 := 0
+			var b40 := 0
+			var lk := 0
+			var mx := -1.0
+			for p in ps:
+				g20 += 1 if p < 0.2 else 0
+				b40 += 1 if p > 0.4 else 0
+				lk += 1 if p >= 1.5 else 0
+				mx = maxf(mx, p)
+			routes_out[str(rid)] = {"n": ps.size(), "gate20": _r(float(g20) / maxf(1.0, ps.size())), "p90": _r(_pct(ps, 0.9)),
+				"max": _r(mx), "beyond40": _r(float(b40) / maxf(1.0, ps.size())), "leaked": lk}
+		wr["routes"] = routes_out
 	wr["life_g"] = [_r(_mean(life_g), 2), _r(_mean(expo_g), 2), life_g.size()]
 	wr["life_a"] = [_r(_mean(life_a), 2), _r(_mean(expo_a), 2), life_a.size()]
 	var invested := 0
@@ -868,6 +921,21 @@ func _close_wave_late(g: TDGame, wr: Dictionary) -> void:
 	var gate: Array = []
 	for i in 12:
 		gate.append(g.map.pos_at((i + 0.5) / 12.0 * 0.2 * g.map.length))
+	# PRO-213: на развилке «ворота» — первые 20% каждой дороги, и покрытие считается и по каждой дороге отдельно
+	if g.map.is_multi():
+		gate.clear()
+		var cov_r := {}
+		for rt in g.map.routes:
+			var hit := 0
+			for i in 12:
+				var p := rt.pos_at((i + 0.5) / 12.0 * 0.2 * rt.length)
+				gate.append(p)
+				for t in g.towers:
+					if not t.def.has("aura") and t.def["ground"] and p.distance_to(Vector2(t.x + 0.5, t.y + 0.5)) <= g.t_range(t):
+						hit += 1
+						break
+			cov_r[str(rt.id)] = _r(hit / 12.0)
+		wr["cov20_routes"] = cov_r
 	var dps_all := 0.0
 	var dps_gate := 0.0
 	for t in g.towers:
@@ -883,8 +951,9 @@ func _close_wave_late(g: TDGame, wr: Dictionary) -> void:
 	# покрытие дороги дальностью: доля точек первых 20% пути, которые достаёт хоть одна наземная башня,
 	# и сколько башен в среднем достают точку в первых 20% и на остальных 80% пути
 	var rest: Array = []
-	for i in 32:
-		rest.append(g.map.pos_at((0.2 + (i + 0.5) / 32.0 * 0.8) * g.map.length))
+	for rt in (g.map.routes if g.map.is_multi() else [g.map.routes[0]]):
+		for i in 32:
+			rest.append(rt.pos_at((0.2 + (i + 0.5) / 32.0 * 0.8) * rt.length))
 	var cov := 0
 	var depth_g := 0
 	var depth_r := 0

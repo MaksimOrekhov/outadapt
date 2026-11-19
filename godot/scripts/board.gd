@@ -208,6 +208,7 @@ func _draw() -> void:
 	vfx.cs = _cs
 	_draw_scorch()
 	env.draw(self, _cs, _time)
+	_draw_route_marks()
 	_draw_gates()
 	_draw_actors()
 	_draw_spire_collapses()
@@ -227,6 +228,27 @@ func _draw_scorch() -> void:
 		if p["kind"] == "scorch" and p["delay"] <= 0.0:
 			var frac: float = clampf(p["t"] / p["life"], 0.0, 1.0)
 			draw_circle(p["p"] * _cs, p["size"] * k, _a(Color(0, 0, 0), 0.30 * minf(1.0, frac * 3.0)))
+
+
+## PRO-213: на карте с развилкой — бегущие шевроны в начале каждой ветки: видно, где дорога делится и куда идут враги.
+func _draw_route_marks() -> void:
+	if not game.map.is_multi():
+		return
+	var start := game.map.shared_in() + 1
+	for r in game.map.routes:
+		for j in 3:
+			if start + j >= r.order.size():
+				break
+			var c: Vector2i = r.order[start + j]
+			var d := r.dist_to_cell(c)
+			var dir := r.heading_at(d)
+			var p := (Vector2(c) + Vector2(0.5, 0.5)) * _cs
+			var side := dir.orthogonal()
+			var a := 0.30 + 0.35 * maxf(0.0, sin(_time * 4.0 - j * 1.1))
+			var s := _cs * 0.16
+			var tip := p + dir * s
+			draw_polyline(PackedVector2Array([tip - dir * s * 1.6 + side * s * 1.2, tip, tip - dir * s * 1.6 - side * s * 1.2]),
+				Color(1.0, 0.96, 0.85, a), maxf(2.0, _cs * 0.06), true)
 
 
 func _draw_gates() -> void:

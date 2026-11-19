@@ -32,6 +32,13 @@ func header(g: TDGame, info: Dictionary) -> void:
 	d.merge({"event": "run", "swarm_model": String(g.meta.get("swarm_model", "off")), "seed": g.seed_value, "family": g.map.family,
 		"map": g.map.map_name, "difficulty": g.difficulty_id(), "mode": g.mode_id(), "workshop_bonuses": bonuses,
 		"locked": g.meta.get("locked", []), "start_gold": g.gold, "start_lives": g.lives})
+	# PRO-213: карта с развилкой (или откат на обычную карту) — геометрия, длины дорог и общие участки
+	if g.map.is_multi() or g.map.fork_fallback:
+		var lens: Array = []
+		for r in g.map.routes:
+			lens.append(r.order.size())
+		d.merge({"geometry": g.map.geometry_key(), "routes_cells": lens, "shared_in": g.map.shared_in(), "shared_out": g.map.shared_out(),
+			"route_plan": g.map.route_plan, "fork_fallback": g.map.fork_fallback})
 	_write(d)
 
 
@@ -71,9 +78,20 @@ func wave_ended(g: TDGame) -> void:
 		forecast.append({"id": e["id"], "phase": e["phase"], "inc": snappedf(e["inc"], 0.01), "share": snappedf(e["share"], 0.01), "appear": e["appear"]})
 	var sx: Dictionary = r.get("strains", {})
 	var sig: Dictionary = sx.get("sig", {})
-	_write({"event": "end", "wave": int(r["wave"]), "lives": g.lives, "gold": g.gold, "killed": int(r["killed"]), "leaked": int(r["leaked"]),
+	var d := {"event": "end", "wave": int(r["wave"]), "lives": g.lives, "gold": g.gold, "killed": int(r["killed"]), "leaked": int(r["leaked"]),
 		"damage": dmg, "burst": snappedf(float(sig.get("burst", 0.0)), 0.01), "rapid": snappedf(float(sig.get("rapid", 0.0)), 0.01), "chill": snappedf(float(sig.get("chill", 0.0)), 0.01),
-		"air_gap": snappedf(float(sig.get("air_gap", 0.0)), 0.01), "C": snappedf(float(sx.get("C", 0.0)), 0.01), "forecast": forecast})
+		"air_gap": snappedf(float(sig.get("air_gap", 0.0)), 0.01), "C": snappedf(float(sx.get("C", 0.0)), 0.01), "forecast": forecast}
+	# PRO-213: по дорогам — сколько врагов волны убито и прорвалось и какая доля собственных клеток дороги обстреливается
+	if g.map.is_multi():
+		var per := {}
+		for x in TDAdvisor.route_coverage(g):
+			per[x["id"]] = {"name": x["name"], "killed": 0, "leaked": 0, "cover": snappedf(float(x["pct"]), 0.01)}
+		for f in g.finished:
+			var rid: int = int(f.get("route", 0))
+			if per.has(rid):
+				per[rid]["leaked" if float(f["fitness"]) >= 1.5 else "killed"] += 1
+		d["routes"] = per.values()
+	_write(d)
 
 
 func run_over(g: TDGame) -> void:
