@@ -676,7 +676,7 @@ func _draw_enemy(e: TDGame.Enemy) -> void:
 	elif e.ph["stealth"]:
 		al = 0.8
 	var fly: bool = e.ph["fly"]
-	var heading: Vector2 = game.map.heading_at(e.dist, fly)
+	var heading: Vector2 = game.heading_of(e)
 	var side := enemy_canvas_side(e.genome, e.ph["fly"], e.boss) * _cs
 	if e.strain == "brood":
 		side *= 0.72

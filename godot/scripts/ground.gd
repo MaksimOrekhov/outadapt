@@ -59,13 +59,13 @@ func _dir_name(d: Vector2i) -> String:
 	return "u"
 
 
-func _road_texture(index: int) -> Texture2D:
-	var here: Vector2i = map.order[index]
+func _road_texture(ord: Array[Vector2i], index: int) -> Texture2D:
+	var here: Vector2i = ord[index]
 	var dirs: Array[String] = []
 	if index > 0:
-		dirs.append(_dir_name(map.order[index - 1] - here))
-	if index + 1 < map.order.size():
-		dirs.append(_dir_name(map.order[index + 1] - here))
+		dirs.append(_dir_name(ord[index - 1] - here))
+	if index + 1 < ord.size():
+		dirs.append(_dir_name(ord[index + 1] - here))
 	if dirs.size() == 2:
 		if dirs.has("r") and dirs.has("d"): return _tiles.get("corner_rd")
 		if dirs.has("l") and dirs.has("d"): return _tiles.get("corner_ld")
@@ -93,12 +93,14 @@ func _draw() -> void:
 	if _road_surface != null:
 		_draw_road(cell)
 		return
-	for i in map.order.size():
-		var tile := _road_texture(i)
-		if tile == null:
-			continue
-		var c: Vector2i = map.order[i]
-		draw_texture_rect(tile, Rect2(Vector2(c.x, c.y) * cell, rect_size), false)
+	# PRO-139: каждый маршрут своими плитками; на общих клетках они совпадают
+	for r in map.routes:
+		for i in r.order.size():
+			var tile := _road_texture(r.order, i)
+			if tile == null:
+				continue
+			var c: Vector2i = r.order[i]
+			draw_texture_rect(tile, Rect2(Vector2(c.x, c.y) * cell, rect_size), false)
 
 
 func _draw_road(cell: float) -> void:
@@ -110,22 +112,27 @@ func _draw_road(cell: float) -> void:
 func _build_road_native() -> void:
 	# Rasterize the edge once on the same 64px/cell grid as the source textures.
 	var cell := 64.0
-	var line := PackedVector2Array()
-	line.append(map.points[0] * cell)
-	for i in range(1, map.points.size() - 1):
-		var p: Vector2 = map.points[i] * cell
-		var incoming: Vector2 = (map.points[i] - map.points[i - 1]).normalized()
-		var outgoing: Vector2 = (map.points[i + 1] - map.points[i]).normalized()
-		var radius := minf(cell * 0.9, minf(p.distance_to(map.points[i - 1] * cell), p.distance_to(map.points[i + 1] * cell)) * 0.45)
-		var a := p - incoming * radius
-		var b := p + outgoing * radius
-		for step in 9:
-			var t := float(step) / 8.0
-			line.append(a.lerp(p, t).lerp(p.lerp(b, t), t))
 	var layout := map.castle_layout(Vector2(TDConfig.COLS, TDConfig.ROWS) * cell)
-	line.append(layout["road_end"])
-	var borders := Geometry2D.offset_polyline(line, cell * 0.45, Geometry2D.JOIN_ROUND, Geometry2D.END_BUTT)
-	var surfaces := Geometry2D.offset_polyline(line, cell * 0.43, Geometry2D.JOIN_ROUND, Geometry2D.END_BUTT)
+	# PRO-139: полоса дороги — объединение полос всех маршрутов (на карте с одним путём — одна, как раньше)
+	var borders: Array[PackedVector2Array] = []
+	var surfaces: Array[PackedVector2Array] = []
+	for r in map.routes:
+		var pts: Array[Vector2] = r.points
+		var line := PackedVector2Array()
+		line.append(pts[0] * cell)
+		for i in range(1, pts.size() - 1):
+			var p: Vector2 = pts[i] * cell
+			var incoming: Vector2 = (pts[i] - pts[i - 1]).normalized()
+			var outgoing: Vector2 = (pts[i + 1] - pts[i]).normalized()
+			var radius := minf(cell * 0.9, minf(p.distance_to(pts[i - 1] * cell), p.distance_to(pts[i + 1] * cell)) * 0.45)
+			var a := p - incoming * radius
+			var b := p + outgoing * radius
+			for step in 9:
+				var t := float(step) / 8.0
+				line.append(a.lerp(p, t).lerp(p.lerp(b, t), t))
+		line.append(layout["road_end"])
+		borders.append_array(Geometry2D.offset_polyline(line, cell * 0.45, Geometry2D.JOIN_ROUND, Geometry2D.END_BUTT))
+		surfaces.append_array(Geometry2D.offset_polyline(line, cell * 0.43, Geometry2D.JOIN_ROUND, Geometry2D.END_BUTT))
 	var surface := _road_surface.get_image()
 	var image := Image.create(TDConfig.COLS * 64, TDConfig.ROWS * 64, false, Image.FORMAT_RGBA8)
 	for y in image.get_height():

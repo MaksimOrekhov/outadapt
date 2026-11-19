@@ -133,7 +133,7 @@ static func road_coverage(g: TDGame) -> Dictionary:
 			shooters.append([Vector2(t.x + 0.5, t.y + 0.5), g.t_range(t)])
 	var uncovered := {}
 	var total := 0
-	for c in g.map.order:
+	for c in g.map.road_cells():
 		total += 1
 		var center := Vector2(c.x + 0.5, c.y + 0.5)
 		var covered := false
