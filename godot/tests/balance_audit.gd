@@ -88,6 +88,11 @@ var branches: Dictionary = {}
 var branch_set: Dictionary = {}
 ## PRO-213, только для диагностики: заменить шаблон распределения врагов по дорогам развилки (например 0 — все по одной).
 var route_plan_override: Array[int] = []
+## PRO-214: расписание ввода второй дороги (--ramp=pilot[:short|long|0|1]) и единовременный стартовый бонус золота на картах
+## с развилкой (--start-gold=25, диагностический контроль). Без флагов вывод побайтово прежний.
+var ramp_name := ""
+var ramp_lead := "short"
+var start_gold_bonus := 0
 var spent_build := 0
 var spent_upgrade := 0
 var cells_by_kind: Dictionary = {}
@@ -136,6 +141,12 @@ func _init() -> void:
 		elif a.begins_with("--route-plan="):
 			for k in a.substr(13).split(",", false):
 				route_plan_override.append(int(k))
+		elif a.begins_with("--ramp="):
+			var rp := a.substr(7).split(":")
+			ramp_name = rp[0]
+			ramp_lead = rp[1] if rp.size() > 1 else "short"
+		elif a.begins_with("--start-gold="):
+			start_gold_bonus = int(a.substr(13))
 		elif a.begins_with("--range-variant="):
 			TDConfig.range_variant = a.substr(16)
 		elif a.begins_with("--branch-set="):
@@ -629,7 +640,13 @@ func _play(seed_v: int) -> Dictionary:
 	var map_ := TDMap.generate(seed_v, family)
 	if not route_plan_override.is_empty() and map_.is_multi():
 		map_.route_plan = route_plan_override.duplicate()
+	if ramp_name != "" and map_.is_multi() and not map_.set_ramp(ramp_name, ramp_lead):
+		push_error("unknown ramp " + ramp_name)
+		quit(1)
+		return {}
 	var g := TDGame.new(seed_v, map_, _meta())
+	if start_gold_bonus != 0 and map_.is_multi():
+		g.gold += start_gold_bonus
 	var perk_rng := TDRng.new(seed_v * 7919)
 	var last := maxi(max_wave, cap)
 	var waves: Array = []
@@ -748,6 +765,11 @@ func _play(seed_v: int) -> Dictionary:
 		for rt in g.map.routes:
 			lens.append(_r(rt.length, 2))
 		res["routes"] = {"len": lens, "plan": g.map.route_plan, "shared_in": g.map.shared_in(), "shared_out": g.map.shared_out(), "geometry": g.map.geometry_key()}
+		if not g.map.route_ramp.is_empty():
+			res["routes"]["ramp"] = g.map.route_ramp
+			res["routes"]["lead"] = g.map.route_lead
+		if start_gold_bonus != 0:
+			res["routes"]["start_gold"] = start_gold_bonus
 	if g.map.fork_fallback:
 		res["fork_fallback"] = true
 	if model != "" or counter != "" or replay_path != "":

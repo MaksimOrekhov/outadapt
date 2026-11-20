@@ -117,6 +117,10 @@ var _build: String = ""
 ## PRO-213, dev-режим генератора развилок: `--map=fork_even` / `--map=fork_skew` (вариант задан) или `--map=forks`
 ## (вариант по сиду). Только по явному флагу: в обычные забеги эти карты не попадают.
 var _map_variant: String = ""
+## PRO-214, dev-флаг эксперимента: постепенный ввод второй дороги на картах с развилкой (`--route-ramp=pilot|early`,
+## `--route-lead=short|long|0|1` — какая дорога несёт поток первой). Пусто — враги идут по обеим дорогам с первой волны.
+var _route_ramp: String = ""
+var _route_lead: String = "short"
 
 
 func _ready() -> void:
@@ -165,13 +169,16 @@ func _ready() -> void:
 ## Карта нового забега: null — обычная карта по сиду; с `--map=fork…` — техническая карта прототипа PRO-139,
 ## с `--map=fork_even|fork_skew|forks` — сгенерированная развилка PRO-213 (волны, гены и перки по сиду не меняются).
 func _proto_map() -> TDMap:
+	var m: TDMap = null
 	if TDMap.FORK_MAPS.has(_map_variant):
-		return TDMap.fork_test(_map_variant)
-	if TDMap.is_fork_family(_map_variant):
-		return TDMap.generate(seed_v, _map_variant)
-	if _map_variant == "forks":
-		return TDMap.generate(seed_v, TDMap.fork_family_for(seed_v))
-	return null
+		m = TDMap.fork_test(_map_variant)
+	elif TDMap.is_fork_family(_map_variant):
+		m = TDMap.generate(seed_v, _map_variant)
+	elif _map_variant == "forks":
+		m = TDMap.generate(seed_v, TDMap.fork_family_for(seed_v))
+	if m != null and _route_ramp != "" and not m.set_ramp(_route_ramp, _route_lead):
+		push_warning("--route-ramp=%s не применено: нужна карта с двумя дорогами и известное расписание" % _route_ramp)
+	return m
 
 
 func _parse_args() -> void:
@@ -191,6 +198,10 @@ func _parse_args() -> void:
 			_demo = true
 		elif a.begins_with("--swarm="):
 			_swarm_model = a.substr(8)
+		elif a.begins_with("--route-ramp="):
+			_route_ramp = a.substr(13)
+		elif a.begins_with("--route-lead="):
+			_route_lead = a.substr(13)
 		elif a == "--playtest":
 			_playtest = true
 		elif a.begins_with("--fixed-seed="):

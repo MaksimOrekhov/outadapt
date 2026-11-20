@@ -926,7 +926,7 @@ func step(dt: float) -> void:
 		e.boss = is_boss
 		if not is_boss and not lure.is_empty():
 			e.lured_gene = String(lure["gene"])
-		e.route = map.route_for(route_k)
+		e.route = map.route_for(route_k, wave)
 		route_k += 1
 		if is_boss:
 			e.ability = TDConfig.boss_ability(wave)
