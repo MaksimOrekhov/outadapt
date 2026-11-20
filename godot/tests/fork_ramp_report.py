@@ -182,9 +182,46 @@ def evaluate(arm_rows, base_rows, thr):
     return res
 
 
+def replay_main(root, md=None):
+    """Замороженный повтор покупок (tests/fork_ramp_replay.sh): та же оборона, разные расписания, волны 1–10."""
+    arms = ["base", "p_short", "p_long", "e_short"]
+    data = {}
+    for arm in arms:
+        for fn in sorted(glob.glob(os.path.join(root, arm, "*.jsonl"))):
+            strat, diff, fam = os.path.basename(fn)[:-6].split("_", 2)
+            for line in open(fn, encoding="utf-8"):
+                if line.strip():
+                    g = json.loads(line)
+                    r = game_row(g)
+                    r.update({"arm": arm, "strat": strat, "diff": diff, "fam": fam})
+                    data.setdefault(arm, []).append(r)
+    out = ["## Замороженный повтор покупок (волны 1–10; золото не ограничивает; одинаковая оборона во всех плечах)\n"]
+    for fam in ("fork_even", "fork_skew"):
+        for diff in ("normal", "hard"):
+            out.append(f"### {fam}, {diff}\n")
+            out.append("| Плечо | партий | утечек/волну 1–10 | жизней потеряно к 10-й | боссовая 10-я: жизней | утечки 1–10 короткая / длинная | Δжизней к base (лучше / хуже пар) |")
+            out.append("|---|---|---|---|---|---|---|")
+            base = [r for r in data.get("base", []) if r["fam"] == fam and r["diff"] == diff]
+            for arm in arms:
+                rs = [r for r in data.get(arm, []) if r["fam"] == fam and r["diff"] == diff]
+                if not rs:
+                    continue
+                d, b, w = paired(base, rs, "lives_lost_1_10") if arm != "base" else (0.0, 0, 0)
+                out.append(f"| {arm} | {len(rs)} | {f(pooled(rs, 'leaks_1_10'))} | {f(pooled(rs, 'lives_lost_1_10'), 1)} | {f(pooled(rs, 'boss10'))} | "
+                           f"{f(pooled(rs, 'leaks_1_10_short'))} / {f(pooled(rs, 'leaks_1_10_long'))} | {d:+.1f} ({b} / {w}) |")
+            out.append("")
+    text = "\n".join(out)
+    print(text)
+    if md:
+        open(md, "w", encoding="utf-8").write(text + "\n")
+
+
 def main():
     pos = [a for a in sys.argv[1:] if not a.startswith("--")]
     opts = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
+    if opts.get("replay"):
+        replay_main(opts["replay"], opts.get("md"))
+        return
     if not pos:
         print(__doc__)
         return
@@ -217,6 +254,14 @@ def main():
         out.append("|---|" + "---|" * len(STRATS))
         for a in arms:
             out.append(f"| {a} | " + " | ".join(f"{f(per_strat(fr[a], 'won30', 'normal', s))} / {f(per_strat(fr[a], 'won30', 'hard', s))}" for s in STRATS) + " |")
+        out.append("\n**Где заканчиваются партии (доля партий, normal / hard): победа · 1–9 · 10 (босс) · 11–19 · 20 (босс) · 21–29 · 30:**\n")
+        out.append("| Плечо | победа | 1–9 | 10 | 11–19 | 20 | 21–29 | 30 |")
+        out.append("|---|---|---|---|---|---|---|---|")
+        for a in arms:
+            cells = []
+            for b in ("win", "1-9", "10", "11-19", "20", "21-29", "30"):
+                cells.append(" / ".join(f(pooled(fr[a], "bk_" + b, lambda x, d=d: x["diff"] == d)) for d in ("normal", "hard")))
+            out.append(f"| {a} | " + " | ".join(cells) + " |")
         out.append("\n**Ранняя экономика, волны 1–10 (золото перед строительством, вложено, башни, доход):**\n")
         out.append("| Плечо | gold_pre в1 | в3 | в5 | в7 | в10 | среднее 1–10 | вложено к 5-й / 10-й | башен к 5-й / 10-й | доход 1–10 (убийства+бонус+проценты) | боссовая 10-я: жизней |")
         out.append("|---|---|---|---|---|---|---|---|---|---|---|")
