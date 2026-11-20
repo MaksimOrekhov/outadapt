@@ -93,6 +93,9 @@ var route_plan_override: Array[int] = []
 var ramp_name := ""
 var ramp_lead := "short"
 var start_gold_bonus := 0
+## PRO-214: бот знает расписание (--ramp-aware=1): клетки оцениваются по средней доле врагов на дороге за ближайшие три волны,
+## а не по установившейся 50/50 — как игрок, который видит заранее, когда подключится вторая дорога.
+var ramp_aware := false
 var spent_build := 0
 var spent_upgrade := 0
 var cells_by_kind: Dictionary = {}
@@ -145,6 +148,8 @@ func _init() -> void:
 			var rp := a.substr(7).split(":")
 			ramp_name = rp[0]
 			ramp_lead = rp[1] if rp.size() > 1 else "short"
+		elif a == "--ramp-aware=1":
+			ramp_aware = true
 		elif a.begins_with("--start-gold="):
 			start_gold_bonus = int(a.substr(13))
 		elif a.begins_with("--range-variant="):
@@ -241,11 +246,25 @@ func _ground_len(g: TDGame, c: Vector2, r: float) -> float:
 				v += g.map.length / 120.0
 		return v
 	for rt in g.map.routes:
-		var w := TDAdvisor.route_share(g.map, rt.id)
+		var w := _route_weight(g, rt.id)
 		for s in 120:
 			if rt.pos_at((s + 0.5) / 120.0 * rt.length).distance_to(c) <= r:
 				v += w * rt.length / 120.0
 	return v
+
+
+## Вес дороги при оценке клеток: установившаяся доля; с --ramp-aware=1 и расписанием — средняя доля за волны g.wave…g.wave+2.
+func _route_weight(g: TDGame, rid: int) -> float:
+	if not ramp_aware or g.map.route_ramp.is_empty():
+		return TDAdvisor.route_share(g.map, rid)
+	return (g.map.share_at(rid, g.wave) + g.map.share_at(rid, g.wave + 1) + g.map.share_at(rid, g.wave + 2)) / 3.0
+
+
+## Расписание ещё меняет веса: кэш клеток пересчитывается в начале каждой фазы строительства, пока доли не вышли на установившиеся.
+func _refresh_weights(g: TDGame) -> void:
+	if ramp_aware and not g.map.route_ramp.is_empty() and g.wave <= int(g.map.route_ramp[g.map.route_ramp.size() - 1][0]) + 2:
+		cells_by_kind = {}
+		_cover_cache = {}
 
 
 ## Клетки для типа башни по убыванию длины дороги в радиусе (воздух — по прямой вход→выход).
@@ -464,6 +483,7 @@ func _best_upgrade(g: TDGame, avg: Dictionary, ff: float) -> Array:
 
 
 func _build_phase(g: TDGame) -> void:
+	_refresh_weights(g)
 	for _guard in 200:
 		var forced := _forced_build(g)
 		if forced != "":
@@ -768,6 +788,8 @@ func _play(seed_v: int) -> Dictionary:
 		if not g.map.route_ramp.is_empty():
 			res["routes"]["ramp"] = g.map.route_ramp
 			res["routes"]["lead"] = g.map.route_lead
+		if ramp_aware:
+			res["routes"]["aware"] = true
 		if start_gold_bonus != 0:
 			res["routes"]["start_gold"] = start_gold_bonus
 	if g.map.fork_fallback:

@@ -87,6 +87,9 @@ func _initialize() -> void:
 	check("early (ограниченный пилот 90/10): со 2-й волны 10%, с 4-й 30%, с 6-й 50%; первая дорога — длинная",
 		early.ramp_pct(1) == 0 and early.ramp_pct(2) == 10 and early.ramp_pct(3) == 10 and early.ramp_pct(4) == 30 and early.ramp_pct(6) == 50
 		and early.routes[early.route_lead].length >= early.routes[1 - early.route_lead].length)
+	var slow := TDMap.generate(1003, "fork_even")
+	check("slow: 1–3 = 0%, 4–6 = 20%, 7–9 = 35%, с 10-й = 50%", slow.set_ramp("slow") and slow.ramp_pct(3) == 0 and slow.ramp_pct(4) == 20 and slow.ramp_pct(6) == 20
+		and slow.ramp_pct(7) == 35 and slow.ramp_pct(9) == 35 and slow.ramp_pct(10) == 50 and slow.ramp_start() == 4)
 	var sk := TDMap.generate(1003, "fork_skew")
 	sk.set_ramp("pilot", "short")
 	var shorter: int = 0 if sk.routes[0].length <= sk.routes[1].length else 1

@@ -52,6 +52,10 @@ def game_row(g):
     row["leaks_21_29"] = mean([w.get("leaked", 0) for w in w2129])
     allw = [w for w in g["waves"] if w["w"] <= 10]
     row["lives_lost_1_10"] = sum(int(w.get("lives_lost", 0)) if done_ok(w) else int(w.get("lives0", 0)) for w in allw)
+    e = s["end_wave"]
+    row["end_bucket"] = "win" if s["won30"] else ("1-9" if e < 10 else "10" if e == 10 else "11-19" if e < 20 else "20" if e == 20 else "21-29" if e < 30 else "30")
+    for b in ("win", "1-9", "10", "11-19", "20", "21-29", "30"):
+        row["bk_" + b] = 1.0 if row["end_bucket"] == b else 0.0
     row["lost_by_10"] = 1.0 if (not s["won30"] and s["end_wave"] <= 10) else 0.0
     row["lost_by_20"] = 1.0 if (not s["won30"] and s["end_wave"] <= 20) else 0.0
     # экономика: золото перед строительством, вложено, башни, доход
@@ -169,6 +173,9 @@ def evaluate(arm_rows, base_rows, thr):
         if ra:
             d, b, w = paired(ra, rs, "won30")
             res[(fam, "win30 парно к A: не хуже (Δ ≥ 0)")] = (d >= 0.0, d)
+            r_a = pooled(ra, "leaks_1_10")
+            res[(fam, "утечки 1–10 ≤ %.2f × A (механизм: ранняя фаза действительно легче)" % thr["early_leaks_ratio_max"])] = (pooled(rs, "leaks_1_10") <= thr["early_leaks_ratio_max"] * r_a, pooled(rs, "leaks_1_10") / r_a if r_a else float("nan"))
+            res[(fam, "жизней потеряно к 10-й не больше, чем в A")] = (pooled(rs, "lives_lost_1_10") <= pooled(ra, "lives_lost_1_10"), pooled(rs, "lives_lost_1_10") - pooled(ra, "lives_lost_1_10"))
             dg = abs(pooled(rs, "gate20") - pooled(ra, "gate20"))
             dc = abs(pooled(rs, "cov20") - pooled(ra, "cov20"))
             res[(fam, "поздняя игра не изменилась: |Δgate20| ≤ %.2f, |Δcov20| ≤ %.2f" % (thr["late_delta"], thr["late_delta"]))] = (dg <= thr["late_delta"] and dc <= thr["late_delta"], max(dg, dc))

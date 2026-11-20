@@ -8,6 +8,8 @@
 #   b_long   — то же, первой идёт ДЛИННАЯ дорога;
 #   e_short  — ограниченный пилот более раннего ввода early (1: 100/0, 2–3: 90/10, 4–5: 70/30, с 6-й: 50/50), первая — короткая;
 #   e_long   — то же, первая — длинная;
+#   ba_*, ea_*, sa_* — то же расписание (pilot / early / slow), но бот знает расписание и строит под ближайшие три волны
+#                    (--ramp-aware=1); плечи b_*/e_* без суффикса «a» — бот, не знающий расписания (строит под 50/50);
 #   c25, c50 — диагностический контроль: единовременно +25 / +50 золота на старте, поток 50/50, экономика дальше прежняя;
 #   d_short  — вариант D: pilot (первая короткая) + 25 золота на старте (только если B и пилот показывают нужду).
 # Ячейка: стратегия × normal/hard × модель (off/signature) × fork_even/fork_skew × Мастерская (WS: 0 — без неё, 1 — на максимуме).
@@ -37,6 +39,12 @@ arm_args() {
     b_long) echo "--ramp=pilot:long" ;;
     e_short) echo "--ramp=early:short" ;;
     e_long) echo "--ramp=early:long" ;;
+    ba_short) echo "--ramp=pilot:short --ramp-aware=1" ;;
+    ba_long) echo "--ramp=pilot:long --ramp-aware=1" ;;
+    ea_short) echo "--ramp=early:short --ramp-aware=1" ;;
+    ea_long) echo "--ramp=early:long --ramp-aware=1" ;;
+    sa_short) echo "--ramp=slow:short --ramp-aware=1" ;;
+    sa_long) echo "--ramp=slow:long --ramp-aware=1" ;;
     c25) echo "--start-gold=25" ;;
     c50) echo "--start-gold=50" ;;
     d_short) echo "--ramp=pilot:short --start-gold=25" ;;
