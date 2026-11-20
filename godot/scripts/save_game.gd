@@ -56,6 +56,10 @@ static func snapshot(game: TDGame, session: Dictionary = {}) -> Dictionary:
 			routes.append(r.waypoints.duplicate())
 		out["routes"] = routes
 		out["route_plan"] = game.map.route_plan.duplicate()
+		# PRO-214: расписание ввода второй дороги пишется только если оно задано — прочие сохранения прежние
+		if not game.map.route_ramp.is_empty():
+			out["route_ramp"] = game.map.route_ramp.duplicate(true)
+			out["route_lead"] = game.map.route_lead
 		out["family"] = game.map.family
 	return out
 
@@ -80,7 +84,7 @@ static func _valid_waypoints(wps: Variant) -> bool:
 ## PRO-139: маршруты карты с развилкой. Без них — карта с одним путём, и у врагов не должно быть другого маршрута.
 static func _valid_routes(data: Dictionary) -> bool:
 	if not data.has("routes"):
-		for key in ["route_plan", "family"]:
+		for key in ["route_plan", "family", "route_ramp", "route_lead"]:
 			if data.has(key):
 				return false
 		if data["state"].has("route_k"):
@@ -103,6 +107,10 @@ static func _valid_routes(data: Dictionary) -> bool:
 	for k in plan:
 		if not k is int or k < 0 or k >= routes.size():
 			return false
+	if data.has("route_ramp") != data.has("route_lead") or (data.has("route_ramp") and not TDMap.ramp_valid(data["route_ramp"], data["route_lead"], routes.size())):
+		return false
+	if data.has("route_ramp") and data["route_ramp"].is_empty():
+		return false
 	if not data.get("family", "") is String or not data["state"].get("route_k", 0) is int or data["state"].get("route_k", 0) < 0:
 		return false
 	for e in data["enemies"]:
@@ -317,6 +325,9 @@ static func restore(data: Variant) -> TDGame:
 		plan.assign(data["route_plan"])
 		map = TDMap.build_routes(data["seed"], data.get("map_name", "Карта"), data["routes"], data["blocked"], plan)
 		map.family = data.get("family", "")
+		if data.has("route_ramp"):
+			map.route_ramp = data["route_ramp"]
+			map.route_lead = data["route_lead"]
 	else:
 		map = TDMap.build(data["seed"], data.get("map_name", "Карта"), waypoints, data["blocked"])
 		# PRO-147: в сохранениях с одним путём семейства нет (формат прежний). Оно известно, только если генератор для

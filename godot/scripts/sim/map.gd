@@ -22,6 +22,21 @@ var routes: Array[TDPath] = []
 ## Распределение врагов по маршрутам: k-й выпущенный враг волны идёт по маршруту route_plan[k % size].
 ## Фиксированный шаблон, без случайности и без реакции на оборону (адаптивный выбор — PRO-140).
 var route_plan: Array[int] = [0]
+## PRO-214, эксперимент «постепенный ввод второй дороги» (только карты с двумя дорогами, только по явному запросу).
+## Пусто — враги идут по route_plan с первой волны (прежнее поведение, 50/50). Иначе — список ступеней
+## [с_какой_волны, процент_врагов_на_второй_дороге], по возрастанию волны: первая ступень стартует с 1-й волны.
+## «Первая» дорога — route_lead (она несёт весь поток, пока вторая не подключена). Распределение детерминированное:
+## k-й враг волны идёт по второй дороге, если (k+1)·p/100 > k·p/100 (целочисленно), иначе по первой. Без RNG.
+var route_ramp: Array = []
+var route_lead: int = 0
+
+## Именованные расписания (ступени [с_волны, %]). pilot — стартовая гипотеза PRO-214; early — ограниченный пилот
+## более раннего ввода 90/10; slow — более поздний (ступени каждые 3 волны, 50/50 с боссовой 10-й); все кончаются обычным 50/50.
+const RAMPS := {
+	"pilot": [[1, 0], [3, 20], [5, 35], [7, 50]],
+	"early": [[1, 0], [2, 10], [4, 30], [6, 50]],
+	"slow": [[1, 0], [4, 20], [7, 35], [10, 50]],
+}
 
 const CLASSIC_WAYPOINTS: Array[Vector2i] = [
 	Vector2i(0, 1), Vector2i(13, 1), Vector2i(13, 4), Vector2i(2, 4), Vector2i(2, 7), Vector2i(15, 7),
@@ -116,9 +131,81 @@ func route(i: int) -> TDPath:
 	return routes[i] if i >= 0 and i < routes.size() else routes[0]
 
 
-## Маршрут k-го врага волны по фиксированному шаблону.
-func route_for(k: int) -> int:
-	return route_plan[k % route_plan.size()]
+## Маршрут k-го врага волны по фиксированному шаблону. wave > 0 и расписание заданы — по расписанию волны (PRO-214).
+func route_for(k: int, wave: int = 0) -> int:
+	if route_ramp.is_empty() or wave <= 0 or routes.size() != 2:
+		return route_plan[k % route_plan.size()]
+	var p := ramp_pct(wave)
+	return 1 - route_lead if ((k + 1) * p) / 100 > (k * p) / 100 else route_lead
+
+
+## Доля врагов (в процентах) на второй дороге в волне wave по расписанию; 0 при пустом расписании.
+func ramp_pct(wave: int) -> int:
+	var p := 0
+	for step in route_ramp:
+		if wave >= int(step[0]):
+			p = int(step[1])
+	return p
+
+
+## Доля врагов волны на дороге rid с учётом расписания (wave ≤ 0 или расписание пусто — установившаяся доля route_plan).
+func share_at(rid: int, wave: int = 0) -> float:
+	if route_ramp.is_empty() or wave <= 0 or routes.size() != 2:
+		var n := 0
+		for k in route_plan:
+			if k == rid:
+				n += 1
+		return float(n) / maxi(1, route_plan.size())
+	var late := float(ramp_pct(wave)) / 100.0
+	return late if rid == 1 - route_lead else 1.0 - late
+
+
+## Первая волна, с которой вторая дорога получает врагов; 0 — расписания нет.
+func ramp_start() -> int:
+	for step in route_ramp:
+		if int(step[1]) > 0:
+			return int(step[0])
+	return 0
+
+
+## Расписание по имени (RAMPS) и «первая» дорога: "short" / "long" — по длине дороги (при равной длине короткой считается
+## основная), "0" / "1" — по номеру. Только для карты с двумя дорогами; неизвестное имя или не развилка — false.
+func set_ramp(name_: String, lead: String = "short") -> bool:
+	if routes.size() != 2 or not RAMPS.has(name_):
+		return false
+	var li := 0
+	match lead:
+		"short":
+			li = 0 if routes[0].length <= routes[1].length else 1
+		"long":
+			li = 1 if routes[0].length <= routes[1].length else 0
+		"0", "1":
+			li = int(lead)
+		_:
+			return false
+	route_ramp = (RAMPS[name_] as Array).duplicate(true)
+	route_lead = li
+	return true
+
+
+## Расписание корректно: возрастающие волны с 1-й, проценты 0–50 не убывают.
+static func ramp_valid(ramp: Variant, lead: Variant, n_routes: int) -> bool:
+	if not ramp is Array or not lead is int or lead < 0 or lead >= n_routes:
+		return false
+	if ramp.is_empty():
+		return true
+	if n_routes != 2 or ramp.size() > 12:
+		return false
+	var prev_w := 0
+	var prev_p := 0
+	for step in ramp:
+		if not step is Array or step.size() != 2 or not step[0] is int or not step[1] is int:
+			return false
+		if step[0] <= prev_w or step[1] < prev_p or step[1] > 50:
+			return false
+		prev_w = step[0]
+		prev_p = step[1]
+	return int(ramp[0][0]) == 1
 
 
 ## Длина самого длинного наземного маршрута: общая шкала «кто ближе к замку» для целей башен.
@@ -175,6 +262,12 @@ func geometry_canonical() -> String:
 	for k in route_plan:
 		plan_.append(str(k))
 	parts.append("plan:" + ",".join(plan_))
+	# PRO-214: расписание — другое испытание (иные первые волны), но без него запись прежняя и старые ключи не меняются
+	if not route_ramp.is_empty():
+		var steps_: Array[String] = []
+		for step in route_ramp:
+			steps_.append("%d=%d" % [int(step[0]), int(step[1])])
+		parts.append("ramp:lead%d:%s" % [route_lead, ",".join(steps_)])
 	var rocks: Array = blocked.keys()
 	rocks.sort()
 	var rocks_: Array[String] = []

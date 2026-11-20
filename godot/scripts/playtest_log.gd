@@ -39,6 +39,8 @@ func header(g: TDGame, info: Dictionary) -> void:
 			lens.append(r.order.size())
 		d.merge({"geometry": g.map.geometry_key(), "routes_cells": lens, "shared_in": g.map.shared_in(), "shared_out": g.map.shared_out(),
 			"route_plan": g.map.route_plan, "fork_fallback": g.map.fork_fallback})
+		if not g.map.route_ramp.is_empty():
+			d.merge({"route_ramp": g.map.route_ramp, "route_lead": g.map.route_lead})
 	_write(d)
 
 
@@ -91,6 +93,8 @@ func wave_ended(g: TDGame) -> void:
 			if per.has(rid):
 				per[rid]["leaked" if float(f["fitness"]) >= 1.5 else "killed"] += 1
 		d["routes"] = per.values()
+		if not g.map.route_ramp.is_empty():
+			d["second_road_pct"] = g.map.ramp_pct(int(r["wave"]))
 	_write(d)
 
 

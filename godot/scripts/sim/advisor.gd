@@ -188,13 +188,35 @@ static func route_name(map: TDMap, rid: int) -> String:
 	return "дорога %d" % (rid + 1)
 
 
-## Доля врагов волны на дороге по шаблону карты (фиксирована, от обороны не зависит).
-static func route_share(map: TDMap, rid: int) -> float:
-	var n := 0
-	for k in map.route_plan:
-		if k == rid:
-			n += 1
-	return float(n) / maxi(1, map.route_plan.size())
+## Доля врагов волны на дороге по шаблону карты (фиксирована, от обороны не зависит). wave > 0 и у карты есть расписание
+## ввода второй дороги (PRO-214) — доля в этой волне; иначе установившаяся доля route_plan.
+static func route_share(map: TDMap, rid: int, wave: int = 0) -> float:
+	return map.share_at(rid, wave)
+
+
+## «северная» → «северной» (предложный/дательный падеж для «по … дороге»).
+static func _prep(name_: String) -> String:
+	return name_.substr(0, name_.length() - 2) + "ой" if name_.ends_with("ая") else name_
+
+
+## PRO-214: объяснение расписания ввода второй дороги. Расписание фиксировано и не зависит от обороны — рой его не читает.
+static func ramp_text(g: TDGame) -> String:
+	var m := g.map
+	var lead := _prep(route_name(m, m.route_lead))
+	var late := _prep(route_name(m, 1 - m.route_lead))
+	var start := m.ramp_start()
+	var tail := " Расписание заранее известно и не зависит от твоей обороны."
+	if g.wave < start:
+		var steps: Array[String] = []
+		for step in m.route_ramp:
+			if int(step[0]) > start and int(step[1]) > 0:
+				steps.append("с %d-й — %d%%" % [int(step[0]), int(step[1])])
+		return "Пока все враги идут по %s дороге. С %d-й волны часть потока пойдёт и по %s: %d%%%s. Строй у неё заранее.%s" % [
+			lead, start, late, m.ramp_pct(start), (", " + ", ".join(steps)) if not steps.is_empty() else "", tail]
+	var now := m.ramp_pct(g.wave)
+	var nxt := m.ramp_pct(g.wave + 1)
+	var more := "" if nxt == now else " В следующей волне — %d%%." % nxt
+	return "Сейчас %d%% врагов идут по %s дороге, %d%% — по %s.%s%s" % [100 - now, lead, now, late, more, tail]
 
 
 static func _tip(icon: String, color: String, level: String, towers: Array, title: String, text: String) -> Dictionary:
@@ -237,11 +259,16 @@ static func advice(g: TDGame, info: Dictionary) -> Array:
 		var split_text := "Враги идут по двум дорогам по очереди: %d%% — по северной, %d%% — по южной." % [
 			round(100.0 * float(rc[0]["share"] if rc[0]["name"] == "северная" else rc[1]["share"])),
 			round(100.0 * float(rc[0]["share"] if rc[0]["name"] == "южная" else rc[1]["share"]))]
-		if g.towers.size() >= 2 and weak["pct"] < 0.35 and strong["pct"] - weak["pct"] >= 0.3:
+		# PRO-214: с расписанием ввода — доля зависит от волны; предупреждаем за волну до подключения второй дороги
+		var ramped := not g.map.route_ramp.is_empty()
+		if ramped:
+			split_text = ramp_text(g)
+		var live: bool = not ramped or maxf(g.map.share_at(int(weak["id"]), g.wave), g.map.share_at(int(weak["id"]), g.wave + 1)) > 0.0
+		if live and g.towers.size() >= 2 and weak["pct"] < 0.35 and strong["pct"] - weak["pct"] >= 0.3:
 			out.append(_tip("target", "#ff8d8d", "danger", ["arrow", "sniper"], "Открыта %s дорога" % weak["name"],
 				"%s %s обстреливается лишь на %d%% — строй и у неё." % [split_text, String(weak["name"]).capitalize(), round(100.0 * float(weak["pct"]))]))
-		elif g.wave <= 3:
-			out.append(_tip("info", "#9fb4d4", "tip", ["arrow", "sniper"], "Две дороги", split_text + " Башня у развилки достаёт обе."))
+		elif g.wave <= (int(g.map.route_ramp[g.map.route_ramp.size() - 1][0]) if ramped else 3):
+			out.append(_tip("info", "#9fb4d4", "tip", ["arrow", "sniper"], "Две дороги", split_text + (" Башня у развилки достаёт обе." if not ramped else "")))
 	var cov := road_coverage(g)
 	if g.towers.size() >= 3 and cov["pct"] < 0.65:
 		out.append(_tip("target", "#ff8d8d", "danger", ["arrow", "sniper"], "Дыры в обороне",
