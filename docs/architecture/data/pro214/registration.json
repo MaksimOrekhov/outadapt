@@ -1,0 +1,12 @@
+{
+  "version": "v0-before-pilot",
+  "note": "Зарегистрировано до запуска пилота (сиды 0–9). Уточняется только по пилоту и фиксируется отдельным коммитом до холдаута (сиды 1000+).",
+  "normal_pooled_min": 0.70,
+  "normal_strategy_min": 0.50,
+  "normal_pooled_max": 0.95,
+  "hard_pooled_min": 0.20,
+  "hard_pooled_max": 0.60,
+  "hard_strategies_n": 3,
+  "hard_strategy_min": 0.10,
+  "late_delta": 0.05
+}
