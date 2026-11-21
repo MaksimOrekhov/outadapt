@@ -39,6 +39,9 @@ func header(g: TDGame, info: Dictionary) -> void:
 			lens.append(r.order.size())
 		d.merge({"geometry": g.map.geometry_key(), "routes_cells": lens, "shared_in": g.map.shared_in(), "shared_out": g.map.shared_out(),
 			"route_plan": g.map.route_plan, "fork_fallback": g.map.fork_fallback})
+		if g.map.portal2:
+			d.merge({"portal_open": g.map.portal_open, "portal_announce": g.map.portal_announce, "portal_share": g.map.portal_share,
+				"portal_cells": [g.map.portal_cell(0), g.map.portal_cell(1)]})
 	_write(d)
 
 
@@ -91,6 +94,9 @@ func wave_ended(g: TDGame) -> void:
 			if per.has(rid):
 				per[rid]["leaked" if float(f["fitness"]) >= 1.5 else "killed"] += 1
 		d["routes"] = per.values()
+		if g.map.portal2:
+			d["portal2_state"] = g.map.portal_state(int(r["wave"]))
+			d["portal2_pct"] = int(round(100.0 * g.map.share_at(1, int(r["wave"]))))
 	_write(d)
 
 

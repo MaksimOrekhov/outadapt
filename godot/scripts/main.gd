@@ -117,6 +117,11 @@ var _build: String = ""
 ## PRO-213, dev-режим генератора развилок: `--map=fork_even` / `--map=fork_skew` (вариант задан) или `--map=forks`
 ## (вариант по сиду). Только по явному флагу: в обычные забеги эти карты не попадают.
 var _map_variant: String = ""
+## PRO-141, dev-флаги технической карты с двумя порталами (`--map=portal_a|portal_b`, run_portal.bat): волна открытия второго
+## портала, волна первого предупреждения и доля врагов через второй портал. Без флага карты с порталами в игру не попадают.
+var _portal_open: int = 18
+var _portal_announce: int = 15
+var _portal_share: int = 50
 
 
 func _ready() -> void:
@@ -165,6 +170,11 @@ func _ready() -> void:
 ## Карта нового забега: null — обычная карта по сиду; с `--map=fork…` — техническая карта прототипа PRO-139,
 ## с `--map=fork_even|fork_skew|forks` — сгенерированная развилка PRO-213 (волны, гены и перки по сиду не меняются).
 func _proto_map() -> TDMap:
+	if TDMap.PORTAL_MAPS.has(_map_variant):
+		var pm := TDMap.portal_test(_map_variant, _portal_open, _portal_announce, _portal_share)
+		if not pm.portal2:
+			push_warning("--portal-*: расписание второго портала неверно (открытие ≥ 2, предупреждение ≤ открытия, доля 1–50)")
+		return pm
 	if TDMap.FORK_MAPS.has(_map_variant):
 		return TDMap.fork_test(_map_variant)
 	if TDMap.is_fork_family(_map_variant):
@@ -191,6 +201,12 @@ func _parse_args() -> void:
 			_demo = true
 		elif a.begins_with("--swarm="):
 			_swarm_model = a.substr(8)
+		elif a.begins_with("--portal-open="):
+			_portal_open = int(a.substr(14))
+		elif a.begins_with("--portal-announce="):
+			_portal_announce = int(a.substr(18))
+		elif a.begins_with("--portal-share="):
+			_portal_share = int(a.substr(15))
 		elif a == "--playtest":
 			_playtest = true
 		elif a.begins_with("--fixed-seed="):

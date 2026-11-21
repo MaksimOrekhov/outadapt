@@ -141,6 +141,20 @@ var leak_known: bool = true
 var route_k: int = 0
 
 
+## PRO-141: второй портал уже выпускает врагов — с первой секунды волны открытия (в фазе строительства этой волны он ещё закрыт).
+func portal_open_now() -> bool:
+	return map.portal2 and (wave > map.portal_open or (wave == map.portal_open and phase != "build"))
+
+
+## Состояние второго портала для интерфейса: "none" / "closed" / "announced" / "open" (см. TDMap.portal_state).
+func portal_state_now() -> String:
+	if not map.portal2:
+		return "none"
+	if portal_open_now():
+		return "open"
+	return "announced" if wave >= map.portal_announce else "closed"
+
+
 func _init(seed_v: int, map_: TDMap = null, meta_: Dictionary = {}) -> void:
 	seed_value = seed_v
 	map = map_ if map_ != null else TDMap.generate(seed_v)
@@ -926,7 +940,7 @@ func step(dt: float) -> void:
 		e.boss = is_boss
 		if not is_boss and not lure.is_empty():
 			e.lured_gene = String(lure["gene"])
-		e.route = map.route_for(route_k)
+		e.route = map.route_for(route_k, wave)
 		route_k += 1
 		if is_boss:
 			e.ability = TDConfig.boss_ability(wave)
