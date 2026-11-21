@@ -133,7 +133,50 @@ func literal(cells: Array[Vector2i]) -> String:
 	return "[" + ", ".join(parts) + "]"
 
 
+## Режим --eval: перекрытие обстрела ворот у технических карт PORTAL_MAPS и у развилок PRO-213 (общий ствол) по дальностям.
+func evaluate_maps() -> void:
+	print("| Карта | расстояние между воротами | входы | свободных клеток | " + " | ".join(RANGES.map(func(r): return "перекрытие при %.1f" % r)) + " |")
+	print("|---|---|---|---|" + "---|".repeat(RANGES.size()))
+	var rows: Array = []
+	for name in TDMap.PORTAL_MAPS:
+		var m := TDMap.portal_test(name)
+		rows.append([name, m])
+	for fam in ["fork_even", "fork_skew"]:
+		for i in 40:
+			var m2 := TDMap.generate((1000 + i + 1) * 4243, fam)
+			if not m2.fork_fallback:
+				rows.append([fam, m2])
+	var acc := {}
+	for row in rows:
+		var m: TDMap = row[1]
+		var za := zone_samples(m.routes[0])
+		var zb := zone_samples(m.routes[1])
+		var ov := overlap(m, za, zb)
+		var key: String = row[0]
+		if not acc.has(key):
+			acc[key] = {"n": 0, "gap": 0.0, "free": 0.0, "ov": {}, "ent": 0.0}
+			for r in RANGES:
+				acc[key]["ov"][r] = 0.0
+		acc[key]["n"] += 1
+		acc[key]["gap"] += zones_gap(za, zb)
+		acc[key]["free"] += 160 - m.cells.size() - m.blocked.size()
+		acc[key]["ent"] += m.routes[0].points[0].distance_to(m.routes[1].points[0])
+		for r in RANGES:
+			acc[key]["ov"][r] += ov[r]["share"]
+	for key in acc:
+		var a: Dictionary = acc[key]
+		var n: int = a["n"]
+		var line := "| %s (%d) | %.1f | %.1f | %.0f |" % [key, n, a["gap"] / n, a["ent"] / n, a["free"] / n]
+		for r in RANGES:
+			line += " %.2f |" % (a["ov"][r] / n)
+		print(line)
+	quit()
+
+
 func _initialize() -> void:
+	if "--eval" in OS.get_cmdline_user_args():
+		evaluate_maps()
+		return
 	var attempts := 4000
 	var seed_v := 1
 	var top := 6

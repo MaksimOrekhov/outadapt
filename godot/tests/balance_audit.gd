@@ -1010,8 +1010,8 @@ func _close_wave_late(g: TDGame, wr: Dictionary) -> void:
 			if p2.distance_to(c) <= g.t_range(t):
 				dps_gate += d
 				break
-	# PRO-141: два портала — отдельно ворота каждого входа: покрытие, урон в секунду, сколько башен достают оба входа
-	if g.map.portal2:
+	# PRO-141: два входа (два портала или развилка) — отдельно ворота каждого: урон в секунду, сколько башен достают оба
+	if g.map.is_multi() and g.map.routes.size() == 2:
 		var gates: Array = []
 		for rt in g.map.routes:
 			var pts_: Array = []
