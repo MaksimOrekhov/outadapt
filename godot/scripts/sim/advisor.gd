@@ -133,7 +133,7 @@ static func road_coverage(g: TDGame) -> Dictionary:
 			shooters.append([Vector2(t.x + 0.5, t.y + 0.5), g.t_range(t)])
 	var uncovered := {}
 	var total := 0
-	for c in g.map.road_cells():
+	for c in g.map.road_cells() if not g.map.portal2 else g.map.visible_road_cells(g.wave):
 		total += 1
 		var center := Vector2(c.x + 0.5, c.y + 0.5)
 		var covered := false
@@ -189,12 +189,31 @@ static func route_name(map: TDMap, rid: int) -> String:
 
 
 ## Доля врагов волны на дороге по шаблону карты (фиксирована, от обороны не зависит).
-static func route_share(map: TDMap, rid: int) -> float:
-	var n := 0
-	for k in map.route_plan:
-		if k == rid:
-			n += 1
-	return float(n) / maxi(1, map.route_plan.size())
+static func route_share(map: TDMap, rid: int, wave: int = 0) -> float:
+	return map.share_at(rid, wave)
+
+
+## «северная» → «северный» (подход, вход): названия дорог — женского рода, а подход и портал — мужского.
+static func approach_name(map: TDMap, rid: int) -> String:
+	var n := route_name(map, rid)
+	return n.substr(0, n.length() - 2) + "ый" if n.ends_with("ая") else n
+
+
+## PRO-141: пояснение для игрока про второй портал. Расписание заранее известно и не зависит от обороны; это не адаптация роя.
+## "" — предупреждать рано (карта без второго портала или волна раньше объявления).
+static func portal_text(g: TDGame) -> String:
+	var m := g.map
+	if not m.portal2:
+		return ""
+	var side := approach_name(m, 1)
+	var pct := m.portal_share
+	if g.portal_open_now():
+		return "Враги идут через два портала: %d%% — через второй (%s подход), остальные — через первый. Расписание заранее известно и не зависит от твоей обороны." % [pct, side]
+	if g.wave < m.portal_announce:
+		return ""
+	var left := m.portal_open - g.wave
+	var when := "со следующей волны" if left == 0 else ("с волны %d" % m.portal_open)
+	return "Второй портал откроется %s: %d%% врагов пойдёт через него, %s подход. Защити его заранее. Расписание известно и не зависит от твоей обороны." % [when, pct, side]
 
 
 static func _tip(icon: String, color: String, level: String, towers: Array, title: String, text: String) -> Dictionary:
@@ -226,7 +245,24 @@ static func advice(g: TDGame, info: Dictionary) -> Array:
 
 	# PRO-213: на карте с развилкой — две дороги; доля врагов на каждой фиксирована (рой направление не выбирает)
 	var rc := route_coverage(g)
-	if not rc.is_empty():
+	if not rc.is_empty() and g.map.portal2:
+		# PRO-141: два портала — предупреждение за несколько волн, затем пояснение о долях; при необстреливаемом подходе — тревога
+		var ptxt := portal_text(g)
+		var weak2: Dictionary = rc[0]
+		for x in rc:
+			if x["pct"] < weak2["pct"]:
+				weak2 = x
+		var strong2: Dictionary = rc[0]
+		for x in rc:
+			if x["pct"] > strong2["pct"]:
+				strong2 = x
+		var live2: bool = ptxt != "" and maxf(g.map.share_at(int(weak2["id"]), g.wave), g.map.share_at(int(weak2["id"]), g.wave + 1)) > 0.0
+		if live2 and g.towers.size() >= 2 and weak2["pct"] < 0.35 and strong2["pct"] - weak2["pct"] >= 0.3:
+			out.append(_tip("target", "#ff8d8d", "danger", ["arrow", "sniper"], "Не защищён %s подход" % approach_name(g.map, int(weak2["id"])),
+				"%s %s подход обстреливается лишь на %d%%." % [ptxt, approach_name(g.map, int(weak2["id"])).capitalize(), round(100.0 * float(weak2["pct"]))]))
+		elif ptxt != "":
+			out.append(_tip("info", "#9fb4d4", "tip", ["arrow", "sniper"], "Второй портал", ptxt))
+	elif not rc.is_empty():
 		var weak: Dictionary = rc[0]
 		var strong: Dictionary = rc[0]
 		for x in rc:

@@ -22,6 +22,18 @@ var routes: Array[TDPath] = []
 ## Распределение врагов по маршрутам: k-й выпущенный враг волны идёт по маршруту route_plan[k % size].
 ## Фиксированный шаблон, без случайности и без реакции на оборону (адаптивный выбор — PRO-140).
 var route_plan: Array[int] = [0]
+## PRO-141, два пространственно разнесённых портала (только dev-карты, только по явному запросу). false — один вход, как всегда.
+## true: ровно два маршрута, маршрут i начинается у портала i; общего стартового участка нет, дороги сходятся перед замком.
+## Второй портал виден с начала забега, но открывается только с волны portal_open; до неё все враги идут от портала 0.
+## portal_announce — первая волна, с которой интерфейс предупреждает об открытии (раньше — только закрытый портал на поле).
+## portal_share — доля врагов (в процентах), идущих через второй портал после открытия. Распределение детерминированное:
+## k-й враг волны идёт через второй портал, если (k+1)·p/100 > k·p/100 (целочисленно). Без RNG, без реакции на оборону.
+var portal2: bool = false
+var portal_open: int = 0
+var portal_announce: int = 0
+var portal_share: int = 50
+## true — карта с двумя порталами не прошла проверку, выдана карта с одним порталом (видно в журналах).
+var portal_fallback: bool = false
 
 const CLASSIC_WAYPOINTS: Array[Vector2i] = [
 	Vector2i(0, 1), Vector2i(13, 1), Vector2i(13, 4), Vector2i(2, 4), Vector2i(2, 7), Vector2i(15, 7),
@@ -116,9 +128,67 @@ func route(i: int) -> TDPath:
 	return routes[i] if i >= 0 and i < routes.size() else routes[0]
 
 
-## Маршрут k-го врага волны по фиксированному шаблону.
-func route_for(k: int) -> int:
+## Маршрут k-го врага волны по фиксированному шаблону. wave > 0 и два портала (PRO-141) — по расписанию открытия.
+func route_for(k: int, wave: int = 0) -> int:
+	if portal2 and wave > 0:
+		if wave < portal_open:
+			return 0
+		return 1 if ((k + 1) * portal_share) / 100 > (k * portal_share) / 100 else 0
 	return route_plan[k % route_plan.size()]
+
+
+## Доля врагов волны на маршруте rid. wave ≤ 0 — установившаяся (после открытия второго портала; на картах без него — по route_plan).
+func share_at(rid: int, wave: int = 0) -> float:
+	if portal2 and wave > 0 and wave < portal_open:
+		return 1.0 if rid == 0 else 0.0
+	if portal2:
+		var late := float(portal_share) / 100.0
+		return late if rid == 1 else 1.0 - late
+	var n := 0
+	for k in route_plan:
+		if k == rid:
+			n += 1
+	return float(n) / maxi(1, route_plan.size())
+
+
+## Открыт ли портал маршрута rid в волне wave (карта с одним входом — всегда).
+func portal_is_open(rid: int, wave: int) -> bool:
+	return not portal2 or rid == 0 or wave >= portal_open
+
+
+## Состояние второго портала в волне wave: "none" (карта с одним входом), "closed" (закрыт, предупреждения нет),
+## "announced" (закрыт, интерфейс предупреждает), "open".
+func portal_state(wave: int) -> String:
+	if not portal2:
+		return "none"
+	if wave >= portal_open:
+		return "open"
+	return "announced" if wave >= portal_announce else "closed"
+
+
+## Клетки дорог, о которых игрок уже предупреждён: первая дорога всегда, вторая — когда её портал объявлен или открыт.
+## На картах с одним входом — все клетки дорог.
+func visible_road_cells(wave: int) -> Array[Vector2i]:
+	if not portal2 or portal_state(wave) in ["announced", "open"]:
+		return road_cells()
+	return routes[0].order.duplicate()
+
+
+## Клетка входа (портала) маршрута rid.
+func portal_cell(rid: int) -> Vector2i:
+	return routes[rid].order[0]
+
+
+## Включить на карте с двумя маршрутами второй портал с расписанием. false — карта не подходит или расписание неверно.
+func set_portal2(open_wave: int, announce_wave: int, share: int = 50) -> bool:
+	if routes.size() != 2 or routes[0].order[0] == routes[1].order[0] or open_wave < 2 or announce_wave < 1 or announce_wave > open_wave or share < 1 or share > 50:
+		return false
+	portal2 = true
+	portal_open = open_wave
+	portal_announce = announce_wave
+	portal_share = share
+	route_plan.assign([0, 1])
+	return true
 
 
 ## Длина самого длинного наземного маршрута: общая шкала «кто ближе к замку» для целей башен.
@@ -175,6 +245,9 @@ func geometry_canonical() -> String:
 	for k in route_plan:
 		plan_.append(str(k))
 	parts.append("plan:" + ",".join(plan_))
+	# PRO-141: два портала — другое испытание (иной вход, срок открытия и доля); без них запись прежняя и старые ключи не меняются
+	if portal2:
+		parts.append("portals:open%d:announce%d:share%d" % [portal_open, portal_announce, portal_share])
 	var rocks: Array = blocked.keys()
 	rocks.sort()
 	var rocks_: Array[String] = []
@@ -197,7 +270,7 @@ func geometry_key() -> String:
 ##   на общих клетках маршруты идут в одну сторону, сеть ацикличная, тупиков нет;
 ##   у каждого маршрута есть свои клетки (нет дублей); длины в пределах и отношение длинного к короткому ≤ max_ratio;
 ##   вход не ближе min_fly к замку по прямой (нет спавна у замка); мест под башни ≥ min_build.
-func route_problems(min_len: int = MIN_PATH, max_len: int = MAX_PATH, max_ratio: float = 1.5, min_fly: float = 8.0, min_build: int = 40) -> Array[String]:
+func route_problems(min_len: int = MIN_PATH, max_len: int = MAX_PATH, max_ratio: float = 1.5, min_fly: float = 8.0, min_build: int = 40, min_gap: float = PORTAL_MIN_GAP) -> Array[String]:
 	var bad: Array[String] = []
 	if routes.is_empty():
 		return ["нет маршрутов"]
@@ -212,11 +285,15 @@ func route_problems(min_len: int = MIN_PATH, max_len: int = MAX_PATH, max_ratio:
 	var max_l := 0.0
 	for r in routes:
 		var w := r.waypoints
-		if r.order[0] != start:
+		if portal2:
+			# PRO-141: у каждого маршрута свой портал на краю поля (левый, верхний или нижний — не угол и не правый край)
+			if not _portal_edge_ok(r.order[0]):
+				bad.append("маршрут %d: вход не на левом, верхнем или нижнем краю (не в углу)" % r.id)
+		elif r.order[0] != start:
 			bad.append("маршрут %d начинается не у портала" % r.id)
 		if r.order.back() != finish:
 			bad.append("маршрут %d заканчивается не у замка" % r.id)
-		if w[0].x != 0 or w[0].y < 1:
+		if not portal2 and (w[0].x != 0 or w[0].y < 1):
 			bad.append("маршрут %d: вход не на левом краю (строка ≥ 1)" % r.id)
 		if w.back().x != TDConfig.COLS - 1 or w.back().y < 2:
 			bad.append("маршрут %d: замок не на правом краю (строка ≥ 2)" % r.id)
@@ -256,7 +333,10 @@ func route_problems(min_len: int = MIN_PATH, max_len: int = MAX_PATH, max_ratio:
 			bad.append("встречное движение в %s–%s" % [e[0], e[1]])
 		out[e[0]].append(e[1])
 		indeg[e[1]] += 1
-	var queue: Array = [start] if indeg[start] == 0 else []
+	var queue: Array = []
+	for r in routes:
+		if indeg[r.order[0]] == 0 and not queue.has(r.order[0]):
+			queue.append(r.order[0])
 	var seen := 0
 	while not queue.is_empty():
 		var c = queue.pop_back()
@@ -279,6 +359,8 @@ func route_problems(min_len: int = MIN_PATH, max_len: int = MAX_PATH, max_ratio:
 					own += 1
 			if own == 0:
 				bad.append("маршрут %d повторяет другие" % r.id)
+	if portal2:
+		bad.append_array(_portal_problems(min_gap))
 	var free := 0
 	for x in TDConfig.COLS:
 		for y in TDConfig.ROWS:
@@ -286,6 +368,45 @@ func route_problems(min_len: int = MIN_PATH, max_len: int = MAX_PATH, max_ratio:
 				free += 1
 	if free < min_build:
 		bad.append("мест под башни %d < %d" % [free, min_build])
+	return bad
+
+
+## PRO-141: минимальное расстояние между порталами (в клетках по прямой) и длина «личного» начала каждой дороги: столько клеток
+## от портала не должно совпадать с клетками другой дороги (общего стартового узкого места нет).
+const PORTAL_MIN_GAP := 8.0
+const PORTAL_PRIVATE_HEAD := 8
+const PORTAL_MIN_PATH := 30
+
+
+static func _portal_edge_ok(c: Vector2i) -> bool:
+	var left: bool = c.x == 0 and c.y >= 1 and c.y <= TDConfig.ROWS - 2
+	var top: bool = c.y == 0 and c.x >= 1 and c.x <= TDConfig.COLS - 2
+	var bottom: bool = c.y == TDConfig.ROWS - 1 and c.x >= 1 and c.x <= TDConfig.COLS - 2
+	return left or top or bottom
+
+
+## Проверки карты с двумя порталами сверх общих: два разных входа, расстояние между ними, свой участок у каждого входа без
+## общих клеток, слияние только в конце (общий участок у замка), у каждой дороги по две стороны от слияния свои клетки.
+func _portal_problems(min_gap: float) -> Array[String]:
+	var bad: Array[String] = []
+	if routes.size() != 2:
+		return ["два портала: нужно ровно два маршрута, а их %d" % routes.size()]
+	var a: TDPath = routes[0]
+	var b: TDPath = routes[1]
+	if a.order[0] == b.order[0]:
+		bad.append("два портала: входы совпадают")
+		return bad
+	var gap: float = a.points[0].distance_to(b.points[0])
+	if gap < min_gap:
+		bad.append("два портала: входы в %.1f клетки друг от друга (< %.1f)" % [gap, min_gap])
+	for r in routes:
+		var other: TDPath = routes[1 - r.id]
+		for i in mini(PORTAL_PRIVATE_HEAD, r.order.size()):
+			if other.order.has(r.order[i]):
+				bad.append("два портала: у маршрута %d общая клетка %s среди первых %d (общий стартовый узел)" % [r.id, r.order[i], PORTAL_PRIVATE_HEAD])
+				break
+	if shared_out() < 3:
+		bad.append("два портала: общий участок у замка короче 3 клеток")
 	return bad
 
 
@@ -303,6 +424,37 @@ const FORK_MAPS := {
 		[Vector2i(0, 4), Vector2i(3, 4), Vector2i(3, 8), Vector2i(12, 8), Vector2i(12, 4), Vector2i(15, 4)],
 	],
 }
+
+
+## PRO-141: технические карты с двумя порталами (в обычные забеги не попадают). Портал 0 — левый край, портал 1 — верхний;
+## дороги сходятся в клетке слияния и дальше идут общим участком к замку. Скал нет: геометрия задана целиком, подобрана
+## tests/portal_geometry.gd (перекрытие обстрела «ворот» обоих входов минимально среди найденных; числа — docs/architecture/two-portal-experiment.md).
+##   portal_a — дороги 31 и 34 клетки, слияние в (10,6), входы в 8,1 клетки друг от друга (лучшая найденная геометрия);
+##   portal_b — дороги 31 и 30 клеток, слияние в (9,4), входы в 8,5 клетки.
+const PORTAL_MAPS := {
+	"portal_a": [
+		[Vector2i(0, 3), Vector2i(0, 5), Vector2i(1, 5), Vector2i(1, 7), Vector2i(0, 7), Vector2i(0, 9), Vector2i(5, 9), Vector2i(5, 7), Vector2i(8, 7), Vector2i(8, 9), Vector2i(10, 9), Vector2i(10, 6), Vector2i(15, 6)],
+		[Vector2i(8, 0), Vector2i(10, 0), Vector2i(10, 2), Vector2i(9, 2), Vector2i(9, 3), Vector2i(6, 3), Vector2i(6, 0), Vector2i(3, 0), Vector2i(3, 2), Vector2i(4, 2), Vector2i(4, 4), Vector2i(5, 4), Vector2i(5, 5), Vector2i(10, 5), Vector2i(10, 6), Vector2i(15, 6)],
+	],
+	"portal_b": [
+		[Vector2i(0, 3), Vector2i(0, 7), Vector2i(1, 7), Vector2i(1, 9), Vector2i(3, 9), Vector2i(3, 6), Vector2i(5, 6), Vector2i(5, 8), Vector2i(8, 8), Vector2i(8, 6), Vector2i(9, 6), Vector2i(9, 4), Vector2i(15, 4)],
+		[Vector2i(8, 0), Vector2i(9, 0), Vector2i(9, 2), Vector2i(6, 2), Vector2i(6, 0), Vector2i(4, 0), Vector2i(4, 1), Vector2i(2, 1), Vector2i(2, 4), Vector2i(15, 4)],
+	],
+}
+
+
+## Техническая карта с двумя порталами и расписанием открытия второго. Если геометрия или расписание не проходят проверку
+## (тесная карта, неверные волны), детерминированно выдаётся карта с одним порталом — первой дорогой (portal_fallback = true).
+static func portal_test(variant: String = "portal_a", open_wave: int = 18, announce_wave: int = 15, share: int = 50) -> TDMap:
+	var routes_: Array = PORTAL_MAPS.get(variant, PORTAL_MAPS["portal_a"])
+	var m := build_routes(0, "Два портала · прототип", routes_)
+	m.family = variant if PORTAL_MAPS.has(variant) else "portal_a"
+	if m.set_portal2(open_wave, announce_wave, share) and m.route_problems(PORTAL_MIN_PATH, MAX_PATH, FORK_MAX_RATIO, FORK_MIN_FLY, FORK_MIN_BUILD).is_empty():
+		return m
+	var fb := build_routes(0, "Два портала · один портал (запасная карта)", [routes_[0]])
+	fb.family = m.family
+	fb.portal_fallback = true
+	return fb
 
 
 static func fork_test(variant: String = "fork", plan: Array[int] = []) -> TDMap:

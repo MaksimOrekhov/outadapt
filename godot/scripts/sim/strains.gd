@@ -208,6 +208,22 @@ static func air_gap(g) -> float:
 				break
 		if not hit:
 			miss += 1
+	if g.map.portal2:
+		# PRO-141: у каждого портала своя прямая полёта; доля непростреливаемого — с весом доли врагов волны через каждый вход
+		var total := 0.0
+		for r in g.map.routes:
+			var m2 := 0
+			for s in AIR_SAMPLES:
+				var p2: Vector2 = r.fly_pos_at((s + 0.5) / AIR_SAMPLES * r.fly_length)
+				var hit2 := false
+				for sh in shooters:
+					if p2.distance_to(sh[0]) <= sh[1]:
+						hit2 = true
+						break
+				if not hit2:
+					m2 += 1
+			total += g.map.share_at(r.id, g.wave) * float(m2) / AIR_SAMPLES
+		return total
 	return float(miss) / AIR_SAMPLES
 
 

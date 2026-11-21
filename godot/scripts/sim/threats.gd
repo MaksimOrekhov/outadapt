@@ -318,6 +318,10 @@ static func cards(g: TDGame, info: Dictionary = {}) -> Array:
 		var to_boss: int = int(ceil(float(g.wave) / TDConfig.BOSS_EVERY)) * TDConfig.BOSS_EVERY - g.wave
 		if to_boss >= 1 and to_boss <= 2:
 			out.append(_boss_card(g, to_boss))
+	# PRO-141: второй портал — предупреждение за несколько волн, то же слово и те же башни, что в советах и на поле
+	var pc := portal_card(g)
+	if not pc.is_empty():
+		out.append(pc)
 	# особая волна
 	if g.upcoming_special != "":
 		var sp: Dictionary = TDConfig.SPECIAL_WAVES[g.upcoming_special]
@@ -448,6 +452,24 @@ static func _type_towers(g: TDGame, r: Dictionary, type: String, limit: int = 2)
 
 
 ## Главная зона отчёта о волне: не больше MAIN_MAX карточек с urgency ≥ MAIN_MIN.
+## PRO-141: карточка «откроется второй портал». Пусто, если карта с одним входом, портал уже открыт или предупреждать рано.
+## Только читает состояние: расписание заранее известно, рой его не меняет и адаптацией оно не называется.
+static func portal_card(g: TDGame) -> Dictionary:
+	var m := g.map
+	if not m.portal2 or g.phase == "over" or g.portal_open_now() or g.wave < m.portal_announce:
+		return {}
+	var left: int = m.portal_open - g.wave
+	var side := TDAdvisor.approach_name(m, 1)
+	var c := _card("portal", "next" if left == 0 else "dated", 95 if left == 0 else 85, "target", "#ffb347",
+		"Со следующей волны — второй портал" if left == 0 else "Откроется второй портал")
+	c["when"] = "Волна %d" % m.portal_open if left > 0 else ""
+	c["count"] = 0
+	c["effect"] = "%d%% врагов пойдёт через него, %s подход. Расписание заранее известно." % [m.portal_share, side]
+	c["towers"] = available(g, ["arrow", "sniper", "cannon"])
+	c["build"] = "Защити %s подход:" % side
+	return c
+
+
 static func headline(all: Array) -> Array:
 	var out: Array = []
 	for c in all:

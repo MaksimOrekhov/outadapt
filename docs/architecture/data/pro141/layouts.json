@@ -1,0 +1,247 @@
+{
+  "rows": [
+    {
+      "both": 0.1,
+      "cov0": 1.0,
+      "cov1": 0.0833333333333333,
+      "layout": "camp0",
+      "leaks0": 2.02727272727273,
+      "leaks1": 3.23181818181818,
+      "map": "portal_a",
+      "maps": 20
+    },
+    {
+      "both": 0.0,
+      "cov0": 0.0,
+      "cov1": 1.0,
+      "layout": "camp1",
+      "leaks0": 8.76818181818182,
+      "leaks1": 1.66818181818182,
+      "map": "portal_a",
+      "maps": 20
+    },
+    {
+      "both": 0.0,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "split",
+      "leaks0": 5.89090909090909,
+      "leaks1": 3.41363636363636,
+      "map": "portal_a",
+      "maps": 20
+    },
+    {
+      "both": 0.1,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "dual",
+      "leaks0": 5.82727272727273,
+      "leaks1": 3.48181818181818,
+      "map": "portal_a",
+      "maps": 20
+    },
+    {
+      "both": 0.0,
+      "cov0": 0.0,
+      "cov1": 1.0,
+      "layout": "bot",
+      "leaks0": 3.14090909090909,
+      "leaks1": 3.04090909090909,
+      "map": "portal_a",
+      "maps": 20
+    },
+    {
+      "both": 0.0,
+      "cov0": 0.916666666666667,
+      "cov1": 0.0,
+      "layout": "one",
+      "leaks0": 1.1,
+      "leaks1": 5.29090909090909,
+      "map": "portal_a",
+      "maps": 20
+    },
+    {
+      "both": 0.1,
+      "cov0": 1.0,
+      "cov1": 0.333333333333333,
+      "layout": "camp0",
+      "leaks0": 1.42727272727273,
+      "leaks1": 2.11363636363636,
+      "map": "portal_b",
+      "maps": 20
+    },
+    {
+      "both": 0.0,
+      "cov0": 0.0,
+      "cov1": 1.0,
+      "layout": "camp1",
+      "leaks0": 5.70909090909091,
+      "leaks1": 1.60909090909091,
+      "map": "portal_b",
+      "maps": 20
+    },
+    {
+      "both": 0.0,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "split",
+      "leaks0": 4.20454545454545,
+      "leaks1": 3.14545454545455,
+      "map": "portal_b",
+      "maps": 20
+    },
+    {
+      "both": 0.1,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "dual",
+      "leaks0": 5.71818181818182,
+      "leaks1": 2.98181818181818,
+      "map": "portal_b",
+      "maps": 20
+    },
+    {
+      "both": 0.1,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "bot",
+      "leaks0": 3.47727272727273,
+      "leaks1": 3.09545454545454,
+      "map": "portal_b",
+      "maps": 20
+    },
+    {
+      "both": 0.1,
+      "cov0": 1.0,
+      "cov1": 0.333333333333333,
+      "layout": "one",
+      "leaks0": 1.47272727272727,
+      "leaks1": 4.85454545454545,
+      "map": "portal_b",
+      "maps": 20
+    },
+    {
+      "both": 0.895,
+      "cov0": 1.0,
+      "cov1": 0.958333333333333,
+      "layout": "camp0",
+      "leaks0": 3.53333333333333,
+      "leaks1": 5.07083333333333,
+      "map": "fork_even",
+      "maps": 20
+    },
+    {
+      "both": 0.895,
+      "cov0": 0.95,
+      "cov1": 1.0,
+      "layout": "camp1",
+      "leaks0": 4.9125,
+      "leaks1": 3.425,
+      "map": "fork_even",
+      "maps": 20
+    },
+    {
+      "both": 0.935,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "split",
+      "leaks0": 4.30416666666667,
+      "leaks1": 4.03333333333333,
+      "map": "fork_even",
+      "maps": 20
+    },
+    {
+      "both": 0.98,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "dual",
+      "leaks0": 4.2875,
+      "leaks1": 4.2125,
+      "map": "fork_even",
+      "maps": 20
+    },
+    {
+      "both": 0.525,
+      "cov0": 0.933333333333333,
+      "cov1": 0.9375,
+      "layout": "bot",
+      "leaks0": 3.89583333333333,
+      "leaks1": 4.0125,
+      "map": "fork_even",
+      "maps": 20
+    },
+    {
+      "both": 0.205,
+      "cov0": 0.85,
+      "cov1": 0.529166666666667,
+      "layout": "one",
+      "leaks0": 1.76666666666667,
+      "leaks1": 6.85,
+      "map": "fork_even",
+      "maps": 20
+    },
+    {
+      "both": 0.79,
+      "cov0": 1.0,
+      "cov1": 0.704166666666667,
+      "layout": "camp0",
+      "leaks0": 3.37916666666667,
+      "leaks1": 6.125,
+      "map": "fork_skew",
+      "maps": 20
+    },
+    {
+      "both": 0.765,
+      "cov0": 0.741666666666667,
+      "cov1": 1.0,
+      "layout": "camp1",
+      "leaks0": 6.075,
+      "leaks1": 3.29583333333333,
+      "map": "fork_skew",
+      "maps": 20
+    },
+    {
+      "both": 0.83,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "split",
+      "leaks0": 4.84583333333333,
+      "leaks1": 4.46666666666667,
+      "map": "fork_skew",
+      "maps": 20
+    },
+    {
+      "both": 0.995,
+      "cov0": 1.0,
+      "cov1": 1.0,
+      "layout": "dual",
+      "leaks0": 4.45,
+      "leaks1": 4.51666666666667,
+      "map": "fork_skew",
+      "maps": 20
+    },
+    {
+      "both": 0.225,
+      "cov0": 0.691666666666667,
+      "cov1": 0.779166666666667,
+      "layout": "bot",
+      "leaks0": 3.80833333333333,
+      "leaks1": 3.72916666666667,
+      "map": "fork_skew",
+      "maps": 20
+    },
+    {
+      "both": 0.105,
+      "cov0": 0.9,
+      "cov1": 0.208333333333333,
+      "layout": "one",
+      "leaks0": 1.79583333333333,
+      "leaks1": 7.02916666666667,
+      "map": "fork_skew",
+      "maps": 20
+    }
+  ],
+  "seed_from": 1000,
+  "seeds": 20,
+  "waves": 14
+}

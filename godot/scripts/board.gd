@@ -253,19 +253,12 @@ func _draw_route_marks() -> void:
 
 func _draw_gates() -> void:
 	var pts := game.map.points
-	var st := pts[0] * _cs
-	# портал: пульсирующее свечение, каменное кольцо, закрученная воронка
-	var pside := _cs * 1.55
-	# портал и замок целиком внутри поля: поле обрезается по краю
-	st = Vector2(maxf(st.x, pside * 0.5), clampf(st.y, pside * 0.5, size.y - pside * 0.5))
-	var portal := TDArt.tex("res://assets/biomes/portal.png")
-	var portal_center := Vector2(st.x, maxf(pside * 0.5, pts[0].y * _cs - _cs * 0.25))
-	if portal != null:
-		draw_set_transform(portal_center + Vector2(0, pside * 0.43), 0.0, Vector2(1, 0.20))
-		draw_circle(Vector2.ZERO, pside * 0.38, Color(0, 0, 0, 0.28))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		var phase := int(_time * 8.0) % 8
-		draw_texture_rect_region(portal, Rect2(portal_center - Vector2.ONE * pside * 0.5, Vector2.ONE * pside), Rect2(phase * 128, 0, 128, 128))
+	if game.map.portal2:
+		# PRO-141: два входа; второй виден с начала забега, но закрыт до своей волны
+		for r in game.map.routes:
+			_draw_portal(r.points[0], game.portal_state_now() if r.id == 1 else "open", r.id)
+	else:
+		_draw_portal(pts[0], "none", 0)
 	# замок стоит у конца дороги
 	var layout := game.map.castle_layout(size)
 	var cside: float = layout["side"]
@@ -280,10 +273,47 @@ func _draw_gates() -> void:
 		draw_texture_rect(t, Rect2(base - Vector2(cside * 0.5, cside), Vector2(cside, cside)), false)
 
 
+## Портал в точке p (центр клетки входа). state: "none"/"open" — обычный; "closed" — закрытый второй портал (тусклый, без
+## анимации); "announced" — закрытый, но интерфейс предупреждает об открытии (тусклый, пульсирующее кольцо и номер волны).
+## В волне открытия вокруг нового портала короткое время горит кольцо.
+func _draw_portal(p: Vector2, state: String, rid: int) -> void:
+	# портал: пульсирующее свечение, каменное кольцо, закрученная воронка
+	var pside := _cs * 1.55
+	var st := p * _cs
+	# портал и замок целиком внутри поля: поле обрезается по краю
+	st = Vector2(clampf(st.x, pside * 0.5, size.x - pside * 0.5), clampf(st.y, pside * 0.5, size.y - pside * 0.5))
+	var portal := TDArt.tex("res://assets/biomes/portal.png")
+	var portal_center := Vector2(st.x, maxf(pside * 0.5, p.y * _cs - _cs * 0.25))
+	var dormant := state == "closed" or state == "announced"
+	if portal != null:
+		draw_set_transform(portal_center + Vector2(0, pside * 0.43), 0.0, Vector2(1, 0.20))
+		draw_circle(Vector2.ZERO, pside * 0.38, Color(0, 0, 0, 0.28))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		var phase := 0 if dormant else int(_time * 8.0) % 8
+		var tint := Color(0.50, 0.52, 0.62, 0.62) if dormant else Color.WHITE
+		draw_texture_rect_region(portal, Rect2(portal_center - Vector2.ONE * pside * 0.5, Vector2.ONE * pside), Rect2(phase * 128, 0, 128, 128), tint)
+	if state == "announced":
+		var soon: bool = game.wave >= game.map.portal_open
+		var a := 0.45 + 0.4 * sin(_time * (6.0 if soon else 3.0))
+		draw_arc(portal_center, pside * 0.56, 0.0, TAU, 40, Color(1.0, 0.55, 0.30, a), maxf(2.0, _cs * 0.06), true)
+		var font := TDUI.font_bold
+		var txt := "Волна %d" % game.map.portal_open
+		var pos := portal_center + Vector2(0, pside * 0.78)
+		draw_string_outline(font, pos, txt, HORIZONTAL_ALIGNMENT_CENTER, -1, 14, 4, Color(0, 0, 0, 0.75))
+		draw_string(font, pos, txt, HORIZONTAL_ALIGNMENT_CENTER, -1, 14, Color(1.0, 0.82, 0.55, 1.0))
+	elif state == "open" and rid == 1 and game.wave == game.map.portal_open and game.phase != "build":
+		var a2 := 0.5 + 0.4 * sin(_time * 7.0)
+		draw_arc(portal_center, pside * 0.58, 0.0, TAU, 40, Color(0.75, 0.55, 1.0, a2), maxf(2.5, _cs * 0.07), true)
+
+
 func _collect_lights() -> void:
 	var out: Array = env.lights()
 	var pts := game.map.points
 	out.append({"p": pts[0], "size": 44.0, "col": Color("#9a7bff"), "flick": 0.08, "ph": 0.0})
+	if game.map.portal2:
+		# PRO-141: второй портал светит только открытым (закрытый — еле заметно)
+		var open2: bool = game.portal_open_now()
+		out.append({"p": game.map.routes[1].points[0], "size": 44.0 if open2 else 16.0, "col": Color("#9a7bff") if open2 else Color("#5b5f78"), "flick": 0.08, "ph": 1.7})
 	var castle_p: Vector2 = game.map.castle_layout(size)["base"] / _cs + Vector2(0, -0.5)
 	out.append({"p": castle_p, "size": 34.0, "col": Color(env.b["castle_glow"]), "flick": 0.05, "ph": 1.0})
 	for t in game.towers:

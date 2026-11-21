@@ -56,6 +56,9 @@ static func snapshot(game: TDGame, session: Dictionary = {}) -> Dictionary:
 			routes.append(r.waypoints.duplicate())
 		out["routes"] = routes
 		out["route_plan"] = game.map.route_plan.duplicate()
+		# PRO-141: два портала — расписание открытия второго; в прочих сохранениях поля нет
+		if game.map.portal2:
+			out["portal"] = {"open": game.map.portal_open, "announce": game.map.portal_announce, "share": game.map.portal_share}
 		out["family"] = game.map.family
 	return out
 
@@ -80,7 +83,7 @@ static func _valid_waypoints(wps: Variant) -> bool:
 ## PRO-139: маршруты карты с развилкой. Без них — карта с одним путём, и у врагов не должно быть другого маршрута.
 static func _valid_routes(data: Dictionary) -> bool:
 	if not data.has("routes"):
-		for key in ["route_plan", "family"]:
+		for key in ["route_plan", "family", "portal"]:
 			if data.has(key):
 				return false
 		if data["state"].has("route_k"):
@@ -103,6 +106,17 @@ static func _valid_routes(data: Dictionary) -> bool:
 	for k in plan:
 		if not k is int or k < 0 or k >= routes.size():
 			return false
+	if data.has("portal"):
+		var pt = data["portal"]
+		if routes.size() != 2 or not pt is Dictionary or pt.size() != 3:
+			return false
+		for key in ["open", "announce", "share"]:
+			if not pt.has(key) or not pt[key] is int:
+				return false
+		if pt["open"] < 2 or pt["announce"] < 1 or pt["announce"] > pt["open"] or pt["share"] < 1 or pt["share"] > 50:
+			return false
+		if routes[0][0] == routes[1][0]:
+			return false
 	if not data.get("family", "") is String or not data["state"].get("route_k", 0) is int or data["state"].get("route_k", 0) < 0:
 		return false
 	for e in data["enemies"]:
@@ -113,6 +127,8 @@ static func _valid_routes(data: Dictionary) -> bool:
 	var typed_plan: Array[int] = []
 	typed_plan.assign(plan)
 	var map := TDMap.build_routes(0, "", routes, {}, typed_plan)
+	# PRO-141: карта с двумя порталами проверяется по своим правилам (у каждого маршрута свой вход на краю поля)
+	map.portal2 = data.has("portal")
 	return map.route_problems(2, 1000, 100.0, 0.0, 0).is_empty()
 
 static func valid(data: Variant) -> bool:
@@ -317,6 +333,11 @@ static func restore(data: Variant) -> TDGame:
 		plan.assign(data["route_plan"])
 		map = TDMap.build_routes(data["seed"], data.get("map_name", "Карта"), data["routes"], data["blocked"], plan)
 		map.family = data.get("family", "")
+		if data.has("portal"):
+			map.portal2 = true
+			map.portal_open = data["portal"]["open"]
+			map.portal_announce = data["portal"]["announce"]
+			map.portal_share = data["portal"]["share"]
 	else:
 		map = TDMap.build(data["seed"], data.get("map_name", "Карта"), waypoints, data["blocked"])
 		# PRO-147: в сохранениях с одним путём семейства нет (формат прежний). Оно известно, только если генератор для
