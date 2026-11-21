@@ -288,6 +288,21 @@ func _refresh_weights(g: TDGame) -> void:
 	if g.map.portal2 and (g.wave == g.map.portal_announce or g.wave == g.map.portal_open):
 		cells_by_kind = {}
 		_cover_cache = {}
+		# политика rebuild (исследование, не зарегистрирована): в волну предупреждения продать четверть слабейших башен
+		# (меньше всего урона в прошлой волне, уровень ≤ 2, возврат SELL_RATIO) и купить заново по весам с учётом второго входа
+		if portal_policy == "rebuild" and g.wave == g.map.portal_announce:
+			_sell_weakest(g, 0.25)
+
+
+func _sell_weakest(g: TDGame, share: float) -> void:
+	var cand: Array = []
+	for t in g.towers:
+		if t.level <= 2 and not t.def.has("aura"):
+			cand.append(t)
+	cand.sort_custom(func(a, b): return a.dealt < b.dealt or (a.dealt == b.dealt and a.id < b.id))
+	var n := int(ceil(float(g.towers.size()) * share))
+	for i in mini(n, cand.size()):
+		g.sell_tower(cand[i].x, cand[i].y)
 
 
 ## Клетки для типа башни по убыванию длины дороги в радиусе (воздух — по прямой вход→выход).

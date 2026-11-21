@@ -12,6 +12,8 @@
 #   p18_a12    — p18 с предупреждением заранее: с 12-й волны (шесть фаз строительства до открытия вместо трёх);
 #   p14        — открытие с 14-й волны (предупреждение с 11-й);
 #   p21_a15    — открытие с 21-й волны, предупреждение с 15-й;
+#   p18_rebuild, p21_a15_rebuild — исследование после холдаута (не зарегистрировано): в волну предупреждения бот продаёт четверть слабейших башен и
+#                 строит заново с учётом второго входа (--portal-policy=rebuild);
 #   fork       — старый fork 50/50 с одним порталом: fork_even / fork_skew PRO-213 (MAPS не используется), те же сиды.
 # Ячейка: стратегия × normal/hard × модель (off/signature) × карта × Мастерская (WS: 0 — нет, 1 — на максимуме), до 35-й волны, --late=1.
 # Вывод: ../build/portal/<тег>/<плечо>/<стратегия>_<сложность>_<модель>_<карта>_ws<0|1>.jsonl; сводка: python tests/portal_report.py <тег>
@@ -47,6 +49,8 @@ arm_args() {
     p18_a12) echo "--portal-open=18 --portal-announce=12" ;;
     p14) echo "--portal-open=14 --portal-announce=11" ;;
     p21_a15) echo "--portal-open=21 --portal-announce=15" ;;
+    p18_rebuild) echo "--portal-open=18 --portal-announce=15 --portal-policy=rebuild" ;;
+    p21_a15_rebuild) echo "--portal-open=21 --portal-announce=15 --portal-policy=rebuild" ;;
     fork) echo "" ;;
     *) echo "unknown arm $1" >&2; exit 2 ;;
   esac

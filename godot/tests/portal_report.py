@@ -217,9 +217,47 @@ def evaluate(arm_rows, ctl_rows, thr):
     return out
 
 
+def replay_main(root, md=None):
+    """Замороженный повтор покупок (tests/portal_replay.sh): та же оборона, разные расписания открытия, волны 16–24."""
+    arms = ["ctl_in_ctl", "ctl_in_p18", "ctl_in_p21", "p18_in_p18", "p18_in_ctl"]
+    data = {}
+    for arm in arms:
+        for fn in sorted(glob.glob(os.path.join(root, arm, "*.jsonl"))):
+            strat, diff, mp = os.path.basename(fn)[:-6].split("_", 2)
+            for line in open(fn, encoding="utf-8"):
+                if line.strip():
+                    g = json.loads(line)
+                    ws = [w for w in g["waves"] if fin(w)]
+                    wd = [w for w in ws if w.get("done") and not w.get("lost") and w["w"] % 10 != 0 and not w.get("special")]
+                    r = {"arm": arm, "strat": strat, "diff": diff, "map": mp, "seed": g["seed"],
+                         "lives_16_24": sum(lost_lives(w) for w in ws if 16 <= w["w"] <= 24),
+                         "lives_18_24": sum(lost_lives(w) for w in ws if 18 <= w["w"] <= 24),
+                         "reached21": 1.0 if g["summary"]["end_wave"] >= 21 else 0.0,
+                         "leaks_r0": mean([w["routes"]["0"]["leaked"] for w in wd if 18 <= w["w"] <= 24 and w.get("routes")]),
+                         "leaks_r1": mean([w["routes"]["1"]["leaked"] for w in wd if 18 <= w["w"] <= 24 and w.get("routes")])}
+                    data.setdefault(arm, []).append(r)
+    out = ["## Замороженный повтор покупок (волны 16–24; золото не ограничивает; одинаковая оборона)\n"]
+    for mp in ("portal_a", "portal_b"):
+        out.append(f"### {mp}\n")
+        out.append("| Повтор | партий | жизней потеряно 18–24 | дожили до 21-й | утечки на волну 18–24: дорога 0 / 1 |")
+        out.append("|---|---|---|---|---|")
+        for arm in arms:
+            rs = [r for r in data.get(arm, []) if r["map"] == mp]
+            if rs:
+                out.append(f"| {arm} | {len(rs)} | {f(pooled(rs, 'lives_18_24'), 1)} | {f(pooled(rs, 'reached21'))} | {f(pooled(rs, 'leaks_r0'))} / {f(pooled(rs, 'leaks_r1'))} |")
+        out.append("")
+    text = "\n".join(out)
+    print(text)
+    if md:
+        open(md, "w", encoding="utf-8").write(text + "\n")
+
+
 def main():
     pos = [a for a in sys.argv[1:] if not a.startswith("--")]
     opts = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
+    if opts.get("replay"):
+        replay_main(opts["replay"], opts.get("md"))
+        return
     if not pos:
         print(__doc__)
         return
